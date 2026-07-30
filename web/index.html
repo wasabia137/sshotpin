@@ -29,7 +29,7 @@
 <meta property="og:locale" content="ko_KR">
 <meta property="og:url" content="https://sshot-pin.web.app/">
 <meta property="og:title" content="스샷핀 — 화면 캡처 후 붙여두는 수업용 무료 프로그램">
-<meta property="og:description" content="캡처한 화면을 쪽지처럼 고정해두고 수업하세요. 화면 확대·판서·타이머·정답 가리개까지. 윈도우 무료.">
+<meta property="og:description" content="캡처한 화면을 쪽지처럼 고정해두고 수업하세요. 화면 확대·판서·타이머·정답 가리개까지. 윈도우·맥 무료.">
 <meta property="og:image" content="https://sshot-pin.web.app/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -53,9 +53,9 @@
   "applicationCategory": "UtilitiesApplication",
   "applicationSubCategory": "화면 캡처",
   "operatingSystem": "Windows 10, Windows 11, macOS",
-  "softwareVersion": "0.2.0",
+  "softwareVersion": "0.3.0",
   "inLanguage": "ko",
-  "downloadUrl": "https://github.com/wasabia137/sshotpin/releases/latest/download/SshotPin-Setup-0.2.0.exe",
+  "downloadUrl": "https://github.com/wasabia137/sshotpin/releases/latest/download/SshotPin-Setup-0.3.0.exe",
   "fileSize": "81MB",
   "offers": {
     "@type": "Offer",
@@ -68,7 +68,9 @@
     "화면 확대·축소",
     "화면 판서 (직선·사각형·화살표·번호)",
     "수업 타이머",
-    "정답 가리개"
+    "정답 가리개",
+    "모자이크로 개인정보 가리기",
+    "단축키 사용자 지정"
   ]
 }
 </script>
@@ -184,13 +186,13 @@
     <p class="tagline">스샷을 콕! 화면에 붙이는 수업 도구</p>
     <p class="sub">캡처한 화면을 쪽지처럼 붙여두고 수업하세요 · 확대 · 판서 · 타이머 · 정답 가리개<br>
       <b style="color:var(--blue)">단축키를 몰라도 버튼 클릭으로 다 됩니다</b></p>
-    <a class="dl" id="dlBtn" href="https://github.com/wasabia137/sshotpin/releases/latest/download/SshotPin-Setup-0.2.0.exe">
+    <a class="dl" id="dlBtn" href="https://github.com/wasabia137/sshotpin/releases/latest/download/SshotPin-Setup-0.3.0.exe">
       ⬇ 윈도우용 다운로드
     </a>
-    <p class="meta">Windows 10 / 11 (64비트) · 무료 · 약 81MB · <span id="ver">v0.2.0</span></p>
+    <p class="meta">Windows 10 / 11 (64비트) · 무료 · 약 81MB · <span id="ver">v0.3.0</span></p>
     <p class="meta mac-links">🍎 맥용:
-      <a id="dlMacArm" href="https://github.com/wasabia137/sshotpin/releases/latest/download/SshotPin-0.2.0-mac-arm64.dmg">Apple Silicon (M1~M4)</a> ·
-      <a id="dlMacX64" href="https://github.com/wasabia137/sshotpin/releases/latest/download/SshotPin-0.2.0-mac-x64.dmg">Intel</a>
+      <a id="dlMacArm" href="https://github.com/wasabia137/sshotpin/releases/latest/download/SshotPin-0.3.0-mac-arm64.dmg">Apple Silicon (M1~M4)</a> ·
+      <a id="dlMacX64" href="https://github.com/wasabia137/sshotpin/releases/latest/download/SshotPin-0.3.0-mac-x64.dmg">Intel</a>
     </p>
   </header>
 
@@ -233,6 +235,16 @@
         <h3>빠른 캡처</h3>
         <p><kbd>F1</kbd> 드래그로 영역 캡처. 복사·저장·핀을 한 번에 선택.</p>
       </div>
+      <div class="card">
+        <span class="ico">⚙️</span>
+        <h3>단축키 마음대로</h3>
+        <p>엑셀·한글에서 <kbd>F1</kbd>이 도움말이라 불편하면 설정에서 원하는 키로 바꾸거나 비워둘 수 있습니다.</p>
+      </div>
+      <div class="card">
+        <span class="ico">🔲</span>
+        <h3>모자이크</h3>
+        <p>학생 이름이나 개인정보가 화면에 보일 때, 드래그로 그 부분만 가립니다.</p>
+      </div>
     </div>
   </section>
 
@@ -271,6 +283,10 @@
         <tr><th><kbd>Ctrl</kbd>+<kbd>2</kbd></th><td>판서 — <kbd>Shift</kbd>=직선, <kbd>Ctrl</kbd>=사각형, <kbd>Alt</kbd>+클릭=①②③</td></tr>
         <tr><th><kbd>Ctrl</kbd>+<kbd>3</kbd></th><td>수업 타이머</td></tr>
       </table>
+    </div>
+    <div class="note">
+      ⚙️ 단축키가 다른 프로그램과 겹치면 <b>트레이 아이콘 우클릭 → 설정</b>에서 바꾸거나 비워둘 수 있습니다.
+      비워두더라도 퀵 실행바 버튼으로 모든 기능을 쓸 수 있습니다.
     </div>
     <div class="note">
       핀 위에서 <b>휠</b>=확대/축소, <kbd>Ctrl</kbd>+<b>휠</b>=투명도, <b>더블클릭</b>=접기, <b>우클릭</b>=테두리 색·회전·클릭 통과 등 전체 메뉴.
