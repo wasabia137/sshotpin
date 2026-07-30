@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; user-select: none; background: transparent; }
+  #bar {
+    display: flex; align-items: center; gap: 2px;
+    height: 44px; margin: 1px;
+    background: rgba(15, 23, 42, .93);
+    border: 1px solid rgba(148, 163, 184, .4);
+    border-radius: 22px;
+    padding: 0 6px;
+  }
+  #handle {
+    width: 22px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    color: #64748b; font-size: 13px; cursor: move;
+  }
+  .btn {
+    width: 38px; height: 36px; border-radius: 11px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px; cursor: pointer;
+    transition: background .12s;
+  }
+  .btn:hover { background: rgba(148, 163, 184, .25); }
+  .btn:active { background: rgba(148, 163, 184, .4); }
+  #hideBtn { width: 28px; font-size: 12px; color: #94a3b8; }
+</style>
+</head>
+<body>
+  <div id="bar">
+    <div id="handle" title="드래그해서 이동">⠿</div>
+    <div class="btn" data-act="capture" title="영역 캡처 (F1)">📸</div>
+    <div class="btn" data-act="cover" title="정답 가리개 (F2)">🙈</div>
+    <div class="btn" data-act="pin" title="클립보드 이미지 핀 (F3)">📌</div>
+    <div class="btn" data-act="zoom" title="화면 확대 (Ctrl+1)">🔍</div>
+    <div class="btn" data-act="draw" title="판서 (Ctrl+2)">✏️</div>
+    <div class="btn" data-act="timer" title="수업 타이머 (Ctrl+3)">⏱️</div>
+    <div class="btn" data-act="help" title="사용법·단축키">❓</div>
+    <div class="btn" id="hideBtn" data-act="hide" title="퀵바 숨기기 (트레이에서 다시 켤 수 있어요)">✕</div>
+  </div>
+
+<script>
+  // 버튼 실행
+  for (const el of document.querySelectorAll('.btn')) {
+    el.addEventListener('click', () => window.api.quickbarAction(el.dataset.act));
+  }
+
+  // 손잡이 드래그로 이동
+  const handle = document.getElementById('handle');
+  let dragging = false, sx = 0, sy = 0;
+  handle.addEventListener('mousedown', (e) => {
+    dragging = true;
+    sx = e.screenX; sy = e.screenY;
+    window.api.winDragStart();
+  });
+  window.addEventListener('mousemove', (e) => {
+    if (dragging) window.api.winDragMove(e.screenX - sx, e.screenY - sy);
+  });
+  window.addEventListener('mouseup', () => { dragging = false; });
+  window.addEventListener('blur', () => { dragging = false; });
+</script>
+</body>
+</html>

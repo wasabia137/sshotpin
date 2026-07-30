@@ -38,6 +38,7 @@ d.ellipse([352, 44, 412, 104], fill=(255, 205, 210, 255))  # 하이라이트
 
 # 저장
 img.resize((256, 256), Image.LANCZOS).save(os.path.join(BASE, 'icon.png'))
+img.save(os.path.join(BASE, 'icon-mac.png'))  # 맥 앱 아이콘은 512 이상 필요
 img.resize((32, 32), Image.LANCZOS).save(os.path.join(BASE, 'tray.png'))
 img.resize((256, 256), Image.LANCZOS).save(
     os.path.join(BASE, 'icon.ico'),

@@ -6,33 +6,72 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body { width: 100%; height: 100%; overflow: hidden; user-select: none; background: #000; cursor: crosshair; }
   #canvas { width: 100vw; height: 100vh; display: block; }
-  #hud {
-    position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%);
-    background: rgba(15, 23, 42, .88); color: #cbd5e1;
+  #tb {
+    position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+    background: rgba(15, 23, 42, .93);
+    border: 1px solid rgba(148, 163, 184, .4);
+    border-radius: 14px;
+    padding: 8px 12px 6px;
+    display: flex; flex-direction: column; gap: 4px;
     font: 12px 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
-    padding: 7px 14px; border-radius: 18px;
-    pointer-events: none; white-space: nowrap;
-    display: flex; align-items: center; gap: 10px;
+    color: #cbd5e1; cursor: default; white-space: nowrap;
   }
-  #dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #fff; }
-  #hud b { color: #f1f5f9; font-weight: 600; }
+  #tb .row { display: flex; align-items: center; gap: 5px; }
+  .sw {
+    width: 20px; height: 20px; border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, .25); cursor: pointer;
+  }
+  .sw.on { border-color: #fff; box-shadow: 0 0 0 2px rgba(255,255,255,.35); }
+  .tbtn {
+    min-width: 30px; height: 28px; padding: 0 7px;
+    border: 0; border-radius: 8px;
+    background: transparent; color: #e2e8f0;
+    font: 14px 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .tbtn:hover { background: rgba(148, 163, 184, .25); }
+  .tbtn.on { background: rgba(59, 130, 246, .55); }
+  .sep { width: 1px; height: 20px; background: rgba(148, 163, 184, .35); margin: 0 3px; }
+  #penVal { min-width: 36px; text-align: center; color: #f1f5f9; }
+  #zoomLabel { margin-left: 4px; color: #94a3b8; min-width: 42px; }
+  #hint { text-align: center; color: #64748b; font-size: 11px; }
 </style>
 </head>
 <body>
   <canvas id="canvas"></canvas>
-  <div id="hud">
-    <span id="dot"></span>
-    <span id="zoomLabel"><b>100%</b></span>
-    <span>휠=확대 · 드래그=펜 · Shift=직선 · Ctrl=사각형 · Ctrl+Shift=화살표 · Tab+드래그=원 · Alt+클릭=①번호</span>
-    <span>색: R빨강 G초록 B파랑 O주황 Y노랑 P분홍 · W칠판(흰) K칠판(검)</span>
-    <span>Ctrl+Z=취소 · E=모두지움 · Enter=핀 · Ctrl+C=복사 · Esc=닫기</span>
+  <div id="tb">
+    <div class="row">
+      <span class="sw" data-c="#ef4444" style="background:#ef4444" title="빨강 (R)"></span>
+      <span class="sw" data-c="#f97316" style="background:#f97316" title="주황 (O)"></span>
+      <span class="sw" data-c="#eab308" style="background:#eab308" title="노랑 (Y)"></span>
+      <span class="sw" data-c="#22c55e" style="background:#22c55e" title="초록 (G)"></span>
+      <span class="sw" data-c="#3b82f6" style="background:#3b82f6" title="파랑 (B)"></span>
+      <span class="sw" data-c="#ec4899" style="background:#ec4899" title="분홍 (P)"></span>
+      <div class="sep"></div>
+      <button class="tbtn" id="penMinus" title="펜 얇게 (Ctrl+휠 아래)">−</button>
+      <span id="penVal">5px</span>
+      <button class="tbtn" id="penPlus" title="펜 굵게 (Ctrl+휠 위)">＋</button>
+      <div class="sep"></div>
+      <button class="tbtn" data-act="undo" title="한 획 취소 (우클릭 / Ctrl+Z)">↩</button>
+      <button class="tbtn" data-act="clear" title="모두 지우기 (E)">🗑</button>
+      <button class="tbtn" id="btnWhite" data-act="white" title="흰 칠판 모드 (W)">⬜</button>
+      <button class="tbtn" id="btnBlack" data-act="black" title="검은 칠판 모드 (K)">⬛</button>
+      <div class="sep"></div>
+      <button class="tbtn" data-act="pin" title="지금 화면을 핀으로 붙이기 (Enter)">📌</button>
+      <button class="tbtn" data-act="copy" title="복사 (Ctrl+C)">📋</button>
+      <button class="tbtn" data-act="save" title="저장 (Ctrl+S)">💾</button>
+      <button class="tbtn" data-act="close" title="종료 (Esc)">✕</button>
+      <span id="zoomLabel">100%</span>
+    </div>
+    <div id="hint">드래그=펜 · Shift=직선 · Ctrl=사각형 · Ctrl+Shift=화살표 · Tab+드래그=원 · Alt+클릭=①번호 · 휠=확대/축소</div>
   </div>
 
 <script>
   const canvas = document.getElementById('canvas');
   const ctx = canvas.getContext('2d');
-  const hudDot = document.getElementById('dot');
   const zoomLabel = document.getElementById('zoomLabel');
+  const penVal = document.getElementById('penVal');
+  const toolbar = document.getElementById('tb');
   const img = new Image();
 
   let z = 1;                 // 확대 배율 (1~8)
@@ -151,13 +190,20 @@
     for (const s of strokes) drawStroke(ctx, s);
     if (current) drawStroke(ctx, current);
     ctx.setTransform(1, 0, 0, 1, 0, 0);
-    hudDot.style.background = color;
-    zoomLabel.innerHTML = `<b>${Math.round(z * 100)}%</b> 펜 ${penScreen}px`;
+    // 도구모음 상태 갱신
+    zoomLabel.textContent = `${Math.round(z * 100)}%`;
+    penVal.textContent = `${penScreen}px`;
+    for (const sw of document.querySelectorAll('.sw')) {
+      sw.classList.toggle('on', sw.dataset.c === color);
+    }
+    document.getElementById('btnWhite').classList.toggle('on', board === 'white');
+    document.getElementById('btnBlack').classList.toggle('on', board === 'black');
   }
 
   // ----- 마우스 -----
 
   window.addEventListener('mousedown', (e) => {
+    if (e.target.closest && e.target.closest('#tb')) return; // 도구모음 위에서는 그리지 않음
     if (e.button === 2) return; // 우클릭은 undo (contextmenu에서)
     if (e.button !== 0) return;
     if (e.altKey) {
@@ -181,7 +227,10 @@
   });
 
   window.addEventListener('mousemove', (e) => {
-    lastMouse = { x: e.clientX, y: e.clientY };
+    // 도구모음 위에서는 화면 이동(팬)을 멈춰 조작이 편하게
+    if (!(e.target.closest && e.target.closest('#tb'))) {
+      lastMouse = { x: e.clientX, y: e.clientY };
+    }
     if (drawing && current) {
       const p = toImage(e.clientX, e.clientY);
       if (current.type === 'pen') current.points.push(p);
@@ -219,6 +268,7 @@
   // 우클릭 = 마지막 획 취소
   window.addEventListener('contextmenu', (e) => {
     e.preventDefault();
+    if (e.target.closest && e.target.closest('#tb')) return;
     undo();
   });
 
@@ -240,6 +290,39 @@
     return { dataURL: c.toDataURL('image/png'), w, h };
   }
 
+  // ----- 공통 동작 -----
+
+  function finish(action) {
+    if (action === 'close') { window.api.overlayFinish({ action: 'close' }); return; }
+    const { dataURL, w, h } = exportVisible();
+    window.api.overlayFinish({ action, dataURL, w, h });
+  }
+
+  function clearAll() { strokes.length = 0; stepSeq = 0; render(); }
+  function toggleBoard(kind) { board = board === kind ? null : kind; render(); }
+
+  // ----- 도구모음 (마우스 조작) -----
+
+  for (const sw of document.querySelectorAll('.sw')) {
+    sw.addEventListener('click', () => { color = sw.dataset.c; render(); });
+  }
+  document.getElementById('penMinus').addEventListener('click', () => {
+    penScreen = clamp(penScreen - 1, 2, 30); render();
+  });
+  document.getElementById('penPlus').addEventListener('click', () => {
+    penScreen = clamp(penScreen + 1, 2, 30); render();
+  });
+  for (const btn of document.querySelectorAll('.tbtn[data-act]')) {
+    btn.addEventListener('click', () => {
+      const act = btn.dataset.act;
+      if (act === 'undo') undo();
+      else if (act === 'clear') clearAll();
+      else if (act === 'white') toggleBoard('white');
+      else if (act === 'black') toggleBoard('black');
+      else finish(act); // pin / copy / save / close
+    });
+  }
+
   // ----- 키보드 -----
 
   const COLOR_KEYS = {
@@ -249,28 +332,15 @@
 
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Tab') { e.preventDefault(); tabHeld = true; return; }
-    if (e.key === 'Escape') { window.api.overlayFinish({ action: 'close' }); return; }
-    if (e.key === 'Enter') {
-      const { dataURL, w, h } = exportVisible();
-      window.api.overlayFinish({ action: 'pin', dataURL, w, h });
-      return;
-    }
+    if (e.key === 'Escape') { finish('close'); return; }
+    if (e.key === 'Enter') { finish('pin'); return; }
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { undo(); return; }
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c') {
-      const { dataURL, w, h } = exportVisible();
-      window.api.overlayFinish({ action: 'copy', dataURL, w, h });
-      return;
-    }
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
-      e.preventDefault();
-      const { dataURL, w, h } = exportVisible();
-      window.api.overlayFinish({ action: 'save', dataURL, w, h });
-      return;
-    }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c') { finish('copy'); return; }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); finish('save'); return; }
     const k = e.key.toLowerCase();
-    if (k === 'e') { strokes.length = 0; stepSeq = 0; render(); return; }
-    if (k === 'w') { board = board === 'white' ? null : 'white'; render(); return; }
-    if (k === 'k') { board = board === 'black' ? null : 'black'; render(); return; }
+    if (k === 'e') { clearAll(); return; }
+    if (k === 'w') { toggleBoard('white'); return; }
+    if (k === 'k') { toggleBoard('black'); return; }
     if (COLOR_KEYS[k] && !e.ctrlKey && !e.metaKey) { color = COLOR_KEYS[k]; render(); return; }
   });
 

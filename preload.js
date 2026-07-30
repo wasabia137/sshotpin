@@ -5,6 +5,9 @@ contextBridge.exposeInMainWorld('api', {
   winDragStart: () => ipcRenderer.send('win-drag-start'),
   winDragMove: (dx, dy) => ipcRenderer.send('win-drag-move', { dx, dy }),
 
+  // 퀵 실행바
+  quickbarAction: (action) => ipcRenderer.send('quickbar-action', action),
+
   // 캡처 오버레이
   onCaptureInit: (cb) => ipcRenderer.on('capture-init', (e, d) => cb(d)),
   captureFinish: (payload) => ipcRenderer.send('capture-finish', payload),

@@ -18,6 +18,7 @@ let overlayWin = null;        // 확대/판서 오버레이 (한 번에 하나)
 let overlayDisplay = null;
 let timerWin = null;
 let helpWin = null;
+let quickbarWin = null;
 let pinSeq = 0;
 const pins = new Map();
 let pinsHidden = false;
@@ -32,6 +33,8 @@ const defaultSettings = {
   firstRunDone: false,
   pinBorderVisible: true,
   pinBorderColor: '#3b82f6',
+  quickbarVisible: true,
+  quickbarBounds: null,
 };
 let settings = { ...defaultSettings };
 try {
@@ -115,6 +118,80 @@ function fullscreenOverlayWindow(display) {
   return win;
 }
 
+// ---------- 퀵 실행바 ----------
+
+function createQuickbar() {
+  if (quickbarWin) { quickbarWin.showInactive(); return; }
+  const display = screen.getPrimaryDisplay();
+  const W = 396, H = 46;
+  let { x, y } = {
+    x: display.workArea.x + Math.round((display.workArea.width - W) / 2),
+    y: display.workArea.y + 8,
+  };
+  const saved = settings.quickbarBounds;
+  if (saved && screen.getAllDisplays().some((d) =>
+    saved.x >= d.bounds.x - W && saved.x < d.bounds.x + d.bounds.width &&
+    saved.y >= d.bounds.y - H && saved.y < d.bounds.y + d.bounds.height)) {
+    x = saved.x; y = saved.y;
+  }
+  quickbarWin = new BrowserWindow({
+    x, y, width: W, height: H,
+    useContentSize: true,
+    frame: false,
+    transparent: true,
+    resizable: false,
+    skipTaskbar: true,
+    hasShadow: false,
+    focusable: false, // 수업 중 포커스를 뺏지 않음
+    show: false,
+    webPreferences: { preload: path.join(__dirname, 'preload.js') },
+  });
+  quickbarWin.setAlwaysOnTop(true, 'screen-saver');
+  quickbarWin.loadFile(path.join(__dirname, 'src', 'quickbar.html'));
+  quickbarWin.once('ready-to-show', () => quickbarWin.showInactive());
+  quickbarWin.on('moved', () => {
+    if (!quickbarWin) return;
+    const b = quickbarWin.getBounds();
+    settings.quickbarBounds = { x: b.x, y: b.y };
+    saveSettings();
+  });
+  quickbarWin.on('closed', () => { quickbarWin = null; });
+}
+
+function setQuickbarVisible(visible) {
+  settings.quickbarVisible = visible;
+  saveSettings();
+  if (visible) createQuickbar();
+  else if (quickbarWin) quickbarWin.close();
+  rebuildTrayMenu();
+}
+
+// 캡처 직전에 퀵바를 잠시 숨겨 스크린샷에 찍히지 않게 함
+async function hideQuickbarForGrab() {
+  if (quickbarWin && quickbarWin.isVisible()) {
+    quickbarWin.hide();
+    await new Promise((r) => setTimeout(r, 150));
+  }
+}
+
+function reshowQuickbar() {
+  if (quickbarWin && settings.quickbarVisible) quickbarWin.showInactive();
+}
+
+ipcMain.on('quickbar-action', (e, action) => {
+  if (action === 'capture') startCapture('capture');
+  else if (action === 'cover') startCapture('cover');
+  else if (action === 'pin') pinFromClipboard();
+  else if (action === 'zoom') toggleOverlay('zoom');
+  else if (action === 'draw') toggleOverlay('draw');
+  else if (action === 'timer') toggleTimer();
+  else if (action === 'help') openHelp();
+  else if (action === 'hide') {
+    setQuickbarVisible(false);
+    notify('퀵 실행바를 숨겼습니다. 트레이 메뉴에서 다시 켤 수 있습니다.');
+  }
+});
+
 // ---------- 영역 캡처 (F1) ----------
 
 async function startCapture(mode = 'capture') { // 'capture' | 'cover'
@@ -122,14 +199,16 @@ async function startCapture(mode = 'capture') { // 'capture' | 'cover'
   if (overlayWin) overlayWin.close();
 
   const display = cursorDisplay();
+  await hideQuickbarForGrab();
   let dataURL;
   try {
     dataURL = await grabDisplay(display);
   } catch (err) {
     notify('화면 캡처 권한이 필요합니다.');
+    reshowQuickbar();
     return;
   }
-  if (!dataURL) { notify('화면을 캡처하지 못했습니다.'); return; }
+  if (!dataURL) { notify('화면을 캡처하지 못했습니다.'); reshowQuickbar(); return; }
 
   captureDisplay = { ...display.bounds };
   captureWin = fullscreenOverlayWindow(display);
@@ -139,7 +218,7 @@ async function startCapture(mode = 'capture') { // 'capture' | 'cover'
     captureWin.show();
     captureWin.focus();
   });
-  captureWin.on('closed', () => { captureWin = null; });
+  captureWin.on('closed', () => { captureWin = null; reshowQuickbar(); });
 }
 
 ipcMain.on('capture-finish', (e, payload) => {
@@ -227,14 +306,16 @@ async function toggleOverlay(mode) { // 'zoom' | 'draw'
   if (captureWin) return;
 
   const display = cursorDisplay();
+  await hideQuickbarForGrab();
   let dataURL;
   try {
     dataURL = await grabDisplay(display);
   } catch (err) {
     notify('화면 캡처 권한이 필요합니다.');
+    reshowQuickbar();
     return;
   }
-  if (!dataURL) { notify('화면을 캡처하지 못했습니다.'); return; }
+  if (!dataURL) { notify('화면을 캡처하지 못했습니다.'); reshowQuickbar(); return; }
 
   overlayDisplay = { ...display.bounds };
   overlayWin = fullscreenOverlayWindow(display);
@@ -244,7 +325,7 @@ async function toggleOverlay(mode) { // 'zoom' | 'draw'
     overlayWin.show();
     overlayWin.focus();
   });
-  overlayWin.on('closed', () => { overlayWin = null; });
+  overlayWin.on('closed', () => { overlayWin = null; reshowQuickbar(); });
 }
 
 ipcMain.on('overlay-finish', (e, payload) => {
@@ -627,12 +708,19 @@ function rebuildTrayMenu() {
     { type: 'separator' },
     { label: '❓ 사용법·단축키', click: openHelp },
     {
+      label: '퀵 실행바 표시',
+      type: 'checkbox',
+      checked: settings.quickbarVisible,
+      click: (item) => setQuickbarVisible(item.checked),
+    },
+    {
       label: '컴퓨터 시작 시 자동 실행',
       type: 'checkbox',
       checked: login.openAtLogin,
       click: (item) => app.setLoginItemSettings({ openAtLogin: item.checked }),
     },
     { type: 'separator' },
+    { label: '업데이트 확인', click: checkUpdatesManually },
     { label: `스샷핀 v${app.getVersion()}`, enabled: false },
     { label: '종료', click: () => app.quit() },
   ]);
@@ -645,6 +733,30 @@ function createTray() {
   tray.setToolTip('스샷핀 — F1 캡처 / F2 가리개 / F3 핀 / Ctrl+1 확대 / Ctrl+2 판서 / Ctrl+3 타이머');
   rebuildTrayMenu();
   tray.on('double-click', () => startCapture('capture'));
+}
+
+// ---------- 업데이트 ----------
+
+function checkUpdatesManually() {
+  if (!app.isPackaged) {
+    notify('개발 모드에서는 업데이트 확인을 지원하지 않습니다.');
+    return;
+  }
+  try {
+    const { autoUpdater } = require('electron-updater');
+    autoUpdater.removeAllListeners('update-available');
+    autoUpdater.removeAllListeners('update-not-available');
+    autoUpdater.once('update-available', (info) =>
+      notify(`새 버전 v${info.version}을 내려받는 중입니다. 완료되면 알려드려요.`));
+    autoUpdater.once('update-not-available', () => notify('지금이 최신 버전입니다. 👍'));
+    autoUpdater.once('error', () => notify('업데이트 확인에 실패했습니다. 잠시 후 다시 시도해주세요.'));
+    autoUpdater.checkForUpdatesAndNotify({
+      title: '스샷핀 업데이트',
+      body: '새 버전이 다운로드됐습니다. 프로그램을 다시 시작하면 적용됩니다.',
+    });
+  } catch (e) {
+    notify('업데이트 확인에 실패했습니다.');
+  }
 }
 
 // ---------- 첫 실행 ----------
@@ -682,14 +794,17 @@ if (!gotLock) {
   app.whenReady().then(() => {
     app.setAppUserModelId('com.sshotpin.app');
     createTray();
+    if (settings.quickbarVisible) createQuickbar();
 
+    // 맥에서는 Cmd+1~3(브라우저 탭 전환 등)을 뺏지 않도록 Control 키로 등록
+    const mod = isMac ? 'Control' : 'CommandOrControl';
     const registered = [
       globalShortcut.register('F1', () => startCapture('capture')),
       globalShortcut.register('F2', () => startCapture('cover')),
       globalShortcut.register('F3', pinFromClipboard),
-      globalShortcut.register('CommandOrControl+1', () => toggleOverlay('zoom')),
-      globalShortcut.register('CommandOrControl+2', () => toggleOverlay('draw')),
-      globalShortcut.register('CommandOrControl+3', toggleTimer),
+      globalShortcut.register(`${mod}+1`, () => toggleOverlay('zoom')),
+      globalShortcut.register(`${mod}+2`, () => toggleOverlay('draw')),
+      globalShortcut.register(`${mod}+3`, toggleTimer),
     ];
     if (registered.some((ok) => !ok)) {
       notify('일부 단축키 등록에 실패했습니다. 다른 프로그램과 충돌일 수 있습니다.');
@@ -697,10 +812,11 @@ if (!gotLock) {
 
     firstRunFlow();
 
-    // 자동 업데이트 (설치 버전에서만) — Firebase Hosting의 latest.yml 확인
+    // 자동 업데이트 (설치 버전에서만) — GitHub Releases 확인
     if (app.isPackaged) {
       try {
         const { autoUpdater } = require('electron-updater');
+        autoUpdater.on('error', () => { /* 네트워크 오류 등은 조용히 무시 */ });
         autoUpdater.checkForUpdatesAndNotify({
           title: '스샷핀 업데이트',
           body: '새 버전이 다운로드됐습니다. 프로그램을 다시 시작하면 적용됩니다.',

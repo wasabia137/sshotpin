@@ -106,6 +106,10 @@
   }
   .dl:hover { background: var(--blue-dark); transform: translateY(-2px); }
   .meta { font-size: 13px; color: var(--muted); margin-top: 14px; }
+  .mac-links { margin-top: 8px; }
+  .mac-links a { color: var(--muted); text-decoration: underline; }
+  .mac-links a:hover { color: var(--blue); }
+  footer a { color: var(--muted); }
 
   /* 섹션 */
   section { padding: 40px 0; border-top: 1px solid var(--line); }
@@ -178,10 +182,14 @@
     <h1>스샷핀</h1>
     <p class="tagline">스샷을 콕! 화면에 붙이는 수업 도구</p>
     <p class="sub">캡처한 화면을 쪽지처럼 붙여두고 수업하세요 · 확대 · 판서 · 타이머 · 정답 가리개</p>
-    <a class="dl" id="dlBtn" href="SshotPin-Setup-0.1.0.zip" download>
+    <a class="dl" id="dlBtn" href="https://github.com/wasabia137/sshotpin/releases/latest/download/SshotPin-Setup-0.2.0.exe">
       ⬇ 윈도우용 다운로드
     </a>
-    <p class="meta">Windows 10 / 11 (64비트) · 무료 · 약 81MB · <span id="ver">v0.1.0</span></p>
+    <p class="meta">Windows 10 / 11 (64비트) · 무료 · 약 81MB · <span id="ver">v0.2.0</span></p>
+    <p class="meta mac-links">🍎 맥용:
+      <a id="dlMacArm" href="https://github.com/wasabia137/sshotpin/releases/latest/download/SshotPin-0.2.0-mac-arm64.dmg">Apple Silicon (M1~M4)</a> ·
+      <a id="dlMacX64" href="https://github.com/wasabia137/sshotpin/releases/latest/download/SshotPin-0.2.0-mac-x64.dmg">Intel</a>
+    </p>
   </header>
 
   <section>
@@ -225,12 +233,11 @@
     <h2>설치 방법</h2>
     <p class="lead">3단계면 끝납니다.</p>
     <ol>
-      <li>위 <b>다운로드</b> 버튼을 눌러 ZIP 파일을 받습니다.</li>
-      <li class="hl">받은 ZIP 파일을 <b>우클릭 → 속성</b> → 맨 아래 <b>"차단 해제"에 체크</b> → <b>확인</b>
-        <div class="why">이 한 단계를 하면 아래 3번에서 윈도우 경고창이 뜨지 않습니다. 건너뛰면 경고가 나옵니다.</div>
+      <li>위 <b>다운로드</b> 버튼을 눌러 설치파일을 받습니다.</li>
+      <li class="hl">받은 <b>SshotPin-Setup.exe</b>를 <b>우클릭 → 속성</b> → 맨 아래 <b>"차단 해제"에 체크</b> → <b>확인</b>
+        <div class="why">이 한 단계를 하면 다음 단계에서 윈도우 경고창이 뜨지 않습니다. 건너뛰어도 설치는 됩니다.</div>
       </li>
-      <li>ZIP을 <b>우클릭 → 압축 풀기</b> 합니다.</li>
-      <li>안에 있는 <b>SshotPin-Setup-0.1.0.exe</b>를 실행하고 안내에 따라 설치합니다.</li>
+      <li>파일을 <b>두 번 클릭</b>해서 실행하고 안내에 따라 설치합니다.</li>
       <li>설치가 끝나면 <b>사용법 창</b>이 열리고, "컴퓨터 시작 시 자동 실행"을 물어봅니다. <b>켜기</b>를 누르면 다음부터 바로 <kbd>F1</kbd>을 쓸 수 있습니다.</li>
     </ol>
     <div class="note">
@@ -284,12 +291,12 @@
         {
           "@type": "Question",
           "name": "Windows에서 PC를 보호했습니다 경고가 떠요.",
-          "acceptedAnswer": { "@type": "Answer", "text": "유료 코드 서명 인증서를 붙이지 않은 프로그램에 윈도우가 기본으로 띄우는 안내입니다. 다운로드한 ZIP 파일을 우클릭하고 속성에서 차단 해제를 체크한 뒤 압축을 풀면 경고 없이 설치됩니다. 이미 경고가 떴다면 추가 정보를 누른 뒤 실행을 선택하세요." }
+          "acceptedAnswer": { "@type": "Answer", "text": "유료 코드 서명 인증서를 붙이지 않은 프로그램에 윈도우가 기본으로 띄우는 안내입니다. 다운로드한 설치파일을 우클릭하고 속성에서 차단 해제를 체크한 뒤 실행하면 경고 없이 설치됩니다. 이미 경고가 떴다면 추가 정보를 누른 뒤 실행을 선택하세요." }
         },
         {
           "@type": "Question",
-          "name": "어떤 윈도우에서 쓸 수 있나요?",
-          "acceptedAnswer": { "@type": "Answer", "text": "Windows 10과 Windows 11의 64비트 버전에서 동작합니다. 맥용은 아직 없습니다." }
+          "name": "어떤 컴퓨터에서 쓸 수 있나요?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Windows 10과 Windows 11의 64비트 버전에서 동작하며, 맥용(Apple Silicon과 Intel)도 제공합니다. 맥에서 처음 실행할 때 확인되지 않은 개발자 안내가 나오면 앱을 우클릭한 뒤 열기를 선택하세요." }
         },
         {
           "@type": "Question",
@@ -315,11 +322,11 @@
       </div>
       <div class="qa">
         <h3>"Windows에서 PC를 보호했습니다" 경고가 떠요.</h3>
-        <p>유료 코드 서명 인증서를 붙이지 않은 프로그램에 윈도우가 기본으로 띄우는 안내입니다. 프로그램 문제가 아닙니다. 다운로드한 ZIP 파일을 <b>우클릭 → 속성 → "차단 해제" 체크</b> 후 압축을 풀면 경고 없이 설치됩니다. 이미 경고가 떴다면 <b>추가 정보 → 실행</b>을 누르세요.</p>
+        <p>유료 코드 서명 인증서를 붙이지 않은 프로그램에 윈도우가 기본으로 띄우는 안내입니다. 프로그램 문제가 아닙니다. 다운로드한 설치파일을 <b>우클릭 → 속성 → "차단 해제" 체크</b> 후 실행하면 경고 없이 설치됩니다. 이미 경고가 떴다면 <b>추가 정보 → 실행</b>을 누르세요.</p>
       </div>
       <div class="qa">
-        <h3>어떤 윈도우에서 쓸 수 있나요?</h3>
-        <p>Windows 10과 Windows 11의 64비트 버전에서 동작합니다. 맥용은 아직 없습니다.</p>
+        <h3>어떤 컴퓨터에서 쓸 수 있나요?</h3>
+        <p>Windows 10과 Windows 11의 64비트 버전에서 동작합니다. 맥용(Apple Silicon·Intel)도 다운로드 버튼 아래 링크에서 받을 수 있습니다. 맥에서 처음 실행할 때 "확인되지 않은 개발자" 안내가 나오면 앱을 <b>우클릭 → 열기</b>를 선택하세요.</p>
       </div>
       <div class="qa">
         <h3>수업에 어떻게 활용하나요?</h3>
@@ -333,8 +340,10 @@
   </section>
 
   <footer>
-    스샷핀 · 수업을 위한 캡처 도구<br>
-    Windows 10/11 64비트용 · 무료로 쓰세요<br>
+    스샷핀 · 수업을 위한 캡처 도구 · 무료로 쓰세요<br>
+    <a href="privacy.html">개인정보처리방침</a> ·
+    <a href="https://github.com/wasabia137/sshotpin" rel="noopener">GitHub</a> ·
+    <a href="mailto:intothemint@gmail.com">문의</a><br>
     <span style="opacity:.7">sshot-pin.web.app</span>
   </footer>
 
