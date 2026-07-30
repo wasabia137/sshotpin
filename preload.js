@@ -28,6 +28,15 @@ contextBridge.exposeInMainWorld('api', {
   resetSaveDir: () => ipcRenderer.send('settings-reset-dir'),
   openSaveDir: () => ipcRenderer.send('settings-open-dir'),
   openHelpFromSettings: () => ipcRenderer.send('settings-open-help'),
+  openLogs: () => ipcRenderer.send('settings-open-logs'),
+
+  // 최근 캡처
+  onHistoryState: (cb) => ipcRenderer.on('history-state', (e, d) => cb(d)),
+  historyPin: (id) => ipcRenderer.send('history-pin', id),
+  historyCopy: (id) => ipcRenderer.send('history-copy', id),
+  historySave: (id) => ipcRenderer.send('history-save', id),
+  historyDelete: (id) => ipcRenderer.send('history-delete', id),
+  historyClear: () => ipcRenderer.send('history-clear'),
 
   // 캡처 오버레이
   onCaptureInit: (cb) => ipcRenderer.on('capture-init', (e, d) => cb(d)),

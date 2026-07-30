@@ -119,6 +119,7 @@
 
   <footer>
     <button class="mini" id="openHelp">❓ 사용법·단축키 보기</button>
+    <button class="mini" id="openLogs" title="문제가 반복되면 이 파일을 문의에 첨부해주세요">🧾 오류 기록 열기</button>
     <span class="ver" id="ver"></span>
   </footer>
 
@@ -267,6 +268,7 @@
   document.getElementById('openDir').addEventListener('click', () => window.api.openSaveDir());
   document.getElementById('resetDir').addEventListener('click', () => window.api.resetSaveDir());
   document.getElementById('openHelp').addEventListener('click', () => window.api.openHelpFromSettings());
+  document.getElementById('openLogs').addEventListener('click', () => window.api.openLogs());
 </script>
 </body>
 </html>

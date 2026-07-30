@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>최근 캡처</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+    background: #f8fafc; color: #1e293b; padding: 20px 22px 34px;
+  }
+  header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  h1 { font-size: 19px; }
+  .sub { color: #64748b; font-size: 13px; margin-bottom: 18px; }
+  .mini {
+    border: 1px solid #cbd5e1; background: #fff; color: #475569;
+    border-radius: 6px; padding: 5px 10px; font-size: 12px; cursor: pointer;
+    font-family: inherit;
+  }
+  .mini:hover { background: #f1f5f9; }
+  #clearBtn { margin-left: auto; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 14px; }
+  .item {
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 10px;
+    overflow: hidden; display: flex; flex-direction: column;
+  }
+  .thumb {
+    height: 128px; background: #f1f5f9;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; overflow: hidden;
+  }
+  .thumb img { max-width: 100%; max-height: 100%; display: block; }
+  .thumb:hover { background: #e2e8f0; }
+  .meta {
+    padding: 7px 10px; font-size: 11.5px; color: #64748b;
+    display: flex; align-items: center; gap: 6px;
+    border-top: 1px solid #e2e8f0;
+  }
+  .meta .size { margin-right: auto; }
+  .ib {
+    border: 0; background: transparent; cursor: pointer;
+    font-size: 13px; padding: 2px 4px; border-radius: 5px;
+  }
+  .ib:hover { background: #e2e8f0; }
+  .empty {
+    background: #fff; border: 1px dashed #cbd5e1; border-radius: 12px;
+    padding: 46px 20px; text-align: center; color: #64748b; font-size: 14px;
+  }
+  .tip {
+    background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af;
+    border-radius: 8px; padding: 10px 14px; font-size: 13px; margin-top: 16px;
+  }
+</style>
+</head>
+<body>
+  <header>
+    <h1>🕘 최근 캡처</h1>
+    <button class="mini" id="clearBtn">전체 삭제</button>
+  </header>
+  <div class="sub">그림을 클릭하면 화면에 다시 붙습니다. 최근 24개까지 보관됩니다.</div>
+
+  <div id="list"></div>
+
+  <div class="tip">💡 수업 중 앞에서 보여준 자료를 <b>다시 찍지 않고</b> 여기서 바로 불러올 수 있습니다.</div>
+
+<script>
+  const list = document.getElementById('list');
+
+  function when(ts) {
+    const d = new Date(ts);
+    const p = (n) => String(n).padStart(2, '0');
+    const today = new Date();
+    const sameDay = d.toDateString() === today.toDateString();
+    const time = `${p(d.getHours())}:${p(d.getMinutes())}`;
+    return sameDay ? time : `${d.getMonth() + 1}/${d.getDate()} ${time}`;
+  }
+
+  window.api.onHistoryState(({ items }) => {
+    if (!items.length) {
+      list.innerHTML = '<div class="empty">아직 캡처한 것이 없습니다.<br>F1(또는 퀵 실행바 📸)로 화면을 찍어보세요.</div>';
+      return;
+    }
+    list.className = 'grid';
+    list.innerHTML = '';
+    for (const it of items) {
+      const el = document.createElement('div');
+      el.className = 'item';
+      el.innerHTML = `
+        <div class="thumb" title="클릭하면 화면에 붙입니다">
+          ${it.thumb ? `<img src="${it.thumb}" alt="">` : '<span style="color:#94a3b8">미리보기 없음</span>'}
+        </div>
+        <div class="meta">
+          <span class="size">${it.w}×${it.h} · ${when(it.at)}</span>
+          <button class="ib" data-act="copy" title="복사">📋</button>
+          <button class="ib" data-act="save" title="저장">💾</button>
+          <button class="ib" data-act="del" title="삭제">🗑</button>
+        </div>
+      `;
+      el.querySelector('.thumb').addEventListener('click', () => window.api.historyPin(it.id));
+      for (const b of el.querySelectorAll('.ib')) {
+        b.addEventListener('click', () => {
+          const a = b.dataset.act;
+          if (a === 'copy') window.api.historyCopy(it.id);
+          else if (a === 'save') window.api.historySave(it.id);
+          else if (a === 'del') window.api.historyDelete(it.id);
+        });
+      }
+      list.appendChild(el);
+    }
+  });
+
+  document.getElementById('clearBtn').addEventListener('click', () => window.api.historyClear());
+  window.addEventListener('keydown', (e) => { if (e.key === 'Escape') window.close(); });
+</script>
+</body>
+</html>

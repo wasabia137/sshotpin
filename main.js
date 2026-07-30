@@ -26,6 +26,41 @@ let coverSeq = 0;
 const covers = new Map();     // 정답 가리개 창
 const dragOrigins = new Map(); // webContents.id -> [x, y]
 
+// ---------- 로그 (문의 대응·문제 진단용) ----------
+
+const logDir = path.join(app.getPath('userData'), 'logs');
+const logPath = path.join(logDir, 'app.log');
+
+function log(...parts) {
+  const line = `[${new Date().toISOString()}] ${parts.join(' ')}`;
+  console.log(line);
+  try {
+    fs.mkdirSync(logDir, { recursive: true });
+    // 로그가 2MB를 넘으면 한 번 갈아치워 무한 증가를 막는다
+    try {
+      if (fs.statSync(logPath).size > 2 * 1024 * 1024) {
+        fs.renameSync(logPath, logPath + '.old');
+      }
+    } catch (e) { /* 파일이 아직 없음 */ }
+    fs.appendFileSync(logPath, line + '\n');
+  } catch (e) { /* 로그 실패가 앱을 막지 않도록 */ }
+}
+
+// 예기치 못한 오류로 조용히 죽지 않게 — 기록하고 사용자에게 알린다
+process.on('uncaughtException', (err) => {
+  log('UNCAUGHT', err && err.stack ? err.stack : String(err));
+  try {
+    if (Notification.isSupported()) {
+      new Notification({
+        title: '스샷핀 오류',
+        body: '문제가 생겼지만 계속 실행됩니다. 반복되면 설정에서 로그를 확인해주세요.',
+        silent: true,
+      }).show();
+    }
+  } catch (e) { /* 알림 실패는 무시 */ }
+});
+process.on('unhandledRejection', (reason) => log('UNHANDLED', String(reason)));
+
 // ---------- 설정 ----------
 
 const settingsPath = path.join(app.getPath('userData'), 'settings.json');
@@ -167,12 +202,151 @@ function fullscreenOverlayWindow(display) {
   return win;
 }
 
+// ---------- 캡처 히스토리 ----------
+
+const HISTORY_MAX = 24;
+const historyDir = path.join(app.getPath('userData'), 'history');
+const historyIndexPath = path.join(historyDir, 'index.json');
+let history = [];   // [{ id, file, w, h, at }]
+let historyWin = null;
+
+try {
+  history = JSON.parse(fs.readFileSync(historyIndexPath, 'utf8'));
+  if (!Array.isArray(history)) history = [];
+  // 파일이 사라진 항목은 정리
+  history = history.filter((h) => {
+    try { return fs.existsSync(path.join(historyDir, h.file)); } catch (e) { return false; }
+  });
+} catch (e) { history = []; }
+
+function saveHistoryIndex() {
+  try {
+    fs.mkdirSync(historyDir, { recursive: true });
+    fs.writeFileSync(historyIndexPath, JSON.stringify(history));
+  } catch (e) { log('history index 저장 실패', e.message); }
+}
+
+function addHistory(dataURL, w, h) {
+  const before = history.length;
+  try {
+    fs.mkdirSync(historyDir, { recursive: true });
+    const id = `${Date.now()}_${Math.floor(w)}x${Math.floor(h)}`;
+    const file = `${id}.png`;
+    fs.writeFileSync(path.join(historyDir, file),
+      nativeImage.createFromDataURL(dataURL).toPNG());
+    history.unshift({ id, file, w: Math.round(w), h: Math.round(h), at: Date.now() });
+    // 오래된 것은 파일까지 삭제
+    while (history.length > HISTORY_MAX) {
+      const old = history.pop();
+      try { fs.unlinkSync(path.join(historyDir, old.file)); } catch (e) { /* 이미 없음 */ }
+    }
+    saveHistoryIndex();
+    if (historyWin) sendHistory();
+    if (before === 0) rebuildTrayMenu(); // 메뉴의 "최근 캡처" 활성화
+  } catch (e) {
+    log('history 저장 실패', e.message);
+  }
+}
+
+function historyDataURL(item) {
+  const buf = fs.readFileSync(path.join(historyDir, item.file));
+  return 'data:image/png;base64,' + buf.toString('base64');
+}
+
+function sendHistory() {
+  if (!historyWin) return;
+  const items = history.map((h) => {
+    let thumb = '';
+    try {
+      // 목록은 축소 이미지로 보내 메모리를 아낀다
+      const img = nativeImage.createFromPath(path.join(historyDir, h.file));
+      thumb = img.resize({ width: Math.min(320, img.getSize().width) }).toDataURL();
+    } catch (e) { /* 손상된 파일은 빈 썸네일 */ }
+    return { ...h, thumb };
+  });
+  historyWin.webContents.send('history-state', { items });
+}
+
+function openHistory() {
+  if (historyWin) { historyWin.focus(); return; }
+  historyWin = new BrowserWindow({
+    width: 760, height: 620,
+    title: '최근 캡처',
+    autoHideMenuBar: true,
+    icon: path.join(__dirname, 'assets', 'icon.png'),
+    webPreferences: { preload: path.join(__dirname, 'preload.js') },
+  });
+  historyWin.loadFile(path.join(__dirname, 'src', 'history.html'));
+  historyWin.webContents.once('did-finish-load', () => sendHistory());
+  historyWin.on('closed', () => { historyWin = null; });
+}
+
+ipcMain.on('history-pin', (e, id) => {
+  const item = history.find((h) => h.id === id);
+  if (!item) return;
+  try {
+    const cursor = screen.getCursorScreenPoint();
+    const display = screen.getDisplayNearestPoint(cursor);
+    // 저장된 이미지는 물리 픽셀이므로 화면 배율로 환산
+    const w = Math.round(item.w / display.scaleFactor);
+    const h = Math.round(item.h / display.scaleFactor);
+    createPin(historyDataURL(item), w, h,
+      display.bounds.x + (display.bounds.width - w) / 2,
+      display.bounds.y + (display.bounds.height - h) / 2);
+  } catch (err) {
+    log('history 핀 실패', err.message);
+    notify('이 캡처를 불러오지 못했습니다.');
+  }
+});
+
+ipcMain.on('history-copy', (e, id) => {
+  const item = history.find((h) => h.id === id);
+  if (!item) return;
+  try {
+    clipboard.writeImage(nativeImage.createFromDataURL(historyDataURL(item)));
+    notify('클립보드에 복사했습니다.');
+  } catch (err) { notify('복사에 실패했습니다.'); }
+});
+
+ipcMain.on('history-save', (e, id) => {
+  const item = history.find((h) => h.id === id);
+  if (item) saveImageDialog(historyDataURL(item), historyWin);
+});
+
+ipcMain.on('history-delete', (e, id) => {
+  const i = history.findIndex((h) => h.id === id);
+  if (i < 0) return;
+  try { fs.unlinkSync(path.join(historyDir, history[i].file)); } catch (err) { /* 이미 없음 */ }
+  history.splice(i, 1);
+  saveHistoryIndex();
+  sendHistory();
+});
+
+ipcMain.on('history-clear', async () => {
+  const { response } = await dialog.showMessageBox(historyWin || null, {
+    type: 'question',
+    title: '최근 캡처 전체 삭제',
+    message: '저장된 최근 캡처를 모두 삭제할까요?',
+    detail: '이미 저장하거나 붙여둔 이미지는 영향을 받지 않습니다.',
+    buttons: ['모두 삭제', '취소'],
+    defaultId: 1,
+    cancelId: 1,
+  });
+  if (response !== 0) return;
+  for (const h of history) {
+    try { fs.unlinkSync(path.join(historyDir, h.file)); } catch (e) { /* 이미 없음 */ }
+  }
+  history = [];
+  saveHistoryIndex();
+  sendHistory();
+});
+
 // ---------- 퀵 실행바 ----------
 
 function createQuickbar() {
   if (quickbarWin) { quickbarWin.showInactive(); return; }
   const display = screen.getPrimaryDisplay();
-  const W = 434, H = 46;
+  const W = 472, H = 46;
   let { x, y } = {
     x: display.workArea.x + Math.round((display.workArea.width - W) / 2),
     y: display.workArea.y + 8,
@@ -234,6 +408,7 @@ ipcMain.on('quickbar-action', (e, action) => {
   else if (action === 'zoom') toggleOverlay('zoom');
   else if (action === 'draw') toggleOverlay('draw');
   else if (action === 'timer') toggleTimer();
+  else if (action === 'history') openHistory();
   else if (action === 'help') openHelp();
   else if (action === 'settings') openSettings();
   else if (action === 'hide') {
@@ -266,9 +441,7 @@ async function startCapture(mode = 'capture') { // 'capture' | 'cover'
   captureWin = fullscreenOverlayWindow(display);
   captureWin.loadFile(path.join(__dirname, 'src', 'capture.html'));
   captureWin.webContents.once('did-finish-load', () => {
-    captureWin.webContents.send('capture-init', {
-      dataURL, mode, selftest: !!process.env.SSHOTPIN_SELFTEST,
-    });
+    captureWin.webContents.send('capture-init', { dataURL, mode });
     captureWin.show();
     captureWin.focus();
   });
@@ -290,6 +463,11 @@ ipcMain.on('capture-finish', (e, payload) => {
     createPin(dataURL, rect.w, rect.h, disp.x + rect.x, disp.y + rect.y);
   } else if (action === 'cover') {
     createCover(disp.x + rect.x, disp.y + rect.y, rect.w, rect.h);
+  }
+  // 이미지가 만들어진 동작은 히스토리에 남긴다 (가리개는 이미지가 없음)
+  if (dataURL && action !== 'cover') {
+    const img = nativeImage.createFromDataURL(dataURL).getSize();
+    addHistory(dataURL, img.width, img.height);
   }
 });
 
@@ -429,7 +607,7 @@ function toggleTimer() {
 }
 
 // 렌더러 오류 로그
-ipcMain.on('renderer-log', (e, msg) => console.error('[renderer]', msg));
+ipcMain.on('renderer-log', (e, msg) => log('[renderer]', msg));
 
 // ---------- 단축키 ----------
 
@@ -571,6 +749,16 @@ ipcMain.on('settings-reset-dir', () => {
 
 ipcMain.on('settings-open-dir', () => {
   shell.openPath(currentSaveDir());
+});
+
+ipcMain.on('settings-open-logs', () => {
+  try {
+    fs.mkdirSync(logDir, { recursive: true });
+    if (!fs.existsSync(logPath)) fs.writeFileSync(logPath, '');
+    shell.showItemInFolder(logPath);
+  } catch (e) {
+    notify('로그 폴더를 열지 못했습니다.');
+  }
 });
 
 ipcMain.on('settings-open-help', () => openHelp());
@@ -902,6 +1090,7 @@ function rebuildTrayMenu() {
     { label: '🔍 화면 확대·축소', accelerator: hk.zoom || undefined, click: () => toggleOverlay('zoom') },
     { label: '✏️ 판서 (화면에 그리기)', accelerator: hk.draw || undefined, click: () => toggleOverlay('draw') },
     { label: '⏱️ 수업 타이머', accelerator: hk.timer || undefined, click: toggleTimer },
+    { label: `🕘 최근 캡처 (${history.length})`, click: openHistory, enabled: history.length > 0 },
     { type: 'separator' },
     { label: pinsHidden ? '핀 모두 보이기' : '핀 모두 숨기기', click: toggleAllPinsVisible, enabled: pins.size > 0 || pinsHidden },
     { label: '핀 모두 닫기', click: closeAllPins, enabled: pins.size > 0 },
@@ -1018,7 +1207,7 @@ if (!gotLock) {
       } catch (e) { /* 업데이트 실패는 조용히 무시 */ }
     }
 
-    console.log('스샷핀 시작됨 — 단축키:', JSON.stringify(settings.hotkeys));
+    log(`스샷핀 v${app.getVersion()} 시작 — 단축키 ${JSON.stringify(settings.hotkeys)}`);
   });
 
   // 트레이 상주 앱: 창이 모두 닫혀도 종료하지 않음
