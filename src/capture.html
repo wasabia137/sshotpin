@@ -12,6 +12,17 @@
     pointer-events: none;
   }
   #veil { position: absolute; inset: 0; }
+
+  /* 선택 영역 조절 핸들 */
+  .handle {
+    position: absolute; display: none;
+    width: 11px; height: 11px;
+    background: #fff; border: 2px solid #3b82f6; border-radius: 50%;
+    margin: -6px 0 0 -6px;
+  }
+  body.picked .handle { display: block; }
+  body.tooling .handle { display: none; }
+
   #sizeLabel {
     position: absolute; display: none;
     background: rgba(15, 23, 42, .9); color: #e2e8f0;
@@ -19,25 +30,39 @@
     padding: 2px 8px; border-radius: 6px;
     pointer-events: none; white-space: nowrap;
   }
+
   #toolbar {
     position: absolute; display: none;
-    background: rgba(15, 23, 42, .95);
-    border: 1px solid rgba(148, 163, 184, .35);
-    border-radius: 10px; padding: 6px;
-    gap: 4px; box-shadow: 0 6px 24px rgba(0,0,0,.4);
+    background: rgba(15, 23, 42, .96);
+    border: 1px solid rgba(148, 163, 184, .4);
+    border-radius: 12px; padding: 7px 9px;
+    box-shadow: 0 6px 24px rgba(0,0,0,.45);
     cursor: default;
+    flex-direction: column; gap: 6px;
   }
   #toolbar.show { display: flex; }
+  .trow { display: flex; align-items: center; gap: 4px; }
   #toolbar button {
-    border: 0; border-radius: 7px;
+    border: 0; border-radius: 8px;
     background: transparent; color: #e2e8f0;
-    font: 13px 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
-    padding: 7px 12px; cursor: pointer;
-    display: flex; align-items: center; gap: 6px;
+    font: 14px 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+    min-width: 34px; height: 32px; padding: 0 8px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 5px;
   }
-  #toolbar button:hover { background: rgba(148, 163, 184, .2); }
-  #toolbar button.primary { background: #2563eb; }
+  #toolbar button:hover { background: rgba(148, 163, 184, .22); }
+  #toolbar button.on { background: rgba(59, 130, 246, .6); }
+  #toolbar button.primary { background: #2563eb; font-size: 13px; font-weight: 600; }
   #toolbar button.primary:hover { background: #1d4ed8; }
+  .vsep { width: 1px; height: 22px; background: rgba(148,163,184,.35); margin: 0 3px; }
+  .sw {
+    width: 19px; height: 19px; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,.25); cursor: pointer;
+  }
+  .sw.on { border-color: #fff; box-shadow: 0 0 0 2px rgba(255,255,255,.4); }
+  #penVal { color: #f1f5f9; font-size: 12px; min-width: 32px; text-align: center; }
+  #styleRow { display: none; }
+  body.tooling #styleRow { display: flex; }
+
   #hint {
     position: absolute; top: 24px; left: 50%; transform: translateX(-50%);
     background: rgba(15, 23, 42, .85); color: #cbd5e1;
@@ -50,14 +75,49 @@
 <body>
   <img id="shot" alt="">
   <canvas id="veil"></canvas>
+  <div class="handle" data-h="nw"></div>
+  <div class="handle" data-h="n"></div>
+  <div class="handle" data-h="ne"></div>
+  <div class="handle" data-h="e"></div>
+  <div class="handle" data-h="se"></div>
+  <div class="handle" data-h="s"></div>
+  <div class="handle" data-h="sw"></div>
+  <div class="handle" data-h="w"></div>
   <div id="sizeLabel"></div>
   <div id="hint">드래그해서 영역을 선택하세요 · Enter=핀 · Ctrl+C=복사 · Esc=취소</div>
+
   <div id="toolbar">
-    <button id="btnPin" class="primary" title="화면에 고정 (Enter)">📌 핀</button>
-    <button id="btnCopy" title="클립보드 복사 (Ctrl+C)">📋 복사</button>
-    <button id="btnSave" title="파일로 저장 (Ctrl+S)">💾 저장</button>
-    <button id="btnCover" title="이 영역을 가리개로 덮기">🙈 가리개</button>
-    <button id="btnCancel" title="취소 (Esc)">✕</button>
+    <div class="trow" id="toolRow">
+      <button data-tool="pen" title="펜">✏️</button>
+      <button data-tool="arrow" title="화살표">↗</button>
+      <button data-tool="rect" title="사각형">▭</button>
+      <button data-tool="ellipse" title="원">◯</button>
+      <button data-tool="highlight" title="형광펜">🖍</button>
+      <button data-tool="mosaic" title="모자이크 (개인정보 가리기)">🔲</button>
+      <button data-tool="step" title="번호 ①②③ (클릭해서 찍기)">①</button>
+      <div class="vsep"></div>
+      <button id="btnUndo" title="되돌리기 (Ctrl+Z)">↩</button>
+      <div class="vsep"></div>
+      <button id="btnPin" class="primary" title="화면에 고정 (Enter)">📌 핀</button>
+      <button id="btnCopy" title="클립보드 복사 (Ctrl+C)">📋</button>
+      <button id="btnSave" title="파일로 저장 (Ctrl+S)">💾</button>
+      <button id="btnCover" title="이 영역을 가리개로 덮기">🙈</button>
+      <button id="btnCancel" title="취소 (Esc)">✕</button>
+    </div>
+    <div class="trow" id="styleRow">
+      <span class="sw" data-c="#ef4444" style="background:#ef4444" title="빨강"></span>
+      <span class="sw" data-c="#f97316" style="background:#f97316" title="주황"></span>
+      <span class="sw" data-c="#eab308" style="background:#eab308" title="노랑"></span>
+      <span class="sw" data-c="#22c55e" style="background:#22c55e" title="초록"></span>
+      <span class="sw" data-c="#3b82f6" style="background:#3b82f6" title="파랑"></span>
+      <span class="sw" data-c="#1e293b" style="background:#1e293b" title="검정"></span>
+      <div class="vsep"></div>
+      <button id="penMinus" title="얇게">−</button>
+      <span id="penVal">4px</span>
+      <button id="penPlus" title="굵게">＋</button>
+      <div class="vsep"></div>
+      <button id="btnDone" title="그리기 끝내고 영역 조절로 돌아가기">완료</button>
+    </div>
   </div>
 
 <script>
@@ -66,13 +126,30 @@
   const sizeLabel = document.getElementById('sizeLabel');
   const toolbar = document.getElementById('toolbar');
   const hint = document.getElementById('hint');
+  const penValEl = document.getElementById('penVal');
   const ctx = veil.getContext('2d');
 
-  let sel = null;          // {x, y, w, h}
+  let sel = null;          // {x, y, w, h}  (화면 CSS px)
   let dragStart = null;
   let selecting = false;
-  let done = false;        // 선택 확정(툴바 표시) 상태
+  let done = false;        // 영역 확정
   let mode = 'capture';    // 'capture' | 'cover'
+
+  let tool = null;         // null이면 영역 조절 모드
+  let color = '#ef4444';
+  let pen = 4;
+  const anns = [];         // 주석 목록
+  let cur = null;          // 그리는 중인 주석
+  let drawing = false;
+  let stepSeq = 0;
+
+  let resizing = null;     // 조절 중인 핸들 방향
+  let moving = false;      // 선택 영역 이동 중
+  let moveOrigin = null;
+
+  const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+  const rx = () => shot.naturalWidth / window.innerWidth;
+  const ry = () => shot.naturalHeight / window.innerHeight;
 
   window.api.onCaptureInit((d) => {
     shot.src = d.dataURL;
@@ -90,21 +167,125 @@
   window.addEventListener('resize', resizeCanvas);
   resizeCanvas();
 
+  // ----- 주석 그리기 -----
+
+  function drawAnn(c, a) {
+    c.save();
+    c.strokeStyle = a.color;
+    c.fillStyle = a.color;
+    c.lineWidth = a.width;
+    c.lineCap = 'round';
+    c.lineJoin = 'round';
+
+    if (a.type === 'pen' || a.type === 'highlight') {
+      if (a.type === 'highlight') {
+        c.globalAlpha = 0.35;
+        c.lineWidth = a.width * 4;
+      }
+      const p = a.points;
+      if (p.length < 2) {
+        c.beginPath();
+        c.arc(p[0].x, p[0].y, c.lineWidth / 2, 0, Math.PI * 2);
+        c.fill();
+      } else {
+        c.beginPath();
+        c.moveTo(p[0].x, p[0].y);
+        for (const q of p) c.lineTo(q.x, q.y);
+        c.stroke();
+      }
+    } else if (a.type === 'rect') {
+      c.strokeRect(Math.min(a.x1, a.x2), Math.min(a.y1, a.y2),
+        Math.abs(a.x2 - a.x1), Math.abs(a.y2 - a.y1));
+    } else if (a.type === 'ellipse') {
+      c.beginPath();
+      c.ellipse((a.x1 + a.x2) / 2, (a.y1 + a.y2) / 2,
+        Math.abs(a.x2 - a.x1) / 2, Math.abs(a.y2 - a.y1) / 2, 0, 0, Math.PI * 2);
+      c.stroke();
+    } else if (a.type === 'arrow') {
+      const ang = Math.atan2(a.y2 - a.y1, a.x2 - a.x1);
+      const head = Math.max(a.width * 3.4, 12);
+      c.beginPath();
+      c.moveTo(a.x1, a.y1); c.lineTo(a.x2, a.y2); c.stroke();
+      c.beginPath();
+      c.moveTo(a.x2, a.y2);
+      c.lineTo(a.x2 - head * Math.cos(ang - 0.45), a.y2 - head * Math.sin(ang - 0.45));
+      c.lineTo(a.x2 - head * Math.cos(ang + 0.45), a.y2 - head * Math.sin(ang + 0.45));
+      c.closePath(); c.fill();
+    } else if (a.type === 'step') {
+      const r = Math.max(11, a.width * 3);
+      c.beginPath(); c.arc(a.x, a.y, r, 0, Math.PI * 2); c.fill();
+      c.fillStyle = '#fff';
+      c.font = `700 ${Math.round(r * 1.15)}px 'Malgun Gothic', sans-serif`;
+      c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.fillText(String(a.n), a.x, a.y + r * 0.06);
+    } else if (a.type === 'mosaic') {
+      const x = Math.min(a.x1, a.x2), y = Math.min(a.y1, a.y2);
+      const w = Math.abs(a.x2 - a.x1), h = Math.abs(a.y2 - a.y1);
+      if (w >= 2 && h >= 2 && shot.naturalWidth) {
+        const cell = Math.max(5, Math.round(Math.min(w, h) / 8));
+        c.beginPath(); c.rect(x, y, w, h); c.clip();
+        c.imageSmoothingEnabled = false;
+        for (let gy = y; gy < y + h; gy += cell) {
+          for (let gx = x; gx < x + w; gx += cell) {
+            // 원본 이미지의 해당 지점 1픽셀을 격자 크기로 확대
+            c.drawImage(shot, Math.round(gx * rx()), Math.round(gy * ry()), 1, 1,
+              gx, gy, cell, cell);
+          }
+        }
+      }
+    }
+    c.restore();
+  }
+
   function draw() {
     ctx.clearRect(0, 0, veil.width, veil.height);
     ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
     ctx.fillRect(0, 0, veil.width, veil.height);
     if (sel && sel.w > 0 && sel.h > 0) {
       ctx.clearRect(sel.x, sel.y, sel.w, sel.h);
+      // 주석은 선택 영역 안에만 보이도록
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(sel.x, sel.y, sel.w, sel.h);
+      ctx.clip();
+      for (const a of anns) drawAnn(ctx, a);
+      if (cur) drawAnn(ctx, cur);
+      ctx.restore();
       ctx.strokeStyle = '#3b82f6';
       ctx.lineWidth = 2;
       ctx.strokeRect(sel.x + 1, sel.y + 1, sel.w - 2, sel.h - 2);
+    }
+    placeHandles();
+    penValEl.textContent = pen + 'px';
+    for (const sw of document.querySelectorAll('.sw')) {
+      sw.classList.toggle('on', sw.dataset.c === color);
+    }
+    for (const b of document.querySelectorAll('[data-tool]')) {
+      b.classList.toggle('on', b.dataset.tool === tool);
+    }
+  }
+
+  function placeHandles() {
+    if (!sel) return;
+    const pos = {
+      nw: [sel.x, sel.y], n: [sel.x + sel.w / 2, sel.y], ne: [sel.x + sel.w, sel.y],
+      e: [sel.x + sel.w, sel.y + sel.h / 2], se: [sel.x + sel.w, sel.y + sel.h],
+      s: [sel.x + sel.w / 2, sel.y + sel.h], sw: [sel.x, sel.y + sel.h],
+      w: [sel.x, sel.y + sel.h / 2],
+    };
+    for (const el of document.querySelectorAll('.handle')) {
+      const [hx, hy] = pos[el.dataset.h];
+      el.style.left = hx + 'px';
+      el.style.top = hy + 'px';
+      el.style.cursor = el.dataset.h.length === 2
+        ? (el.dataset.h === 'nw' || el.dataset.h === 'se' ? 'nwse-resize' : 'nesw-resize')
+        : (el.dataset.h === 'n' || el.dataset.h === 's' ? 'ns-resize' : 'ew-resize');
     }
   }
 
   function updateSizeLabel() {
     if (!sel || sel.w < 1) { sizeLabel.style.display = 'none'; return; }
-    sizeLabel.textContent = `${sel.w} × ${sel.h}`;
+    sizeLabel.textContent = `${Math.round(sel.w)} × ${Math.round(sel.h)}`;
     sizeLabel.style.display = 'block';
     const above = sel.y > 28;
     sizeLabel.style.left = sel.x + 'px';
@@ -123,12 +304,59 @@
     toolbar.style.top = ty + 'px';
   }
 
+  function setTool(t) {
+    tool = t;
+    document.body.classList.toggle('tooling', !!t);
+    document.body.style.cursor = t ? 'crosshair' : 'default';
+    if (t) hint.style.display = 'none';
+    draw();
+    showToolbar();
+  }
+
+  // ----- 마우스 -----
+
   window.addEventListener('mousedown', (e) => {
     if (e.button !== 0) return;
     if (toolbar.contains(e.target)) return;
+
+    // 핸들로 영역 조절
+    if (e.target.classList && e.target.classList.contains('handle')) {
+      resizing = e.target.dataset.h;
+      return;
+    }
+
+    // 도구가 켜져 있으면 주석 그리기
+    if (tool && done) {
+      const inside = e.clientX >= sel.x && e.clientX <= sel.x + sel.w &&
+                     e.clientY >= sel.y && e.clientY <= sel.y + sel.h;
+      if (!inside) return;
+      if (tool === 'step') {
+        anns.push({ type: 'step', x: e.clientX, y: e.clientY, color, width: pen, n: ++stepSeq });
+        draw();
+        return;
+      }
+      drawing = true;
+      const p = { x: e.clientX, y: e.clientY };
+      if (tool === 'pen' || tool === 'highlight') cur = { type: tool, color, width: pen, points: [p] };
+      else cur = { type: tool, color, width: pen, x1: p.x, y1: p.y, x2: p.x, y2: p.y };
+      draw();
+      return;
+    }
+
+    // 확정된 영역 안을 드래그하면 영역 이동
+    if (done && sel && e.clientX > sel.x && e.clientX < sel.x + sel.w &&
+        e.clientY > sel.y && e.clientY < sel.y + sel.h) {
+      moving = true;
+      moveOrigin = { mx: e.clientX, my: e.clientY, x: sel.x, y: sel.y };
+      return;
+    }
+
     // 새 선택 시작
     toolbar.classList.remove('show');
+    document.body.classList.remove('picked');
     done = false;
+    anns.length = 0; stepSeq = 0;
+    setTool(null);
     selecting = true;
     dragStart = { x: e.clientX, y: e.clientY };
     sel = { x: e.clientX, y: e.clientY, w: 0, h: 0 };
@@ -137,6 +365,31 @@
   });
 
   window.addEventListener('mousemove', (e) => {
+    if (drawing && cur) {
+      const p = { x: clamp(e.clientX, sel.x, sel.x + sel.w), y: clamp(e.clientY, sel.y, sel.y + sel.h) };
+      if (cur.type === 'pen' || cur.type === 'highlight') cur.points.push(p);
+      else { cur.x2 = p.x; cur.y2 = p.y; }
+      draw();
+      return;
+    }
+    if (resizing) {
+      let { x, y, w, h } = sel;
+      const r = x + w, b = y + h;
+      if (resizing.includes('w')) { x = Math.min(e.clientX, r - 10); w = r - x; }
+      if (resizing.includes('e')) { w = Math.max(10, e.clientX - x); }
+      if (resizing.includes('n')) { y = Math.min(e.clientY, b - 10); h = b - y; }
+      if (resizing.includes('s')) { h = Math.max(10, e.clientY - y); }
+      sel = { x, y, w, h };
+      draw(); updateSizeLabel(); showToolbar();
+      return;
+    }
+    if (moving) {
+      const nx = clamp(moveOrigin.x + (e.clientX - moveOrigin.mx), 0, window.innerWidth - sel.w);
+      const ny = clamp(moveOrigin.y + (e.clientY - moveOrigin.my), 0, window.innerHeight - sel.h);
+      sel.x = nx; sel.y = ny;
+      draw(); updateSizeLabel(); showToolbar();
+      return;
+    }
     if (!selecting) return;
     sel = {
       x: Math.min(dragStart.x, e.clientX),
@@ -148,7 +401,17 @@
   });
 
   window.addEventListener('mouseup', (e) => {
-    if (e.button !== 0 || !selecting) return;
+    if (e.button !== 0) return;
+    if (drawing) {
+      drawing = false;
+      if (cur) anns.push(cur);
+      cur = null;
+      draw();
+      return;
+    }
+    if (resizing) { resizing = null; return; }
+    if (moving) { moving = false; return; }
+    if (!selecting) return;
     selecting = false;
     if (!sel || sel.w < 5 || sel.h < 5) {
       sel = null; draw(); updateSizeLabel();
@@ -156,22 +419,30 @@
       return;
     }
     done = true;
-    if (mode === 'cover') { finish('cover'); return; } // 가리개 모드: 놓는 즉시 생성
+    document.body.classList.add('picked');
+    if (mode === 'cover') { finish('cover'); return; } // 가리개는 놓는 즉시 생성
     showToolbar();
+    hint.textContent = '도구를 눌러 그리거나, 핸들로 영역을 조절하세요 · Enter=핀';
+    hint.style.display = 'block';
+    draw();
   });
 
-  function cropDataURL() {
-    // 화면 좌표(DIP) → 원본 이미지 픽셀 좌표
-    const rx = shot.naturalWidth / window.innerWidth;
-    const ry = shot.naturalHeight / window.innerHeight;
+  // ----- 내보내기 -----
+
+  function exportDataURL() {
+    const RX = rx(), RY = ry();
     const c = document.createElement('canvas');
-    c.width = Math.max(1, Math.round(sel.w * rx));
-    c.height = Math.max(1, Math.round(sel.h * ry));
+    c.width = Math.max(1, Math.round(sel.w * RX));
+    c.height = Math.max(1, Math.round(sel.h * RY));
     const cc = c.getContext('2d');
+    // 잘라낸 원본
     cc.drawImage(shot,
-      Math.round(sel.x * rx), Math.round(sel.y * ry),
-      c.width, c.height,
+      Math.round(sel.x * RX), Math.round(sel.y * RY), c.width, c.height,
       0, 0, c.width, c.height);
+    // 주석 (화면 좌표 → 이미지 좌표 변환)
+    cc.setTransform(RX, 0, 0, RY, -sel.x * RX, -sel.y * RY);
+    for (const a of anns) drawAnn(cc, a);
+    cc.setTransform(1, 0, 0, 1, 0, 0);
     return c.toDataURL('image/png');
   }
 
@@ -179,21 +450,54 @@
     if (action === 'cancel') { window.api.captureFinish({ action: 'cancel' }); return; }
     if (!sel || !done) return;
     if (action === 'cover') {
-      window.api.captureFinish({ action: 'cover', rect: { ...sel } }); // 이미지 불필요
+      window.api.captureFinish({ action: 'cover', rect: { ...sel } });
       return;
     }
-    window.api.captureFinish({ action, dataURL: cropDataURL(), rect: { ...sel } });
+    window.api.captureFinish({ action, dataURL: exportDataURL(), rect: { ...sel } });
   }
 
+  function undo() {
+    const a = anns.pop();
+    if (a && a.type === 'step') stepSeq = Math.max(0, stepSeq - 1);
+    draw();
+  }
+
+  // ----- 도구모음 -----
+
+  for (const b of document.querySelectorAll('[data-tool]')) {
+    b.addEventListener('click', () => setTool(tool === b.dataset.tool ? null : b.dataset.tool));
+  }
+  for (const sw of document.querySelectorAll('.sw')) {
+    sw.addEventListener('click', () => { color = sw.dataset.c; draw(); });
+  }
+  document.getElementById('penMinus').addEventListener('click', () => { pen = clamp(pen - 1, 1, 24); draw(); });
+  document.getElementById('penPlus').addEventListener('click', () => { pen = clamp(pen + 1, 1, 24); draw(); });
+  document.getElementById('btnUndo').addEventListener('click', undo);
+  document.getElementById('btnDone').addEventListener('click', () => setTool(null));
   document.getElementById('btnPin').addEventListener('click', () => finish('pin'));
   document.getElementById('btnCopy').addEventListener('click', () => finish('copy'));
   document.getElementById('btnSave').addEventListener('click', () => finish('save'));
   document.getElementById('btnCover').addEventListener('click', () => finish('cover'));
   document.getElementById('btnCancel').addEventListener('click', () => finish('cancel'));
 
+  // 우클릭: 도구를 쓰는 중이면 되돌리기, 아니면 캡처 취소
+  window.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+    if (toolbar.contains(e.target)) return;
+    if (tool && anns.length) { undo(); return; }
+    if (tool) { setTool(null); return; }
+    finish('cancel');
+  });
+
+  // ----- 키보드 -----
+
   window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') finish('cancel');
+    if (e.key === 'Escape') {
+      if (tool) { setTool(null); return; }  // 먼저 도구만 해제
+      finish('cancel');
+    }
     else if (e.key === 'Enter') finish('pin');
+    else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') undo();
     else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c') finish('copy');
     else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); finish('save'); }
   });

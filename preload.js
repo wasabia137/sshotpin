@@ -1,6 +1,17 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
+// 창 안에서 발생한 오류를 메인 프로세스 로그로 보냄 (문제 진단용)
+window.addEventListener('error', (e) => {
+  ipcRenderer.send('renderer-log',
+    `[${location.pathname.split('/').pop()}] ${e.message} @ ${e.lineno}:${e.colno}`);
+});
+window.addEventListener('unhandledrejection', (e) => {
+  ipcRenderer.send('renderer-log',
+    `[${location.pathname.split('/').pop()}] unhandled: ${e.reason}`);
+});
+
 contextBridge.exposeInMainWorld('api', {
+  log: (msg) => ipcRenderer.send('renderer-log', String(msg)),
   // 창 공통 드래그 이동
   winDragStart: () => ipcRenderer.send('win-drag-start'),
   winDragMove: (dx, dy) => ipcRenderer.send('win-drag-move', { dx, dy }),

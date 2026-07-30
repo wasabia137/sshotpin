@@ -8,3 +8,5 @@ web/latest.yml
 *.log
 .DS_Store
 .firebase/
+.harness/
+.claude/launch.json

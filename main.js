@@ -245,7 +245,9 @@ ipcMain.on('quickbar-action', (e, action) => {
 // ---------- 영역 캡처 (F1) ----------
 
 async function startCapture(mode = 'capture') { // 'capture' | 'cover'
-  if (captureWin) return;
+  // 이미 열려 있으면 닫는다(토글). 오버레이가 포커스를 잃어 Esc가 안 먹을 때
+  // 단축키를 다시 눌러 빠져나올 수 있어야 한다.
+  if (captureWin) { captureWin.close(); return; }
   if (overlayWin) overlayWin.close();
 
   const display = cursorDisplay();
@@ -264,7 +266,9 @@ async function startCapture(mode = 'capture') { // 'capture' | 'cover'
   captureWin = fullscreenOverlayWindow(display);
   captureWin.loadFile(path.join(__dirname, 'src', 'capture.html'));
   captureWin.webContents.once('did-finish-load', () => {
-    captureWin.webContents.send('capture-init', { dataURL, mode });
+    captureWin.webContents.send('capture-init', {
+      dataURL, mode, selftest: !!process.env.SSHOTPIN_SELFTEST,
+    });
     captureWin.show();
     captureWin.focus();
   });
@@ -423,6 +427,9 @@ function toggleTimer() {
   timerWin.once('ready-to-show', () => timerWin.show());
   timerWin.on('closed', () => { timerWin = null; });
 }
+
+// 렌더러 오류 로그
+ipcMain.on('renderer-log', (e, msg) => console.error('[renderer]', msg));
 
 // ---------- 단축키 ----------
 
