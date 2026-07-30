@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>스샷핀 설정</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+    background: #f8fafc; color: #1e293b;
+    padding: 22px 26px 40px; line-height: 1.65;
+  }
+  h1 { font-size: 20px; margin-bottom: 4px; }
+  .sub { color: #64748b; font-size: 13px; margin-bottom: 20px; }
+  h2 { font-size: 15px; margin: 22px 0 8px; padding-left: 10px; border-left: 4px solid #2563eb; }
+  .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; }
+  .row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px; border-bottom: 1px solid #e2e8f0;
+    font-size: 14px;
+  }
+  .row:last-child { border-bottom: 0; }
+  .row .name { flex: 1; }
+  .keybox {
+    min-width: 128px; text-align: center;
+    background: #1e293b; color: #f1f5f9;
+    border: 2px solid transparent; border-radius: 7px;
+    padding: 5px 12px; font-size: 13px; cursor: pointer;
+    font-family: inherit;
+  }
+  .keybox:hover { background: #334155; }
+  .keybox.listening {
+    background: #fff; color: #2563eb; border-color: #2563eb;
+  }
+  .keybox.empty { background: #e2e8f0; color: #94a3b8; }
+  .mini {
+    border: 1px solid #cbd5e1; background: #fff; color: #475569;
+    border-radius: 6px; padding: 4px 9px; font-size: 12px; cursor: pointer;
+    font-family: inherit;
+  }
+  .mini:hover { background: #f1f5f9; }
+  .warn {
+    background: #fef3c7; border: 1px solid #fde68a; color: #92400e;
+    border-radius: 8px; padding: 10px 14px; font-size: 13px; margin-top: 10px;
+  }
+  .tip {
+    background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af;
+    border-radius: 8px; padding: 10px 14px; font-size: 13px; margin-top: 10px;
+  }
+  .pathbox {
+    flex: 1; background: #f1f5f9; border-radius: 6px;
+    padding: 5px 10px; font-size: 12.5px; color: #475569;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  label.sw { display: flex; align-items: center; gap: 9px; cursor: pointer; flex: 1; }
+  input[type=checkbox] { width: 17px; height: 17px; cursor: pointer; accent-color: #2563eb; }
+  .desc { color: #64748b; font-size: 12.5px; }
+  footer { margin-top: 26px; display: flex; align-items: center; gap: 10px; }
+  .ver { color: #94a3b8; font-size: 12px; margin-left: auto; }
+</style>
+</head>
+<body>
+  <h1>⚙️ 스샷핀 설정</h1>
+  <div class="sub">바꾸면 바로 저장됩니다.</div>
+
+  <h2>단축키</h2>
+  <div class="card" id="hotkeys"></div>
+  <div id="failWrap"></div>
+  <div class="tip">
+    💡 <b>다른 프로그램과 겹칠 때</b>: 예를 들어 엑셀·한글에서 <b>F1</b>은 도움말입니다.
+    겹쳐서 불편하면 위 칸을 클릭하고 원하는 키를 눌러 바꾸세요.
+    <b>비우기</b>를 누르면 그 단축키를 아예 쓰지 않습니다 (퀵 실행바나 트레이 메뉴로 실행 가능).
+  </div>
+  <footer style="margin-top:12px">
+    <button class="mini" id="resetKeys">단축키 기본값으로 되돌리기</button>
+  </footer>
+
+  <h2>저장</h2>
+  <div class="card">
+    <div class="row">
+      <label class="sw">
+        <input type="checkbox" id="quickSave">
+        <span>
+          바로 저장 (저장 위치를 묻지 않음)
+          <div class="desc">끄면 저장할 때마다 위치를 물어봅니다.</div>
+        </span>
+      </label>
+    </div>
+    <div class="row">
+      <span class="name" style="flex:0 0 auto">저장 폴더</span>
+      <span class="pathbox" id="saveDir">—</span>
+      <button class="mini" id="pickDir">변경</button>
+      <button class="mini" id="openDir">열기</button>
+      <button class="mini" id="resetDir">기본값</button>
+    </div>
+  </div>
+
+  <h2>실행</h2>
+  <div class="card">
+    <div class="row">
+      <label class="sw">
+        <input type="checkbox" id="quickbarVisible">
+        <span>
+          퀵 실행바 표시
+          <div class="desc">화면에 떠 있는 버튼바 — 단축키 없이 클릭으로 실행합니다.</div>
+        </span>
+      </label>
+    </div>
+    <div class="row">
+      <label class="sw">
+        <input type="checkbox" id="openAtLogin">
+        <span>
+          컴퓨터 시작 시 자동 실행
+          <div class="desc">켜두면 부팅 후 바로 쓸 수 있습니다.</div>
+        </span>
+      </label>
+    </div>
+  </div>
+
+  <footer>
+    <button class="mini" id="openHelp">❓ 사용법·단축키 보기</button>
+    <span class="ver" id="ver"></span>
+  </footer>
+
+<script>
+  let listeningKey = null;   // 지금 키 입력을 기다리는 항목
+  let state = null;
+
+  const MOD_ORDER = ['CommandOrControl', 'Ctrl', 'Control', 'Alt', 'Option', 'Shift', 'Super', 'Command'];
+
+  function prettyAccel(accel, isMac) {
+    if (!accel) return '사용 안 함';
+    return accel
+      .replace('CommandOrControl', isMac ? 'Cmd' : 'Ctrl')
+      .replace('Control', 'Ctrl')
+      .replace('Command', 'Cmd')
+      .replace('Option', 'Alt')
+      .replace(/\+/g, ' + ');
+  }
+
+  function renderHotkeys() {
+    const box = document.getElementById('hotkeys');
+    box.innerHTML = '';
+    for (const [key, label] of Object.entries(state.labels)) {
+      const accel = state.hotkeys[key] || '';
+      const row = document.createElement('div');
+      row.className = 'row';
+      row.innerHTML = `
+        <span class="name">${label}</span>
+        <button class="keybox ${accel ? '' : 'empty'}" data-key="${key}">${prettyAccel(accel, state.isMac)}</button>
+        <button class="mini" data-clear="${key}">비우기</button>
+      `;
+      box.appendChild(row);
+    }
+    for (const btn of box.querySelectorAll('.keybox')) {
+      btn.addEventListener('click', () => startListening(btn));
+    }
+    for (const btn of box.querySelectorAll('[data-clear]')) {
+      btn.addEventListener('click', () => window.api.setHotkey(btn.dataset.clear, ''));
+    }
+  }
+
+  function startListening(btn) {
+    // 다른 항목이 대기 중이면 해제
+    for (const b of document.querySelectorAll('.keybox.listening')) {
+      b.classList.remove('listening');
+    }
+    listeningKey = btn.dataset.key;
+    btn.classList.add('listening');
+    btn.textContent = '키를 누르세요…';
+  }
+
+  // 실제 키 입력을 Electron accelerator 문자열로 변환
+  // ⚠️ e.key는 한글 입력 상태나 Ctrl 조합에서 자모·제어문자가 되므로
+  //    키보드 레이아웃과 무관한 e.code를 사용한다.
+  const CODE_MAP = {
+    Space: 'Space', Escape: 'ESC_CANCEL', Enter: 'Return', NumpadEnter: 'Return',
+    Tab: 'Tab', Backspace: 'Backspace', Delete: 'Delete', Insert: 'Insert',
+    Home: 'Home', End: 'End', PageUp: 'PageUp', PageDown: 'PageDown',
+    ArrowUp: 'Up', ArrowDown: 'Down', ArrowLeft: 'Left', ArrowRight: 'Right',
+    Minus: '-', Equal: '=', BracketLeft: '[', BracketRight: ']',
+    Semicolon: ';', Quote: "'", Backquote: '`', Backslash: '\\',
+    Comma: ',', Period: '.', Slash: '/',
+  };
+
+  function baseKeyFromCode(code) {
+    let m;
+    if ((m = /^Key([A-Z])$/.exec(code))) return m[1];
+    if ((m = /^Digit(\d)$/.exec(code))) return m[1];
+    if ((m = /^Numpad(\d)$/.exec(code))) return 'num' + m[1];
+    if (/^F\d{1,2}$/.test(code)) return code;
+    if (CODE_MAP[code]) return CODE_MAP[code];
+    return null;
+  }
+
+  function toAccelerator(e) {
+    // 조합키만 누른 상태면 계속 대기
+    if (['ControlLeft', 'ControlRight', 'MetaLeft', 'MetaRight',
+         'AltLeft', 'AltRight', 'ShiftLeft', 'ShiftRight'].includes(e.code)) return null;
+
+    const k = baseKeyFromCode(e.code);
+    if (!k) return null;                 // 지원하지 않는 키
+    if (k === 'ESC_CANCEL') return 'ESC_CANCEL';
+
+    const mods = [];
+    if (e.ctrlKey) mods.push('Ctrl');
+    if (e.metaKey) mods.push('Command');
+    if (e.altKey) mods.push('Alt');
+    if (e.shiftKey) mods.push('Shift');
+
+    // 조합키 없는 단일 키는 타이핑을 가로채므로 F키만 허용
+    if (!mods.length && !/^F\d{1,2}$/.test(k)) return 'NEED_MODIFIER';
+
+    return [...mods, k].join('+');
+  }
+
+  window.addEventListener('keydown', (e) => {
+    if (!listeningKey) return;
+    e.preventDefault();
+    const accel = toAccelerator(e);
+    if (!accel) return; // 조합키만 누른 상태 → 계속 대기
+
+    if (accel === 'ESC_CANCEL') {
+      listeningKey = null;
+      renderHotkeys();
+      return;
+    }
+    if (accel === 'NEED_MODIFIER') {
+      const btn = document.querySelector('.keybox.listening');
+      if (btn) btn.textContent = 'Ctrl·Alt와 함께 눌러주세요';
+      return;
+    }
+    const key = listeningKey;
+    listeningKey = null;
+    window.api.setHotkey(key, accel);
+  });
+
+  function renderRest() {
+    document.getElementById('quickSave').checked = state.quickSave;
+    document.getElementById('quickbarVisible').checked = state.quickbarVisible;
+    document.getElementById('openAtLogin').checked = state.openAtLogin;
+    document.getElementById('saveDir').textContent =
+      state.saveDir + (state.saveDirIsDefault ? '  (기본: 사진 폴더)' : '');
+    document.getElementById('ver').textContent = 'v' + state.version;
+
+    const fw = document.getElementById('failWrap');
+    fw.innerHTML = state.failures && state.failures.length
+      ? `<div class="warn">⚠️ 이 단축키는 다른 프로그램이 이미 쓰고 있어 작동하지 않습니다:
+         <b>${state.failures.join(', ')}</b><br>위 칸을 눌러 다른 키로 바꿔주세요.</div>`
+      : '';
+  }
+
+  window.api.onSettingsState((d) => {
+    state = d;
+    renderHotkeys();
+    renderRest();
+  });
+
+  document.getElementById('resetKeys').addEventListener('click', () => window.api.resetHotkeys());
+  document.getElementById('quickSave').addEventListener('change', (e) =>
+    window.api.setFlag('quickSave', e.target.checked));
+  document.getElementById('quickbarVisible').addEventListener('change', (e) =>
+    window.api.setFlag('quickbarVisible', e.target.checked));
+  document.getElementById('openAtLogin').addEventListener('change', (e) =>
+    window.api.setFlag('openAtLogin', e.target.checked));
+  document.getElementById('pickDir').addEventListener('click', () => window.api.pickSaveDir());
+  document.getElementById('openDir').addEventListener('click', () => window.api.openSaveDir());
+  document.getElementById('resetDir').addEventListener('click', () => window.api.resetSaveDir());
+  document.getElementById('openHelp').addEventListener('click', () => window.api.openHelpFromSettings());
+</script>
+</body>
+</html>

@@ -52,6 +52,8 @@
       <span id="penVal">5px</span>
       <button class="tbtn" id="penPlus" title="펜 굵게 (Ctrl+휠 위)">＋</button>
       <div class="sep"></div>
+      <button class="tbtn" id="btnMosaic" data-act="mosaic" title="모자이크 — 켜고 드래그하면 그 부분을 가립니다 (M)">🔲</button>
+      <div class="sep"></div>
       <button class="tbtn" data-act="undo" title="한 획 취소 (우클릭 / Ctrl+Z)">↩</button>
       <button class="tbtn" data-act="clear" title="모두 지우기 (E)">🗑</button>
       <button class="tbtn" id="btnWhite" data-act="white" title="흰 칠판 모드 (W)">⬜</button>
@@ -64,6 +66,7 @@
       <span id="zoomLabel">100%</span>
     </div>
     <div id="hint">드래그=펜 · Shift=직선 · Ctrl=사각형 · Ctrl+Shift=화살표 · Tab+드래그=원 · Alt+클릭=①번호 · 휠=확대/축소</div>
+    <div id="hint2" style="display:none; color:#93c5fd">🔲 모자이크 켜짐 — 가릴 부분을 드래그하세요 (버튼을 다시 누르면 끄기)</div>
   </div>
 
 <script>
@@ -83,6 +86,7 @@
   let current = null;
   let drawing = false;
   let stepSeq = 0;           // 풀이 순서 번호 카운터
+  let mosaicMode = false;    // 모자이크 도구 켜짐 여부
   let tabHeld = false;
   let lastMouse = { x: 0, y: 0 };
   let frozenOrigin = null;   // 그리는 동안 팬 고정
@@ -162,6 +166,32 @@
       c.lineTo(s.x2 - head * Math.cos(ang + 0.45), s.y2 - head * Math.sin(ang + 0.45));
       c.closePath();
       c.fill();
+    } else if (s.type === 'mosaic') {
+      // 원본 이미지를 굵은 격자로 다시 그려 모자이크 효과
+      const x = Math.min(s.x1, s.x2), y = Math.min(s.y1, s.y2);
+      const w = Math.abs(s.x2 - s.x1), h = Math.abs(s.y2 - s.y1);
+      if (w < 2 || h < 2) return;
+      const cell = Math.max(6, Math.round(Math.min(w, h) / 9));
+      c.save();
+      c.beginPath();
+      c.rect(x, y, w, h);
+      c.clip();
+      if (board) {
+        // 칠판 모드에서는 색 정보가 없으니 단색으로 덮음
+        c.fillStyle = board === 'white' ? '#cbd5e1' : '#334155';
+        c.fillRect(x, y, w, h);
+      } else {
+        c.imageSmoothingEnabled = false;
+        for (let gy = y; gy < y + h; gy += cell) {
+          for (let gx = x; gx < x + w; gx += cell) {
+            // 각 격자의 좌상단 1픽셀을 격자 전체로 확대
+            c.drawImage(img, Math.round(gx), Math.round(gy), 1, 1,
+              Math.round(gx), Math.round(gy), cell, cell);
+          }
+        }
+        c.imageSmoothingEnabled = true;
+      }
+      c.restore();
     } else if (s.type === 'step') {
       // 풀이 순서 번호 ①②③
       c.beginPath();
@@ -198,6 +228,9 @@
     }
     document.getElementById('btnWhite').classList.toggle('on', board === 'white');
     document.getElementById('btnBlack').classList.toggle('on', board === 'black');
+    document.getElementById('btnMosaic').classList.toggle('on', mosaicMode);
+    document.getElementById('hint').style.display = mosaicMode ? 'none' : '';
+    document.getElementById('hint2').style.display = mosaicMode ? '' : 'none';
   }
 
   // ----- 마우스 -----
@@ -218,7 +251,8 @@
     frozenOrigin = origin(); // 그리는 동안 화면 고정
     const p = toImage(e.clientX, e.clientY);
     const width = (penScreen * R()) / z;
-    if (tabHeld) current = { type: 'ellipse', color, width, x1: p.x, y1: p.y, x2: p.x, y2: p.y };
+    if (mosaicMode) current = { type: 'mosaic', color, width, x1: p.x, y1: p.y, x2: p.x, y2: p.y };
+    else if (tabHeld) current = { type: 'ellipse', color, width, x1: p.x, y1: p.y, x2: p.x, y2: p.y };
     else if (e.ctrlKey && e.shiftKey) current = { type: 'arrow', color, width, x1: p.x, y1: p.y, x2: p.x, y2: p.y };
     else if (e.shiftKey) current = { type: 'line', color, width, x1: p.x, y1: p.y, x2: p.x, y2: p.y };
     else if (e.ctrlKey) current = { type: 'rect', color, width, x1: p.x, y1: p.y, x2: p.x, y2: p.y };
@@ -317,6 +351,7 @@
       const act = btn.dataset.act;
       if (act === 'undo') undo();
       else if (act === 'clear') clearAll();
+      else if (act === 'mosaic') { mosaicMode = !mosaicMode; render(); }
       else if (act === 'white') toggleBoard('white');
       else if (act === 'black') toggleBoard('black');
       else finish(act); // pin / copy / save / close
@@ -339,6 +374,7 @@
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); finish('save'); return; }
     const k = e.key.toLowerCase();
     if (k === 'e') { clearAll(); return; }
+    if (k === 'm') { mosaicMode = !mosaicMode; render(); return; }
     if (k === 'w') { toggleBoard('white'); return; }
     if (k === 'k') { toggleBoard('black'); return; }
     if (COLOR_KEYS[k] && !e.ctrlKey && !e.metaKey) { color = COLOR_KEYS[k]; render(); return; }

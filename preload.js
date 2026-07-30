@@ -8,6 +8,16 @@ contextBridge.exposeInMainWorld('api', {
   // 퀵 실행바
   quickbarAction: (action) => ipcRenderer.send('quickbar-action', action),
 
+  // 설정 창
+  onSettingsState: (cb) => ipcRenderer.on('settings-state', (e, d) => cb(d)),
+  setHotkey: (key, accel) => ipcRenderer.send('settings-set-hotkey', { key, accel }),
+  resetHotkeys: () => ipcRenderer.send('settings-reset-hotkeys'),
+  setFlag: (key, value) => ipcRenderer.send('settings-set-flag', { key, value }),
+  pickSaveDir: () => ipcRenderer.invoke('settings-pick-dir'),
+  resetSaveDir: () => ipcRenderer.send('settings-reset-dir'),
+  openSaveDir: () => ipcRenderer.send('settings-open-dir'),
+  openHelpFromSettings: () => ipcRenderer.send('settings-open-help'),
+
   // 캡처 오버레이
   onCaptureInit: (cb) => ipcRenderer.on('capture-init', (e, d) => cb(d)),
   captureFinish: (payload) => ipcRenderer.send('capture-finish', payload),

@@ -4,7 +4,7 @@
 const {
   app, BrowserWindow, globalShortcut, Tray, Menu,
   clipboard, nativeImage, screen, desktopCapturer,
-  ipcMain, dialog, Notification,
+  ipcMain, dialog, Notification, shell,
 } = require('electron');
 const path = require('path');
 const fs = require('fs');
@@ -29,16 +29,41 @@ const dragOrigins = new Map(); // webContents.id -> [x, y]
 // ---------- 설정 ----------
 
 const settingsPath = path.join(app.getPath('userData'), 'settings.json');
+const DEFAULT_HOTKEYS = {
+  capture: 'F1',
+  cover: 'F2',
+  pin: 'F3',
+  // 맥에서는 Cmd+1~3이 브라우저 탭 전환과 충돌하므로 Control 사용
+  zoom: isMac ? 'Control+1' : 'Ctrl+1',
+  draw: isMac ? 'Control+2' : 'Ctrl+2',
+  timer: isMac ? 'Control+3' : 'Ctrl+3',
+};
+
+const HOTKEY_LABELS = {
+  capture: '영역 캡처',
+  cover: '정답 가리개',
+  pin: '클립보드 이미지 핀',
+  zoom: '화면 확대·축소',
+  draw: '판서',
+  timer: '수업 타이머',
+};
+
 const defaultSettings = {
   firstRunDone: false,
   pinBorderVisible: true,
   pinBorderColor: '#3b82f6',
   quickbarVisible: true,
   quickbarBounds: null,
+  hotkeys: { ...DEFAULT_HOTKEYS },
+  saveDir: '',        // 빈 값이면 사진 폴더
+  quickSave: false,   // true면 대화상자 없이 바로 저장
 };
 let settings = { ...defaultSettings };
 try {
-  settings = { ...defaultSettings, ...JSON.parse(fs.readFileSync(settingsPath, 'utf8')) };
+  const loaded = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+  settings = { ...defaultSettings, ...loaded };
+  // 단축키는 항목별로 병합해 새 기능이 추가돼도 누락되지 않게
+  settings.hotkeys = { ...DEFAULT_HOTKEYS, ...(loaded.hotkeys || {}) };
 } catch (e) { /* 첫 실행 */ }
 function saveSettings() {
   try { fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2)); } catch (e) {}
@@ -60,14 +85,38 @@ function timestamp() {
   return `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
 }
 
+function currentSaveDir() {
+  if (settings.saveDir) {
+    try {
+      if (fs.existsSync(settings.saveDir)) return settings.saveDir;
+    } catch (e) { /* 폴더가 사라졌으면 기본값으로 */ }
+  }
+  return app.getPath('pictures');
+}
+
 async function saveImageDialog(dataURL, parentWin) {
+  const img = nativeImage.createFromDataURL(dataURL);
+  const fileName = `스샷핀_${timestamp()}.png`;
+
+  // 빠른 저장: 대화상자 없이 지정 폴더에 바로 저장
+  if (settings.quickSave) {
+    try {
+      const target = path.join(currentSaveDir(), fileName);
+      fs.writeFileSync(target, img.toPNG());
+      notify(`저장했습니다: ${fileName}`);
+      return;
+    } catch (e) {
+      notify('빠른 저장에 실패했습니다. 저장 위치를 다시 선택해주세요.');
+      // 실패하면 아래 대화상자로 진행
+    }
+  }
+
   const { canceled, filePath } = await dialog.showSaveDialog(parentWin || null, {
     title: '스샷 저장',
-    defaultPath: path.join(app.getPath('pictures'), `스샷핀_${timestamp()}.png`),
+    defaultPath: path.join(currentSaveDir(), fileName),
     filters: [{ name: 'PNG 이미지', extensions: ['png'] }],
   });
   if (canceled || !filePath) return;
-  const img = nativeImage.createFromDataURL(dataURL);
   fs.writeFileSync(filePath, img.toPNG());
   notify(`저장했습니다: ${path.basename(filePath)}`);
 }
@@ -123,7 +172,7 @@ function fullscreenOverlayWindow(display) {
 function createQuickbar() {
   if (quickbarWin) { quickbarWin.showInactive(); return; }
   const display = screen.getPrimaryDisplay();
-  const W = 396, H = 46;
+  const W = 434, H = 46;
   let { x, y } = {
     x: display.workArea.x + Math.round((display.workArea.width - W) / 2),
     y: display.workArea.y + 8,
@@ -186,6 +235,7 @@ ipcMain.on('quickbar-action', (e, action) => {
   else if (action === 'draw') toggleOverlay('draw');
   else if (action === 'timer') toggleTimer();
   else if (action === 'help') openHelp();
+  else if (action === 'settings') openSettings();
   else if (action === 'hide') {
     setQuickbarVisible(false);
     notify('퀵 실행바를 숨겼습니다. 트레이 메뉴에서 다시 켤 수 있습니다.');
@@ -373,6 +423,150 @@ function toggleTimer() {
   timerWin.once('ready-to-show', () => timerWin.show());
   timerWin.on('closed', () => { timerWin = null; });
 }
+
+// ---------- 단축키 ----------
+
+const HOTKEY_ACTIONS = {
+  capture: () => startCapture('capture'),
+  cover: () => startCapture('cover'),
+  pin: () => pinFromClipboard(),
+  zoom: () => toggleOverlay('zoom'),
+  draw: () => toggleOverlay('draw'),
+  timer: () => toggleTimer(),
+};
+
+let hotkeyFailures = [];
+
+// Electron 액셀러레이터는 ASCII만 허용 — 한글 입력 상태에서 자모가 섞이면 등록 자체가 실패한다
+function isValidAccelerator(accel) {
+  return typeof accel === 'string' && accel.length > 0 && /^[\x20-\x7E]+$/.test(accel);
+}
+
+function registerHotkeys() {
+  globalShortcut.unregisterAll();
+  hotkeyFailures = [];
+  for (const [key, accel] of Object.entries(settings.hotkeys)) {
+    if (!accel || !HOTKEY_ACTIONS[key]) continue; // 빈 값이면 사용 안 함
+    if (!isValidAccelerator(accel)) {
+      // 과거 버전에서 잘못 저장된 값은 기본값으로 자동 복구
+      settings.hotkeys[key] = DEFAULT_HOTKEYS[key] || '';
+      saveSettings();
+      const fixed = settings.hotkeys[key];
+      if (!fixed) continue;
+      if (globalShortcut.register(fixed, HOTKEY_ACTIONS[key])) continue;
+      hotkeyFailures.push(`${HOTKEY_LABELS[key]} (${fixed})`);
+      continue;
+    }
+    let ok = false;
+    try {
+      ok = globalShortcut.register(accel, HOTKEY_ACTIONS[key]);
+    } catch (e) {
+      ok = false; // 잘못된 형식
+    }
+    if (!ok) hotkeyFailures.push(`${HOTKEY_LABELS[key]} (${accel})`);
+  }
+  return hotkeyFailures;
+}
+
+// ---------- 설정 창 ----------
+
+let settingsWin = null;
+
+function openSettings() {
+  if (settingsWin) { settingsWin.focus(); return; }
+  settingsWin = new BrowserWindow({
+    width: 620, height: 720,
+    title: '스샷핀 설정',
+    autoHideMenuBar: true,
+    minimizable: false,
+    maximizable: false,
+    fullscreenable: false,
+    icon: path.join(__dirname, 'assets', 'icon.png'),
+    webPreferences: { preload: path.join(__dirname, 'preload.js') },
+  });
+  settingsWin.loadFile(path.join(__dirname, 'src', 'settings.html'));
+  settingsWin.webContents.once('did-finish-load', () => sendSettingsState());
+  settingsWin.on('closed', () => { settingsWin = null; });
+}
+
+function sendSettingsState() {
+  if (!settingsWin) return;
+  settingsWin.webContents.send('settings-state', {
+    hotkeys: settings.hotkeys,
+    labels: HOTKEY_LABELS,
+    defaults: DEFAULT_HOTKEYS,
+    saveDir: currentSaveDir(),
+    saveDirIsDefault: !settings.saveDir,
+    quickSave: settings.quickSave,
+    quickbarVisible: settings.quickbarVisible,
+    openAtLogin: app.getLoginItemSettings().openAtLogin,
+    failures: hotkeyFailures,
+    isMac,
+    version: app.getVersion(),
+  });
+}
+
+ipcMain.on('settings-set-hotkey', (e, { key, accel }) => {
+  if (!HOTKEY_ACTIONS[key]) return;
+  // 빈 값('사용 안 함')은 허용, 그 외에는 ASCII 액셀러레이터만 저장
+  if (accel && !isValidAccelerator(accel)) {
+    notify('이 키는 단축키로 쓸 수 없습니다. 한글 입력을 끄고 다시 시도해주세요.');
+    sendSettingsState();
+    return;
+  }
+  settings.hotkeys[key] = accel;
+  saveSettings();
+  const failures = registerHotkeys();
+  sendSettingsState();
+  if (accel && failures.some((f) => f.includes(accel))) {
+    notify(`"${accel}" 단축키를 사용할 수 없습니다. 다른 프로그램이 이미 쓰고 있을 수 있어요.`);
+  }
+});
+
+ipcMain.on('settings-reset-hotkeys', () => {
+  settings.hotkeys = { ...DEFAULT_HOTKEYS };
+  saveSettings();
+  registerHotkeys();
+  sendSettingsState();
+});
+
+ipcMain.on('settings-set-flag', (e, { key, value }) => {
+  if (key === 'quickSave') {
+    settings.quickSave = !!value;
+    saveSettings();
+  } else if (key === 'quickbarVisible') {
+    setQuickbarVisible(!!value);
+  } else if (key === 'openAtLogin') {
+    app.setLoginItemSettings({ openAtLogin: !!value });
+    rebuildTrayMenu();
+  }
+  sendSettingsState();
+});
+
+ipcMain.handle('settings-pick-dir', async () => {
+  const { canceled, filePaths } = await dialog.showOpenDialog(settingsWin || null, {
+    title: '저장 폴더 선택',
+    defaultPath: currentSaveDir(),
+    properties: ['openDirectory', 'createDirectory'],
+  });
+  if (!canceled && filePaths[0]) {
+    settings.saveDir = filePaths[0];
+    saveSettings();
+  }
+  sendSettingsState();
+});
+
+ipcMain.on('settings-reset-dir', () => {
+  settings.saveDir = '';
+  saveSettings();
+  sendSettingsState();
+});
+
+ipcMain.on('settings-open-dir', () => {
+  shell.openPath(currentSaveDir());
+});
+
+ipcMain.on('settings-open-help', () => openHelp());
 
 // ---------- 도움말 ----------
 
@@ -693,13 +887,14 @@ function rebuildTrayMenu() {
   if (!tray) return;
   const login = app.getLoginItemSettings();
   const anyClickThrough = [...pins.values()].some((p) => p.clickThrough);
+  const hk = settings.hotkeys;
   const menu = Menu.buildFromTemplate([
-    { label: '📸 영역 캡처', accelerator: 'F1', click: () => startCapture('capture') },
-    { label: '🙈 정답 가리개', accelerator: 'F2', click: () => startCapture('cover') },
-    { label: '📌 클립보드 이미지 핀', accelerator: 'F3', click: pinFromClipboard },
-    { label: '🔍 화면 확대·축소', accelerator: 'Ctrl+1', click: () => toggleOverlay('zoom') },
-    { label: '✏️ 판서 (화면에 그리기)', accelerator: 'Ctrl+2', click: () => toggleOverlay('draw') },
-    { label: '⏱️ 수업 타이머', accelerator: 'Ctrl+3', click: toggleTimer },
+    { label: '📸 영역 캡처', accelerator: hk.capture || undefined, click: () => startCapture('capture') },
+    { label: '🙈 정답 가리개', accelerator: hk.cover || undefined, click: () => startCapture('cover') },
+    { label: '📌 클립보드 이미지 핀', accelerator: hk.pin || undefined, click: pinFromClipboard },
+    { label: '🔍 화면 확대·축소', accelerator: hk.zoom || undefined, click: () => toggleOverlay('zoom') },
+    { label: '✏️ 판서 (화면에 그리기)', accelerator: hk.draw || undefined, click: () => toggleOverlay('draw') },
+    { label: '⏱️ 수업 타이머', accelerator: hk.timer || undefined, click: toggleTimer },
     { type: 'separator' },
     { label: pinsHidden ? '핀 모두 보이기' : '핀 모두 숨기기', click: toggleAllPinsVisible, enabled: pins.size > 0 || pinsHidden },
     { label: '핀 모두 닫기', click: closeAllPins, enabled: pins.size > 0 },
@@ -707,6 +902,7 @@ function rebuildTrayMenu() {
     { label: '클릭 통과 모두 해제', click: releaseAllClickThrough, enabled: anyClickThrough },
     { type: 'separator' },
     { label: '❓ 사용법·단축키', click: openHelp },
+    { label: '⚙️ 설정 (단축키 변경·저장 폴더)', click: openSettings },
     {
       label: '퀵 실행바 표시',
       type: 'checkbox',
@@ -730,7 +926,7 @@ function rebuildTrayMenu() {
 function createTray() {
   const icon = nativeImage.createFromPath(path.join(__dirname, 'assets', 'tray.png'));
   tray = new Tray(icon);
-  tray.setToolTip('스샷핀 — F1 캡처 / F2 가리개 / F3 핀 / Ctrl+1 확대 / Ctrl+2 판서 / Ctrl+3 타이머');
+  tray.setToolTip('스샷핀 — 아이콘을 우클릭하면 모든 기능과 설정을 볼 수 있어요');
   rebuildTrayMenu();
   tray.on('double-click', () => startCapture('capture'));
 }
@@ -796,18 +992,9 @@ if (!gotLock) {
     createTray();
     if (settings.quickbarVisible) createQuickbar();
 
-    // 맥에서는 Cmd+1~3(브라우저 탭 전환 등)을 뺏지 않도록 Control 키로 등록
-    const mod = isMac ? 'Control' : 'CommandOrControl';
-    const registered = [
-      globalShortcut.register('F1', () => startCapture('capture')),
-      globalShortcut.register('F2', () => startCapture('cover')),
-      globalShortcut.register('F3', pinFromClipboard),
-      globalShortcut.register(`${mod}+1`, () => toggleOverlay('zoom')),
-      globalShortcut.register(`${mod}+2`, () => toggleOverlay('draw')),
-      globalShortcut.register(`${mod}+3`, toggleTimer),
-    ];
-    if (registered.some((ok) => !ok)) {
-      notify('일부 단축키 등록에 실패했습니다. 다른 프로그램과 충돌일 수 있습니다.');
+    const failures = registerHotkeys();
+    if (failures.length) {
+      notify(`단축키 충돌: ${failures.join(', ')} — 트레이 → ⚙️ 설정에서 바꿀 수 있어요.`);
     }
 
     firstRunFlow();
@@ -824,7 +1011,7 @@ if (!gotLock) {
       } catch (e) { /* 업데이트 실패는 조용히 무시 */ }
     }
 
-    console.log('스샷핀 시작됨 — F1 캡처 / F3 핀 / Ctrl+1 확대 / Ctrl+2 판서 / Ctrl+3 타이머');
+    console.log('스샷핀 시작됨 — 단축키:', JSON.stringify(settings.hotkeys));
   });
 
   // 트레이 상주 앱: 창이 모두 닫혀도 종료하지 않음
