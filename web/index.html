@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>스샷핀 — 화면 캡처 후 붙여두는 수업용 무료 프로그램 (윈도우)</title>
+<meta name="description" content="스샷핀은 캡처한 화면을 쪽지처럼 항상 위에 고정해두는 수업 특화 무료 캡처 프로그램입니다. 화면 확대, 판서, 수업 타이머, 정답 가리개 기능 제공. 윈도우 10/11 무료 다운로드.">
+<meta name="keywords" content="스샷핀, 화면캡처 프로그램, 캡처 고정, 화면에 붙이기, 스니페이스트 대안, 수업 도구, 판서 프로그램, 화면 확대 프로그램, ZoomIt 대안, 수업 타이머, 정답 가리개, 무료 캡처 프로그램, 윈도우 캡처">
+<meta name="author" content="스샷핀">
+<link rel="canonical" href="https://sshot-pin.web.app/">
+<meta name="robots" content="index, follow">
+
+<!-- Google 애널리틱스 (GA4) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9XBNQ9KQQQ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-9XBNQ9KQQQ');
+</script>
+
+<!-- 파비콘 -->
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="apple-touch-icon" href="icon.png">
+
+<!-- Open Graph (카카오톡·페이스북 공유 미리보기) -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="스샷핀">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:url" content="https://sshot-pin.web.app/">
+<meta property="og:title" content="스샷핀 — 화면 캡처 후 붙여두는 수업용 무료 프로그램">
+<meta property="og:description" content="캡처한 화면을 쪽지처럼 고정해두고 수업하세요. 화면 확대·판서·타이머·정답 가리개까지. 윈도우 무료.">
+<meta property="og:image" content="https://sshot-pin.web.app/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+
+<!-- 트위터 카드 -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="스샷핀 — 화면 캡처 후 붙여두는 수업용 무료 프로그램">
+<meta name="twitter:description" content="캡처한 화면을 쪽지처럼 고정해두고 수업하세요. 확대·판서·타이머·정답 가리개까지.">
+<meta name="twitter:image" content="https://sshot-pin.web.app/og.png">
+
+<!-- 구조화 데이터 (구글 검색 결과 리치 스니펫) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "스샷핀",
+  "alternateName": "SshotPin",
+  "description": "캡처한 화면을 항상 위에 고정해두는 수업 특화 무료 캡처 프로그램. 화면 확대, 판서, 수업 타이머, 정답 가리개 기능 제공.",
+  "url": "https://sshot-pin.web.app/",
+  "image": "https://sshot-pin.web.app/og.png",
+  "applicationCategory": "UtilitiesApplication",
+  "applicationSubCategory": "화면 캡처",
+  "operatingSystem": "Windows 10, Windows 11",
+  "softwareVersion": "0.1.0",
+  "inLanguage": "ko",
+  "downloadUrl": "https://sshot-pin.web.app/SshotPin-Setup-0.1.0.zip",
+  "fileSize": "81MB",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "KRW"
+  },
+  "featureList": [
+    "영역 캡처 후 화면에 고정(핀)",
+    "화면 확대·축소",
+    "화면 판서 (직선·사각형·화살표·번호)",
+    "수업 타이머",
+    "정답 가리개"
+  ]
+}
+</script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --muted: #64748b;
+    --line: #e2e8f0; --blue: #2563eb; --blue-dark: #1d4ed8; --chip: #f1f5f9;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --muted: #94a3b8;
+      --line: #334155; --blue: #3b82f6; --blue-dark: #2563eb; --chip: #334155;
+    }
+  }
+  body {
+    font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', -apple-system, sans-serif;
+    background: var(--bg); color: var(--text);
+    line-height: 1.7; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 20px; }
+
+  /* 히어로 */
+  header { padding: 64px 0 48px; text-align: center; }
+  .logo { width: 108px; height: 108px; margin-bottom: 18px; }
+  h1 { font-size: 40px; letter-spacing: -1px; margin-bottom: 10px; }
+  .tagline { font-size: 19px; color: var(--muted); margin-bottom: 6px; }
+  .sub { font-size: 14px; color: var(--muted); margin-bottom: 30px; }
+  .dl {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--blue); color: #fff; text-decoration: none;
+    font-size: 18px; font-weight: 700;
+    padding: 16px 36px; border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(37, 99, 235, .3);
+    transition: transform .15s, background .15s;
+  }
+  .dl:hover { background: var(--blue-dark); transform: translateY(-2px); }
+  .meta { font-size: 13px; color: var(--muted); margin-top: 14px; }
+
+  /* 섹션 */
+  section { padding: 40px 0; border-top: 1px solid var(--line); }
+  h2 { font-size: 22px; margin-bottom: 8px; }
+  .lead { color: var(--muted); font-size: 15px; margin-bottom: 24px; }
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; }
+  .card {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 12px; padding: 20px;
+  }
+  .card .ico { font-size: 28px; display: block; margin-bottom: 8px; }
+  .card h3 { font-size: 16px; margin-bottom: 6px; }
+  .card p { font-size: 14px; color: var(--muted); }
+
+  /* 단축키 표 */
+  .table-scroll { overflow-x: auto; }
+  table {
+    width: 100%; border-collapse: collapse; font-size: 14px;
+    background: var(--card); border-radius: 12px; overflow: hidden;
+    border: 1px solid var(--line);
+  }
+  th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--line); }
+  tr:last-child th, tr:last-child td { border-bottom: 0; }
+  th { width: 190px; color: var(--muted); font-weight: 600; background: var(--chip); }
+  kbd {
+    display: inline-block; background: var(--text); color: var(--bg);
+    border-radius: 5px; padding: 2px 8px; font-size: 12.5px; font-family: inherit;
+    margin: 0 1px;
+  }
+
+  /* 설치 안내 */
+  ol { padding-left: 22px; }
+  ol li { margin-bottom: 10px; font-size: 15px; }
+  ol li.hl {
+    background: var(--chip); border: 1px solid var(--line);
+    border-left: 4px solid var(--blue);
+    border-radius: 8px; padding: 10px 14px; margin: 12px 0 12px -6px;
+    list-style-position: inside;
+  }
+  .why { font-size: 13px; color: var(--muted); margin-top: 4px; }
+  .faq { display: grid; gap: 12px; }
+  .qa {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 12px; padding: 16px 20px;
+  }
+  .qa h3 { font-size: 15.5px; margin-bottom: 6px; }
+  .qa p { font-size: 14px; color: var(--muted); }
+  .note {
+    background: var(--chip); border: 1px solid var(--line);
+    border-radius: 10px; padding: 14px 18px; font-size: 14px; margin-top: 16px;
+  }
+  footer {
+    text-align: center; padding: 40px 0 60px;
+    color: var(--muted); font-size: 13px;
+    border-top: 1px solid var(--line);
+  }
+  @media (max-width: 600px) {
+    h1 { font-size: 30px; }
+    .tagline { font-size: 16px; }
+    th { width: auto; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <img class="logo" src="icon.png" alt="스샷핀 아이콘">
+    <h1>스샷핀</h1>
+    <p class="tagline">스샷을 콕! 화면에 붙이는 수업 도구</p>
+    <p class="sub">캡처한 화면을 쪽지처럼 붙여두고 수업하세요 · 확대 · 판서 · 타이머 · 정답 가리개</p>
+    <a class="dl" id="dlBtn" href="SshotPin-Setup-0.1.0.zip" download>
+      ⬇ 윈도우용 다운로드
+    </a>
+    <p class="meta">Windows 10 / 11 (64비트) · 무료 · 약 81MB · <span id="ver">v0.1.0</span></p>
+  </header>
+
+  <section>
+    <h2>이런 게 됩니다</h2>
+    <p class="lead">수업 중에 창을 왔다갔다 하지 않아도 됩니다.</p>
+    <div class="cards">
+      <div class="card">
+        <span class="ico">📌</span>
+        <h3>화면에 붙여두기</h3>
+        <p>캡처한 문제·자료를 화면 맨 위에 고정. 다른 프로그램을 써도 계속 보입니다. 스샷핀의 핵심 기능.</p>
+      </div>
+      <div class="card">
+        <span class="ico">🔍</span>
+        <h3>화면 확대</h3>
+        <p><kbd>Ctrl</kbd>+<kbd>1</kbd>로 화면을 크게. 뒷자리 학생도 잘 보이게 마우스 따라 확대됩니다.</p>
+      </div>
+      <div class="card">
+        <span class="ico">✏️</span>
+        <h3>화면에 판서</h3>
+        <p><kbd>Ctrl</kbd>+<kbd>2</kbd>로 화면 위에 바로 밑줄·동그라미·화살표. 흰/검은 칠판 모드도 있습니다.</p>
+      </div>
+      <div class="card">
+        <span class="ico">🙈</span>
+        <h3>정답 가리개</h3>
+        <p><kbd>F2</kbd>로 정답을 덮어두고, 학생들 답을 들은 뒤 클릭 한 번으로 공개.</p>
+      </div>
+      <div class="card">
+        <span class="ico">⏱️</span>
+        <h3>수업 타이머</h3>
+        <p><kbd>Ctrl</kbd>+<kbd>3</kbd>로 모둠활동·시험 시간 표시. 시간을 직접 입력할 수 있습니다.</p>
+      </div>
+      <div class="card">
+        <span class="ico">📸</span>
+        <h3>빠른 캡처</h3>
+        <p><kbd>F1</kbd> 드래그로 영역 캡처. 복사·저장·핀을 한 번에 선택.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>설치 방법</h2>
+    <p class="lead">3단계면 끝납니다.</p>
+    <ol>
+      <li>위 <b>다운로드</b> 버튼을 눌러 ZIP 파일을 받습니다.</li>
+      <li class="hl">받은 ZIP 파일을 <b>우클릭 → 속성</b> → 맨 아래 <b>"차단 해제"에 체크</b> → <b>확인</b>
+        <div class="why">이 한 단계를 하면 아래 3번에서 윈도우 경고창이 뜨지 않습니다. 건너뛰면 경고가 나옵니다.</div>
+      </li>
+      <li>ZIP을 <b>우클릭 → 압축 풀기</b> 합니다.</li>
+      <li>안에 있는 <b>SshotPin-Setup-0.1.0.exe</b>를 실행하고 안내에 따라 설치합니다.</li>
+      <li>설치가 끝나면 <b>사용법 창</b>이 열리고, "컴퓨터 시작 시 자동 실행"을 물어봅니다. <b>켜기</b>를 누르면 다음부터 바로 <kbd>F1</kbd>을 쓸 수 있습니다.</li>
+    </ol>
+    <div class="note">
+      <b>⚠️ "Windows에서 PC를 보호했습니다" 창이 떴다면</b><br>
+      <b>추가 정보</b> → <b>실행</b>을 누르면 설치됩니다. 프로그램에 문제가 있다는 뜻이 아니라,
+      유료 코드 서명 인증서를 붙이지 않은 프로그램에 윈도우가 기본으로 띄우는 안내입니다.
+      위 <b>2번(차단 해제)</b>을 먼저 하면 이 창이 아예 나오지 않습니다.
+    </div>
+    <div class="note">
+      💡 프로그램은 <b>작업표시줄 오른쪽 트레이 아이콘</b>으로 상주합니다.
+      아이콘을 <b>우클릭</b>하면 모든 기능과 <b>❓ 사용법·단축키</b>를 볼 수 있습니다.
+    </div>
+  </section>
+
+  <section>
+    <h2>단축키 한눈에</h2>
+    <p class="lead">어디서든 바로 눌러 쓰세요.</p>
+    <div class="table-scroll">
+      <table>
+        <tr><th><kbd>F1</kbd></th><td>영역 캡처 (드래그 → <kbd>Enter</kbd>로 화면에 핀)</td></tr>
+        <tr><th><kbd>F2</kbd></th><td>정답 가리개 (드래그한 영역을 덮기 → 클릭하면 공개)</td></tr>
+        <tr><th><kbd>F3</kbd></th><td>복사해둔 이미지를 화면에 핀</td></tr>
+        <tr><th><kbd>Ctrl</kbd>+<kbd>1</kbd></th><td>화면 확대·축소</td></tr>
+        <tr><th><kbd>Ctrl</kbd>+<kbd>2</kbd></th><td>판서 — <kbd>Shift</kbd>=직선, <kbd>Ctrl</kbd>=사각형, <kbd>Alt</kbd>+클릭=①②③</td></tr>
+        <tr><th><kbd>Ctrl</kbd>+<kbd>3</kbd></th><td>수업 타이머</td></tr>
+      </table>
+    </div>
+    <div class="note">
+      핀 위에서 <b>휠</b>=확대/축소, <kbd>Ctrl</kbd>+<b>휠</b>=투명도, <b>더블클릭</b>=접기, <b>우클릭</b>=테두리 색·회전·클릭 통과 등 전체 메뉴.
+    </div>
+  </section>
+
+  <section>
+    <h2>자주 묻는 질문</h2>
+    <p class="lead">궁금한 점을 먼저 확인해 보세요.</p>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "스샷핀은 무료인가요?",
+          "acceptedAnswer": { "@type": "Answer", "text": "네, 완전 무료입니다. 결제나 회원가입 없이 다운로드해서 바로 쓸 수 있고, 사용 기간 제한도 없습니다." }
+        },
+        {
+          "@type": "Question",
+          "name": "일반 캡처 프로그램과 무엇이 다른가요?",
+          "acceptedAnswer": { "@type": "Answer", "text": "보통 캡처 프로그램은 찍어서 저장하거나 붙여넣으면 끝입니다. 스샷핀은 캡처한 화면을 쪽지처럼 화면 맨 위에 고정해둘 수 있습니다. 다른 프로그램을 쓰는 동안에도 계속 보이기 때문에 수업 중 문제나 자료를 띄워놓고 진행하기 좋습니다." }
+        },
+        {
+          "@type": "Question",
+          "name": "Windows에서 PC를 보호했습니다 경고가 떠요.",
+          "acceptedAnswer": { "@type": "Answer", "text": "유료 코드 서명 인증서를 붙이지 않은 프로그램에 윈도우가 기본으로 띄우는 안내입니다. 다운로드한 ZIP 파일을 우클릭하고 속성에서 차단 해제를 체크한 뒤 압축을 풀면 경고 없이 설치됩니다. 이미 경고가 떴다면 추가 정보를 누른 뒤 실행을 선택하세요." }
+        },
+        {
+          "@type": "Question",
+          "name": "어떤 윈도우에서 쓸 수 있나요?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Windows 10과 Windows 11의 64비트 버전에서 동작합니다. 맥용은 아직 없습니다." }
+        },
+        {
+          "@type": "Question",
+          "name": "수업에 어떻게 활용하나요?",
+          "acceptedAnswer": { "@type": "Answer", "text": "문제를 캡처해 화면에 고정해두고 풀이를 진행하거나, 정답 부분을 가리개로 덮어두고 학생들 답을 들은 뒤 클릭으로 공개할 수 있습니다. 화면 확대로 크게 보여주고, 화면 위에 바로 밑줄이나 동그라미를 그려 설명할 수 있습니다. 모둠 활동 시간은 타이머로 표시합니다." }
+        },
+        {
+          "@type": "Question",
+          "name": "설치 후 프로그램이 안 보여요.",
+          "acceptedAnswer": { "@type": "Answer", "text": "스샷핀은 창으로 뜨지 않고 작업표시줄 오른쪽 트레이 아이콘으로 상주합니다. 아이콘을 우클릭하면 모든 기능과 사용법을 볼 수 있고, F1을 누르면 바로 캡처가 시작됩니다." }
+        }
+      ]
+    }
+    </script>
+    <div class="faq">
+      <div class="qa">
+        <h3>스샷핀은 무료인가요?</h3>
+        <p>네, 완전 무료입니다. 결제나 회원가입 없이 다운로드해서 바로 쓸 수 있고, 사용 기간 제한도 없습니다.</p>
+      </div>
+      <div class="qa">
+        <h3>일반 캡처 프로그램과 무엇이 다른가요?</h3>
+        <p>보통 캡처 프로그램은 찍어서 저장하거나 붙여넣으면 끝입니다. 스샷핀은 캡처한 화면을 <b>쪽지처럼 화면 맨 위에 고정</b>해둘 수 있습니다. 다른 프로그램을 쓰는 동안에도 계속 보이기 때문에, 수업 중 문제나 자료를 띄워놓고 진행하기 좋습니다.</p>
+      </div>
+      <div class="qa">
+        <h3>"Windows에서 PC를 보호했습니다" 경고가 떠요.</h3>
+        <p>유료 코드 서명 인증서를 붙이지 않은 프로그램에 윈도우가 기본으로 띄우는 안내입니다. 프로그램 문제가 아닙니다. 다운로드한 ZIP 파일을 <b>우클릭 → 속성 → "차단 해제" 체크</b> 후 압축을 풀면 경고 없이 설치됩니다. 이미 경고가 떴다면 <b>추가 정보 → 실행</b>을 누르세요.</p>
+      </div>
+      <div class="qa">
+        <h3>어떤 윈도우에서 쓸 수 있나요?</h3>
+        <p>Windows 10과 Windows 11의 64비트 버전에서 동작합니다. 맥용은 아직 없습니다.</p>
+      </div>
+      <div class="qa">
+        <h3>수업에 어떻게 활용하나요?</h3>
+        <p>문제를 캡처해 화면에 고정해두고 풀이를 진행하거나, 정답 부분을 가리개로 덮어두고 학생들 답을 들은 뒤 클릭으로 공개할 수 있습니다. 잘 안 보이는 부분은 화면 확대로 크게 보여주고, 화면 위에 바로 밑줄이나 동그라미를 그려 설명할 수 있습니다. 모둠 활동 시간은 타이머로 표시합니다.</p>
+      </div>
+      <div class="qa">
+        <h3>설치 후 프로그램이 안 보여요.</h3>
+        <p>스샷핀은 창으로 뜨지 않고 <b>작업표시줄 오른쪽 트레이 아이콘</b>으로 상주합니다. 아이콘을 우클릭하면 모든 기능과 사용법을 볼 수 있고, <kbd>F1</kbd>을 누르면 바로 캡처가 시작됩니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    스샷핀 · 수업을 위한 캡처 도구<br>
+    Windows 10/11 64비트용 · 무료로 쓰세요<br>
+    <span style="opacity:.7">sshot-pin.web.app</span>
+  </footer>
+
+</div>
+
+<script>
+  // version.json이 있으면 최신 버전·다운로드 링크를 자동 갱신
+  fetch('version.json', { cache: 'no-store' })
+    .then((r) => r.ok ? r.json() : Promise.reject())
+    .then((v) => {
+      if (v.version) document.getElementById('ver').textContent = 'v' + v.version;
+      if (v.file) document.getElementById('dlBtn').href = v.file;
+    })
+    .catch(() => { /* 없으면 기본 링크 사용 */ });
+
+  // 다운로드 버튼 클릭을 애널리틱스 이벤트로 기록
+  document.getElementById('dlBtn').addEventListener('click', () => {
+    if (typeof gtag === 'function') {
+      gtag('event', 'download', {
+        file_name: document.getElementById('dlBtn').getAttribute('href'),
+        app_version: document.getElementById('ver').textContent,
+      });
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; user-select: none; }
+  body {
+    background: #0f172a; color: #f1f5f9;
+    font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+    border: 1px solid #334155; border-radius: 12px;
+    display: flex; flex-direction: column;
+  }
+  body.alarm { animation: pulse 0.8s infinite; }
+  @keyframes pulse {
+    0%, 100% { background: #0f172a; }
+    50% { background: #7c2d12; }
+  }
+  #top {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 12px 0;
+    font-size: 12px; color: #94a3b8;
+    cursor: move;
+  }
+  #close { cursor: pointer; color: #94a3b8; font-size: 14px; padding: 0 4px; }
+  #close:hover { color: #f1f5f9; }
+  #time {
+    flex: 1;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 52px; font-weight: 700; letter-spacing: 2px;
+    font-variant-numeric: tabular-nums;
+    cursor: move;
+  }
+  #timeInput {
+    display: none;
+    width: 160px; margin: 10px auto;
+    background: #1e293b; color: #f1f5f9;
+    border: 2px solid #2563eb; border-radius: 8px;
+    font-size: 40px; font-weight: 700; text-align: center;
+    font-variant-numeric: tabular-nums;
+    outline: none;
+  }
+  body.editing #time { display: none; }
+  body.editing #timeInput { display: block; }
+  #controls {
+    display: flex; gap: 6px; padding: 0 12px 12px;
+  }
+  button {
+    flex: 1;
+    border: 0; border-radius: 8px;
+    background: #1e293b; color: #e2e8f0;
+    font: 13px 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+    padding: 8px 0; cursor: pointer;
+  }
+  button:hover { background: #334155; }
+  #startBtn { background: #2563eb; font-weight: 600; }
+  #startBtn:hover { background: #1d4ed8; }
+</style>
+</head>
+<body>
+  <div id="top">
+    <span>⏱️ 수업 타이머 (시간 클릭=직접 입력)</span>
+    <span id="close" title="닫기 (Esc)">✕</span>
+  </div>
+  <div id="time" title="클릭해서 직접 입력">05:00</div>
+  <input id="timeInput" placeholder="5:00" title="분:초 또는 분만 입력 (예: 5:30 / 10)">
+  <div id="controls">
+    <button id="minusBtn">-30초</button>
+    <button id="startBtn">▶ 시작</button>
+    <button id="resetBtn">↺</button>
+    <button id="plusBtn">+30초</button>
+  </div>
+
+<script>
+  let total = 5 * 60;      // 설정 시간(초)
+  let remain = total;
+  let running = false;
+  let tick = null;
+  let alarmed = false;
+
+  const timeEl = document.getElementById('time');
+  const startBtn = document.getElementById('startBtn');
+
+  function fmt(s) {
+    const m = Math.floor(Math.abs(s) / 60), sec = Math.abs(s) % 60;
+    return `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+  }
+
+  function renderTime() {
+    timeEl.textContent = alarmed ? '시간 종료!' : fmt(remain);
+    timeEl.style.fontSize = alarmed ? '34px' : '52px';
+  }
+
+  function beep(times) {
+    const ac = new AudioContext();
+    for (let i = 0; i < times; i++) {
+      const osc = ac.createOscillator();
+      const gain = ac.createGain();
+      osc.connect(gain); gain.connect(ac.destination);
+      osc.frequency.value = 880;
+      gain.gain.setValueAtTime(0.25, ac.currentTime + i * 0.45);
+      gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + i * 0.45 + 0.35);
+      osc.start(ac.currentTime + i * 0.45);
+      osc.stop(ac.currentTime + i * 0.45 + 0.4);
+    }
+  }
+
+  function setRunning(on) {
+    running = on;
+    startBtn.textContent = on ? '⏸ 일시정지' : '▶ 시작';
+    clearInterval(tick);
+    if (on) {
+      tick = setInterval(() => {
+        remain -= 1;
+        if (remain <= 0) {
+          remain = 0;
+          setRunning(false);
+          alarmed = true;
+          document.body.classList.add('alarm');
+          beep(3);
+        }
+        renderTime();
+      }, 1000);
+    }
+  }
+
+  function clearAlarm() {
+    alarmed = false;
+    document.body.classList.remove('alarm');
+  }
+
+  function adjust(sec) {
+    clearAlarm();
+    total = Math.max(30, Math.min(180 * 60, total + sec));
+    if (!running) remain = total;
+    else remain = Math.max(1, remain + sec);
+    renderTime();
+  }
+
+  document.getElementById('minusBtn').addEventListener('click', () => adjust(-30));
+  document.getElementById('plusBtn').addEventListener('click', () => adjust(30));
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    clearAlarm(); setRunning(false); remain = total; renderTime();
+  });
+  startBtn.addEventListener('click', () => {
+    if (alarmed) { clearAlarm(); remain = total; renderTime(); return; }
+    setRunning(!running);
+  });
+  document.getElementById('close').addEventListener('click', () => window.close());
+
+  window.addEventListener('wheel', (e) => {
+    adjust(e.deltaY < 0 ? 30 : -30);
+  }, { passive: true });
+
+  // ----- 시간 직접 입력 -----
+  const timeInput = document.getElementById('timeInput');
+
+  function openEdit() {
+    setRunning(false);
+    clearAlarm();
+    timeInput.value = fmt(remain);
+    document.body.classList.add('editing');
+    timeInput.focus();
+    timeInput.select();
+  }
+
+  // "5" → 5분, "5:30" → 5분30초, "0:40" → 40초
+  function parseTime(str) {
+    const s = str.trim().replace(/\s/g, '');
+    if (!s) return null;
+    if (s.includes(':')) {
+      const [m, sec] = s.split(':');
+      const mm = parseInt(m || '0', 10), ss = parseInt(sec || '0', 10);
+      if (isNaN(mm) || isNaN(ss) || ss >= 60) return null;
+      return mm * 60 + ss;
+    }
+    const mm = parseFloat(s);
+    if (isNaN(mm)) return null;
+    return Math.round(mm * 60);
+  }
+
+  function commitEdit() {
+    const sec = parseTime(timeInput.value);
+    document.body.classList.remove('editing');
+    if (sec === null || sec < 1) { renderTime(); return; }
+    total = Math.max(1, Math.min(180 * 60, sec));
+    remain = total;
+    renderTime();
+  }
+
+  timeInput.addEventListener('keydown', (e) => {
+    e.stopPropagation();
+    if (e.key === 'Enter') commitEdit();
+    else if (e.key === 'Escape') { document.body.classList.remove('editing'); renderTime(); }
+  });
+  timeInput.addEventListener('blur', () => {
+    if (document.body.classList.contains('editing')) commitEdit();
+  });
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') window.close();
+    else if (e.key === ' ') { e.preventDefault(); startBtn.click(); }
+  });
+
+  // 드래그 이동 (상단바·시간 표시 영역) — 시간 표시는 "움직임 없는 클릭"이면 직접 입력 모드
+  let dragging = false, sx = 0, sy = 0, moved = 0, fromTime = false;
+  for (const el of [document.getElementById('top'), timeEl]) {
+    el.addEventListener('mousedown', (e) => {
+      if (e.target.id === 'close') return;
+      dragging = true; moved = 0; fromTime = el === timeEl;
+      sx = e.screenX; sy = e.screenY;
+      window.api.winDragStart();
+    });
+  }
+  window.addEventListener('mousemove', (e) => {
+    if (!dragging) return;
+    moved = Math.max(moved, Math.abs(e.screenX - sx) + Math.abs(e.screenY - sy));
+    window.api.winDragMove(e.screenX - sx, e.screenY - sy);
+  });
+  window.addEventListener('mouseup', () => {
+    if (dragging && fromTime && moved < 4) openEdit();
+    dragging = false; fromTime = false;
+  });
+
+  renderTime();
+</script>
+</body>
+</html>

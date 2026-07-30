@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; user-select: none; background: transparent; }
+  #cover {
+    width: 100vw; height: 100vh;
+    background: var(--cover-color, #1e293b);
+    border: 2px solid rgba(255, 255, 255, .25);
+    border-radius: 8px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 4px;
+    color: var(--cover-text, #f1f5f9);
+    font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+    cursor: pointer;
+  }
+  #mark { font-size: min(18vw, 42vh, 64px); font-weight: 700; }
+  #label { font-size: 12px; opacity: .75; white-space: nowrap; }
+  /* 공개 상태: 거의 투명 + 점선 테두리만 남김 */
+  body.revealed #cover {
+    background: transparent;
+    border: 2px dashed rgba(100, 116, 139, .6);
+  }
+  body.revealed #mark, body.revealed #label { visibility: hidden; }
+</style>
+</head>
+<body>
+  <div id="cover">
+    <div id="mark">?</div>
+    <div id="label">클릭하면 공개 · 휠클릭 닫기</div>
+  </div>
+
+<script>
+  let id = null;
+  let revealed = false;
+  let dragging = false, sx = 0, sy = 0, moved = 0;
+
+  window.api.onCoverInit((d) => { id = d.id; });
+  window.api.onCoverToggle(() => toggle());
+  window.api.onCoverStyle(({ color }) => {
+    const cover = document.getElementById('cover');
+    cover.style.setProperty('--cover-color', color);
+    cover.style.background = color;
+    // 밝은 색이면 글자를 어둡게
+    const dark = ['#fde047'].includes(color);
+    cover.style.color = dark ? '#1e293b' : '#f1f5f9';
+  });
+
+  function toggle() {
+    revealed = !revealed;
+    document.body.classList.toggle('revealed', revealed);
+  }
+
+  window.addEventListener('mousedown', (e) => {
+    if (e.button === 0) {
+      dragging = true; moved = 0;
+      sx = e.screenX; sy = e.screenY;
+      window.api.winDragStart();
+    } else if (e.button === 1) {
+      window.api.coverClose(id);
+    }
+  });
+  window.addEventListener('mousemove', (e) => {
+    if (!dragging) return;
+    moved = Math.max(moved, Math.abs(e.screenX - sx) + Math.abs(e.screenY - sy));
+    window.api.winDragMove(e.screenX - sx, e.screenY - sy);
+  });
+  window.addEventListener('mouseup', (e) => {
+    if (e.button === 0 && dragging && moved < 4) toggle(); // 움직임 없는 클릭 = 공개/가리기
+    dragging = false;
+  });
+  window.addEventListener('blur', () => { dragging = false; });
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') window.api.coverClose(id);
+    else if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggle(); }
+  });
+</script>
+</body>
+</html>

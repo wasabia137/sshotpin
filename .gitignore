@@ -1,0 +1,10 @@
+node_modules/
+dist/
+dist_win/
+web/*.exe
+web/*.blockmap
+web/*.zip
+web/latest.yml
+*.log
+.DS_Store
+.firebase/

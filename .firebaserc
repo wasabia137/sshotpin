@@ -1,0 +1,12 @@
+{
+  "projects": {
+    "default": "sshot-pin"
+  },
+  "targets": {
+    "sshot-pin": {
+      "hosting": {
+        "app": ["sshot-pin"]
+      }
+    }
+  }
+}

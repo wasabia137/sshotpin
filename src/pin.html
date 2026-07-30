@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; user-select: none; background: transparent; }
+  #canvas { width: 100vw; height: 100vh; display: block; }
+  #frame {
+    position: absolute; inset: 0;
+    pointer-events: none;
+    border: 2px solid var(--border-color, #3b82f6);
+    display: none;
+  }
+  body.bordered #frame { display: block; }
+  #collapsed {
+    display: none;
+    width: 100vw; height: 100vh;
+    background: #1e293b; color: #e2e8f0;
+    font: 13px 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+    align-items: center; justify-content: center; gap: 6px;
+    border: 1px solid #3b82f6; border-radius: 6px;
+    white-space: nowrap; overflow: hidden;
+  }
+  body.collapsed #canvas, body.collapsed #frame { display: none; }
+  body.collapsed #collapsed { display: flex; }
+</style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <div id="frame"></div>
+  <div id="collapsed">📌 스샷핀 (더블클릭 펼치기)</div>
+
+<script>
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  const img = new Image();
+  let id = null;
+  let tf = { rot: 0, flipH: false, flipV: false, borderVisible: true, borderColor: '#3b82f6' };
+  let dragging = false;
+  let sx = 0, sy = 0;
+
+  function render() {
+    if (!img.naturalWidth) return;
+    const rotated = tf.rot % 2 === 1;
+    const w = img.naturalWidth, h = img.naturalHeight;
+    canvas.width = rotated ? h : w;
+    canvas.height = rotated ? w : h;
+    ctx.save();
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.rotate(tf.rot * Math.PI / 2);
+    ctx.scale(tf.flipH ? -1 : 1, tf.flipV ? -1 : 1);
+    ctx.drawImage(img, -w / 2, -h / 2);
+    ctx.restore();
+
+    document.body.classList.toggle('bordered', tf.borderVisible);
+    document.getElementById('frame').style.setProperty('--border-color', tf.borderColor);
+    document.getElementById('frame').style.borderColor = tf.borderColor;
+  }
+
+  window.api.onPinInit((d) => {
+    id = d.id;
+    img.onload = render;
+    img.src = d.dataURL;
+  });
+  window.api.onPinTransform((d) => { tf = d; render(); });
+  window.api.onPinCollapse(({ collapsed }) => {
+    document.body.classList.toggle('collapsed', collapsed);
+  });
+
+  window.addEventListener('mousedown', (e) => {
+    if (e.button === 0) {
+      dragging = true;
+      sx = e.screenX; sy = e.screenY;
+      window.api.winDragStart();
+    } else if (e.button === 1) {
+      window.api.pinClose(id); // 휠 클릭 = 닫기
+    }
+  });
+  window.addEventListener('mousemove', (e) => {
+    if (dragging) window.api.winDragMove(e.screenX - sx, e.screenY - sy);
+  });
+  window.addEventListener('mouseup', () => { dragging = false; });
+  window.addEventListener('blur', () => { dragging = false; });
+
+  window.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    window.api.pinZoom(id, e.deltaY < 0 ? 1 : -1, e.ctrlKey);
+  }, { passive: false });
+
+  window.addEventListener('dblclick', () => window.api.pinToggleCollapse(id));
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') window.api.pinClose(id);
+    else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c') window.api.pinCopy(id);
+    else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); window.api.pinSave(id); }
+    else if (e.key === '0') window.api.pinReset(id);
+    else if (e.key === '1') window.api.pinRotate(id, 1);
+    else if (e.key === '2') window.api.pinRotate(id, -1);
+    else if (e.key === '3') window.api.pinFlip(id, 'h');
+    else if (e.key === '4') window.api.pinFlip(id, 'v');
+  });
+</script>
+</body>
+</html>

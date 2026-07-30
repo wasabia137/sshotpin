@@ -1,0 +1,718 @@
+// 스샷핀 — 스샷을 콕! 화면에 붙이는 수업 특화 캡처 도구
+// F1: 영역 캡처 / F3: 클립보드 핀 / Ctrl+1: 확대·축소 / Ctrl+2: 판서 / Ctrl+3: 타이머
+
+const {
+  app, BrowserWindow, globalShortcut, Tray, Menu,
+  clipboard, nativeImage, screen, desktopCapturer,
+  ipcMain, dialog, Notification,
+} = require('electron');
+const path = require('path');
+const fs = require('fs');
+
+const isMac = process.platform === 'darwin';
+
+let tray = null;
+let captureWin = null;        // 캡처 오버레이 (한 번에 하나)
+let captureDisplay = null;
+let overlayWin = null;        // 확대/판서 오버레이 (한 번에 하나)
+let overlayDisplay = null;
+let timerWin = null;
+let helpWin = null;
+let pinSeq = 0;
+const pins = new Map();
+let pinsHidden = false;
+let coverSeq = 0;
+const covers = new Map();     // 정답 가리개 창
+const dragOrigins = new Map(); // webContents.id -> [x, y]
+
+// ---------- 설정 ----------
+
+const settingsPath = path.join(app.getPath('userData'), 'settings.json');
+const defaultSettings = {
+  firstRunDone: false,
+  pinBorderVisible: true,
+  pinBorderColor: '#3b82f6',
+};
+let settings = { ...defaultSettings };
+try {
+  settings = { ...defaultSettings, ...JSON.parse(fs.readFileSync(settingsPath, 'utf8')) };
+} catch (e) { /* 첫 실행 */ }
+function saveSettings() {
+  try { fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2)); } catch (e) {}
+}
+
+// ---------- 공통 유틸 ----------
+
+const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+
+function notify(body) {
+  if (Notification.isSupported()) {
+    new Notification({ title: '스샷핀', body, silent: true }).show();
+  }
+}
+
+function timestamp() {
+  const d = new Date();
+  const p = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
+}
+
+async function saveImageDialog(dataURL, parentWin) {
+  const { canceled, filePath } = await dialog.showSaveDialog(parentWin || null, {
+    title: '스샷 저장',
+    defaultPath: path.join(app.getPath('pictures'), `스샷핀_${timestamp()}.png`),
+    filters: [{ name: 'PNG 이미지', extensions: ['png'] }],
+  });
+  if (canceled || !filePath) return;
+  const img = nativeImage.createFromDataURL(dataURL);
+  fs.writeFileSync(filePath, img.toPNG());
+  notify(`저장했습니다: ${path.basename(filePath)}`);
+}
+
+// 프로그램에 의한 크기 변경 (resizable:false 창도 확실히 동작하도록 감쌈)
+function setBoundsForce(win, bounds) {
+  const wasResizable = win.isResizable();
+  if (!wasResizable) win.setResizable(true);
+  win.setBounds(bounds);
+  if (!wasResizable) win.setResizable(false);
+}
+
+function cursorDisplay() {
+  return screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
+}
+
+// 디스플레이 전체 스크린샷 → dataURL
+async function grabDisplay(display) {
+  const { width, height } = display.bounds;
+  const scale = display.scaleFactor;
+  const sources = await desktopCapturer.getSources({
+    types: ['screen'],
+    thumbnailSize: { width: Math.round(width * scale), height: Math.round(height * scale) },
+  });
+  const source =
+    sources.find((s) => String(s.display_id) === String(display.id)) || sources[0];
+  if (!source || source.thumbnail.isEmpty()) return null;
+  return source.thumbnail.toDataURL();
+}
+
+// 전체 화면 오버레이 창 공통 옵션
+function fullscreenOverlayWindow(display) {
+  const { x, y, width, height } = display.bounds;
+  const win = new BrowserWindow({
+    x, y, width, height,
+    frame: false,
+    resizable: false,
+    movable: false,
+    fullscreen: !isMac,
+    enableLargerThanScreen: true,
+    skipTaskbar: true,
+    hasShadow: false,
+    show: false,
+    webPreferences: { preload: path.join(__dirname, 'preload.js') },
+  });
+  win.setAlwaysOnTop(true, 'screen-saver');
+  if (isMac) win.setBounds({ x, y, width, height });
+  return win;
+}
+
+// ---------- 영역 캡처 (F1) ----------
+
+async function startCapture(mode = 'capture') { // 'capture' | 'cover'
+  if (captureWin) return;
+  if (overlayWin) overlayWin.close();
+
+  const display = cursorDisplay();
+  let dataURL;
+  try {
+    dataURL = await grabDisplay(display);
+  } catch (err) {
+    notify('화면 캡처 권한이 필요합니다.');
+    return;
+  }
+  if (!dataURL) { notify('화면을 캡처하지 못했습니다.'); return; }
+
+  captureDisplay = { ...display.bounds };
+  captureWin = fullscreenOverlayWindow(display);
+  captureWin.loadFile(path.join(__dirname, 'src', 'capture.html'));
+  captureWin.webContents.once('did-finish-load', () => {
+    captureWin.webContents.send('capture-init', { dataURL, mode });
+    captureWin.show();
+    captureWin.focus();
+  });
+  captureWin.on('closed', () => { captureWin = null; });
+}
+
+ipcMain.on('capture-finish', (e, payload) => {
+  const disp = captureDisplay;
+  if (captureWin) captureWin.close();
+  if (!payload || payload.action === 'cancel') return;
+
+  const { action, dataURL, rect } = payload;
+  if (action === 'copy') {
+    clipboard.writeImage(nativeImage.createFromDataURL(dataURL));
+    notify('클립보드에 복사했습니다.');
+  } else if (action === 'save') {
+    saveImageDialog(dataURL);
+  } else if (action === 'pin') {
+    createPin(dataURL, rect.w, rect.h, disp.x + rect.x, disp.y + rect.y);
+  } else if (action === 'cover') {
+    createCover(disp.x + rect.x, disp.y + rect.y, rect.w, rect.h);
+  }
+});
+
+// ---------- 정답 가리개 (F2) ----------
+
+const COVER_COLORS = [
+  ['남색', '#1e293b'], ['칠판 초록', '#14532d'],
+  ['회색', '#475569'], ['포스트잇 노랑', '#fde047'],
+];
+
+function createCover(x, y, w, h) {
+  const id = ++coverSeq;
+  const win = new BrowserWindow({
+    x: Math.round(x), y: Math.round(y),
+    width: Math.max(40, Math.round(w)),
+    height: Math.max(30, Math.round(h)),
+    useContentSize: true,
+    frame: false,
+    transparent: true,
+    resizable: false,
+    skipTaskbar: true,
+    hasShadow: false,
+    show: false,
+    webPreferences: { preload: path.join(__dirname, 'preload.js') },
+  });
+  win.setAlwaysOnTop(true, 'screen-saver');
+  win.loadFile(path.join(__dirname, 'src', 'cover.html'));
+  covers.set(id, { win });
+  win.webContents.once('did-finish-load', () => {
+    win.webContents.send('cover-init', { id });
+    win.show();
+  });
+  win.webContents.on('context-menu', () => popupCoverMenu(id));
+  win.on('closed', () => { covers.delete(id); rebuildTrayMenu(); });
+  rebuildTrayMenu();
+  return id;
+}
+
+function popupCoverMenu(id) {
+  const c = covers.get(id);
+  if (!c) return;
+  const menu = Menu.buildFromTemplate([
+    { label: '공개 / 다시 가리기 (클릭)', click: () => c.win.webContents.send('cover-toggle') },
+    {
+      label: '가리개 색',
+      submenu: COVER_COLORS.map(([name, color]) => ({
+        label: name,
+        click: () => c.win.webContents.send('cover-style', { color }),
+      })),
+    },
+    { type: 'separator' },
+    { label: '닫기', accelerator: 'Esc', click: () => c.win.close() },
+    { label: '모든 가리개 닫기', click: closeAllCovers },
+  ]);
+  menu.popup({ window: c.win });
+}
+
+function closeAllCovers() {
+  for (const c of [...covers.values()]) c.win.close();
+}
+
+ipcMain.on('cover-close', (e, id) => covers.get(id)?.win.close());
+
+// ---------- 확대·판서 오버레이 (Ctrl+1 / Ctrl+2) ----------
+
+async function toggleOverlay(mode) { // 'zoom' | 'draw'
+  if (overlayWin) { overlayWin.close(); return; }
+  if (captureWin) return;
+
+  const display = cursorDisplay();
+  let dataURL;
+  try {
+    dataURL = await grabDisplay(display);
+  } catch (err) {
+    notify('화면 캡처 권한이 필요합니다.');
+    return;
+  }
+  if (!dataURL) { notify('화면을 캡처하지 못했습니다.'); return; }
+
+  overlayDisplay = { ...display.bounds };
+  overlayWin = fullscreenOverlayWindow(display);
+  overlayWin.loadFile(path.join(__dirname, 'src', 'screen.html'));
+  overlayWin.webContents.once('did-finish-load', () => {
+    overlayWin.webContents.send('overlay-init', { dataURL, mode });
+    overlayWin.show();
+    overlayWin.focus();
+  });
+  overlayWin.on('closed', () => { overlayWin = null; });
+}
+
+ipcMain.on('overlay-finish', (e, payload) => {
+  const disp = overlayDisplay;
+  if (!payload || payload.action === 'close') {
+    if (overlayWin) overlayWin.close();
+    return;
+  }
+  const { action, dataURL, w, h } = payload;
+  if (action === 'copy') {
+    clipboard.writeImage(nativeImage.createFromDataURL(dataURL));
+    notify('클립보드에 복사했습니다.');
+  } else if (action === 'save') {
+    if (overlayWin) overlayWin.close();
+    saveImageDialog(dataURL);
+  } else if (action === 'pin') {
+    if (overlayWin) overlayWin.close();
+    // 화면의 절반 크기로 핀 (가운데 배치)
+    const pw = Math.round(disp.width / 2), ph = Math.round(h * (pw / w));
+    createPin(dataURL, pw, ph,
+      disp.x + (disp.width - pw) / 2, disp.y + (disp.height - ph) / 2);
+  }
+});
+
+// ---------- 타이머 (Ctrl+3) ----------
+
+function toggleTimer() {
+  if (timerWin) { timerWin.close(); return; }
+  const display = cursorDisplay();
+  timerWin = new BrowserWindow({
+    x: display.bounds.x + display.bounds.width - 300,
+    y: display.bounds.y + 60,
+    width: 264, height: 156,
+    useContentSize: true,
+    frame: false,
+    transparent: true,
+    resizable: false,
+    skipTaskbar: true,
+    hasShadow: false,
+    show: false,
+    webPreferences: { preload: path.join(__dirname, 'preload.js') },
+  });
+  timerWin.setAlwaysOnTop(true, 'screen-saver');
+  timerWin.loadFile(path.join(__dirname, 'src', 'timer.html'));
+  timerWin.once('ready-to-show', () => timerWin.show());
+  timerWin.on('closed', () => { timerWin = null; });
+}
+
+// ---------- 도움말 ----------
+
+function openHelp() {
+  if (helpWin) { helpWin.focus(); return; }
+  helpWin = new BrowserWindow({
+    width: 620, height: 760,
+    title: '스샷핀 사용법',
+    autoHideMenuBar: true,
+    minimizable: false,
+    maximizable: false,
+    fullscreenable: false,
+    icon: path.join(__dirname, 'assets', 'icon.png'),
+    webPreferences: { preload: path.join(__dirname, 'preload.js') },
+  });
+  helpWin.loadFile(path.join(__dirname, 'src', 'help.html'));
+  helpWin.on('closed', () => { helpWin = null; });
+}
+
+// ---------- 핀 ----------
+
+function effSize(p) {
+  // 회전(90/270도) 시 가로세로 교체
+  const w = p.rot % 2 === 1 ? p.baseH : p.baseW;
+  const h = p.rot % 2 === 1 ? p.baseW : p.baseH;
+  return [Math.round(w * p.scale), Math.round(h * p.scale)];
+}
+
+function sendTransform(p) {
+  p.win.webContents.send('pin-transform', {
+    rot: p.rot, flipH: p.flipH, flipV: p.flipV,
+    borderVisible: p.borderVisible, borderColor: p.borderColor,
+  });
+}
+
+// 창 크기를 중심 고정으로 변경
+function resizePinCentered(p, newW, newH) {
+  const b = p.win.getBounds();
+  setBoundsForce(p.win, {
+    x: Math.round(b.x - (newW - b.width) / 2),
+    y: Math.round(b.y - (newH - b.height) / 2),
+    width: newW, height: newH,
+  });
+}
+
+function createPin(dataURL, w, h, x, y) {
+  const id = ++pinSeq;
+  const win = new BrowserWindow({
+    x: Math.round(x), y: Math.round(y),
+    width: Math.max(24, Math.round(w)),
+    height: Math.max(24, Math.round(h)),
+    useContentSize: true,
+    frame: false,
+    resizable: false,
+    skipTaskbar: true,
+    hasShadow: true,
+    show: false,
+    webPreferences: { preload: path.join(__dirname, 'preload.js') },
+  });
+  win.setAlwaysOnTop(true, 'screen-saver');
+  win.loadFile(path.join(__dirname, 'src', 'pin.html'));
+
+  const st = {
+    win, dataURL,
+    baseW: Math.max(24, Math.round(w)),
+    baseH: Math.max(24, Math.round(h)),
+    scale: 1, opacity: 1,
+    rot: 0, flipH: false, flipV: false,
+    borderVisible: settings.pinBorderVisible,
+    borderColor: settings.pinBorderColor,
+    clickThrough: false,
+    collapsed: false, savedBounds: null,
+  };
+  pins.set(id, st);
+
+  win.webContents.once('did-finish-load', () => {
+    win.webContents.send('pin-init', { id, dataURL });
+    sendTransform(st);
+    win.show();
+  });
+  win.webContents.on('context-menu', () => popupPinMenu(id));
+  win.on('closed', () => { pins.delete(id); rebuildTrayMenu(); });
+  rebuildTrayMenu();
+  return id;
+}
+
+function pinFromClipboard() {
+  const img = clipboard.readImage();
+  if (img.isEmpty()) {
+    notify('클립보드에 이미지가 없습니다. (이미지를 복사한 뒤 F3)');
+    return;
+  }
+  const cursor = screen.getCursorScreenPoint();
+  const display = screen.getDisplayNearestPoint(cursor);
+  const size = img.getSize();
+  const w = Math.round(size.width / display.scaleFactor);
+  const h = Math.round(size.height / display.scaleFactor);
+  createPin(img.toDataURL(), w, h, cursor.x - w / 2, cursor.y - h / 2);
+}
+
+const BORDER_COLORS = [
+  ['파랑', '#3b82f6'], ['빨강', '#ef4444'], ['초록', '#22c55e'],
+  ['노랑', '#eab308'], ['검정', '#1e293b'], ['흰색', '#f8fafc'],
+];
+
+function popupPinMenu(id) {
+  const p = pins.get(id);
+  if (!p) return;
+  const menu = Menu.buildFromTemplate([
+    { label: '복사', accelerator: 'Ctrl+C', click: () => pinCopy(id) },
+    { label: '저장…', accelerator: 'Ctrl+S', click: () => pinSave(id) },
+    { type: 'separator' },
+    {
+      label: `확대/축소 (${Math.round(p.scale * 100)}%)`,
+      submenu: [33, 50, 100, 150, 200].map((pct) => ({
+        label: `${pct}%`,
+        type: 'radio', checked: Math.round(p.scale * 100) === pct,
+        click: () => pinSetScale(id, pct / 100),
+      })),
+    },
+    {
+      label: `투명도 (${Math.round(p.opacity * 100)}%)`,
+      submenu: [100, 80, 60, 40, 20].map((pct) => ({
+        label: `${pct}%`,
+        type: 'radio', checked: Math.round(p.opacity * 100) === pct,
+        click: () => pinSetOpacity(id, pct / 100),
+      })),
+    },
+    {
+      label: '회전·반전',
+      submenu: [
+        { label: '시계 방향 90° (1)', click: () => pinRotate(id, 1) },
+        { label: '반시계 방향 90° (2)', click: () => pinRotate(id, -1) },
+        { label: '좌우 반전 (3)', click: () => pinFlip(id, 'h') },
+        { label: '상하 반전 (4)', click: () => pinFlip(id, 'v') },
+      ],
+    },
+    {
+      label: '테두리',
+      submenu: [
+        {
+          label: '테두리 표시', type: 'checkbox', checked: p.borderVisible,
+          click: () => pinSetBorder(id, { visible: !p.borderVisible }),
+        },
+        { type: 'separator' },
+        ...BORDER_COLORS.map(([name, color]) => ({
+          label: name, type: 'radio', checked: p.borderColor === color,
+          click: () => pinSetBorder(id, { color }),
+        })),
+      ],
+    },
+    { type: 'separator' },
+    {
+      label: '클릭 통과 (트레이에서 해제)',
+      click: () => pinSetClickThrough(id, true),
+    },
+    { label: p.collapsed ? '펼치기' : '접기 (더블클릭)', click: () => pinToggleCollapse(id) },
+    { label: '원래 크기·투명도 (0)', click: () => pinReset(id) },
+    { type: 'separator' },
+    { label: '닫기', accelerator: 'Esc', click: () => p.win.close() },
+    { label: '모든 핀 닫기', click: closeAllPins },
+  ]);
+  menu.popup({ window: p.win });
+}
+
+function pinCopy(id) {
+  const p = pins.get(id);
+  if (!p) return;
+  clipboard.writeImage(nativeImage.createFromDataURL(p.dataURL));
+  notify('클립보드에 복사했습니다.');
+}
+
+function pinSave(id) {
+  const p = pins.get(id);
+  if (p) saveImageDialog(p.dataURL, p.win);
+}
+
+function pinSetScale(id, s) {
+  const p = pins.get(id);
+  if (!p || p.collapsed) return;
+  p.scale = clamp(s, 0.1, 8);
+  const [w, h] = effSize(p);
+  resizePinCentered(p, w, h);
+}
+
+function pinSetOpacity(id, o) {
+  const p = pins.get(id);
+  if (!p) return;
+  p.opacity = clamp(o, 0.15, 1);
+  p.win.setOpacity(p.opacity);
+}
+
+function pinReset(id) {
+  const p = pins.get(id);
+  if (!p || p.collapsed) return;
+  p.scale = 1;
+  p.opacity = 1;
+  p.win.setOpacity(1);
+  const [w, h] = effSize(p);
+  resizePinCentered(p, w, h);
+}
+
+function pinZoom(id, dir, ctrl) {
+  const p = pins.get(id);
+  if (!p || p.collapsed) return;
+  if (ctrl) {
+    pinSetOpacity(id, p.opacity + (dir > 0 ? 0.1 : -0.1));
+    return;
+  }
+  const old = p.scale;
+  p.scale = clamp(p.scale * (dir > 0 ? 1.1 : 1 / 1.1), 0.1, 8);
+  if (p.scale === old) return;
+  const [w, h] = effSize(p);
+  resizePinCentered(p, w, h);
+}
+
+function pinRotate(id, delta) {
+  const p = pins.get(id);
+  if (!p || p.collapsed) return;
+  p.rot = ((p.rot + delta) % 4 + 4) % 4;
+  const [w, h] = effSize(p);
+  resizePinCentered(p, w, h);
+  sendTransform(p);
+}
+
+function pinFlip(id, axis) {
+  const p = pins.get(id);
+  if (!p || p.collapsed) return;
+  if (axis === 'h') p.flipH = !p.flipH;
+  else p.flipV = !p.flipV;
+  sendTransform(p);
+}
+
+function pinSetBorder(id, { visible, color }) {
+  const p = pins.get(id);
+  if (!p) return;
+  if (visible !== undefined) p.borderVisible = visible;
+  if (color !== undefined) p.borderColor = color;
+  sendTransform(p);
+  // 마지막 선택을 새 핀의 기본값으로 저장
+  settings.pinBorderVisible = p.borderVisible;
+  settings.pinBorderColor = p.borderColor;
+  saveSettings();
+}
+
+function pinSetClickThrough(id, on) {
+  const p = pins.get(id);
+  if (!p) return;
+  p.clickThrough = on;
+  p.win.setIgnoreMouseEvents(on);
+  if (on) notify('클릭 통과 모드 — 트레이 메뉴에서 해제할 수 있습니다.');
+  rebuildTrayMenu();
+}
+
+function releaseAllClickThrough() {
+  for (const [id, p] of pins) {
+    if (p.clickThrough) {
+      p.clickThrough = false;
+      p.win.setIgnoreMouseEvents(false);
+    }
+  }
+  rebuildTrayMenu();
+}
+
+function pinToggleCollapse(id) {
+  const p = pins.get(id);
+  if (!p) return;
+  if (!p.collapsed) {
+    p.savedBounds = p.win.getBounds();
+    setBoundsForce(p.win, { ...p.win.getBounds(), width: 150, height: 34 });
+    p.collapsed = true;
+  } else {
+    const b = p.savedBounds || { width: p.baseW, height: p.baseH };
+    setBoundsForce(p.win, { ...p.win.getBounds(), width: b.width, height: b.height });
+    p.collapsed = false;
+  }
+  p.win.webContents.send('pin-collapse', { collapsed: p.collapsed });
+}
+
+function closeAllPins() {
+  for (const p of [...pins.values()]) p.win.close();
+}
+
+function toggleAllPinsVisible() {
+  pinsHidden = !pinsHidden;
+  for (const p of pins.values()) {
+    if (pinsHidden) p.win.hide();
+    else p.win.show();
+  }
+  rebuildTrayMenu();
+}
+
+// ---------- IPC ----------
+
+// 창 공통 드래그 이동 (핀·타이머)
+ipcMain.on('win-drag-start', (e) => {
+  const win = BrowserWindow.fromWebContents(e.sender);
+  if (win) dragOrigins.set(e.sender.id, win.getPosition());
+});
+ipcMain.on('win-drag-move', (e, { dx, dy }) => {
+  const win = BrowserWindow.fromWebContents(e.sender);
+  const origin = dragOrigins.get(e.sender.id);
+  if (win && origin) win.setPosition(Math.round(origin[0] + dx), Math.round(origin[1] + dy));
+});
+
+ipcMain.on('pin-zoom', (e, { id, dir, ctrl }) => pinZoom(id, dir, ctrl));
+ipcMain.on('pin-close', (e, id) => pins.get(id)?.win.close());
+ipcMain.on('pin-copy', (e, id) => pinCopy(id));
+ipcMain.on('pin-save', (e, id) => pinSave(id));
+ipcMain.on('pin-reset', (e, id) => pinReset(id));
+ipcMain.on('pin-toggle-collapse', (e, id) => pinToggleCollapse(id));
+ipcMain.on('pin-rotate', (e, { id, delta }) => pinRotate(id, delta));
+ipcMain.on('pin-flip', (e, { id, axis }) => pinFlip(id, axis));
+
+// ---------- 트레이 ----------
+
+function rebuildTrayMenu() {
+  if (!tray) return;
+  const login = app.getLoginItemSettings();
+  const anyClickThrough = [...pins.values()].some((p) => p.clickThrough);
+  const menu = Menu.buildFromTemplate([
+    { label: '📸 영역 캡처', accelerator: 'F1', click: () => startCapture('capture') },
+    { label: '🙈 정답 가리개', accelerator: 'F2', click: () => startCapture('cover') },
+    { label: '📌 클립보드 이미지 핀', accelerator: 'F3', click: pinFromClipboard },
+    { label: '🔍 화면 확대·축소', accelerator: 'Ctrl+1', click: () => toggleOverlay('zoom') },
+    { label: '✏️ 판서 (화면에 그리기)', accelerator: 'Ctrl+2', click: () => toggleOverlay('draw') },
+    { label: '⏱️ 수업 타이머', accelerator: 'Ctrl+3', click: toggleTimer },
+    { type: 'separator' },
+    { label: pinsHidden ? '핀 모두 보이기' : '핀 모두 숨기기', click: toggleAllPinsVisible, enabled: pins.size > 0 || pinsHidden },
+    { label: '핀 모두 닫기', click: closeAllPins, enabled: pins.size > 0 },
+    { label: '가리개 모두 닫기', click: closeAllCovers, enabled: covers.size > 0 },
+    { label: '클릭 통과 모두 해제', click: releaseAllClickThrough, enabled: anyClickThrough },
+    { type: 'separator' },
+    { label: '❓ 사용법·단축키', click: openHelp },
+    {
+      label: '컴퓨터 시작 시 자동 실행',
+      type: 'checkbox',
+      checked: login.openAtLogin,
+      click: (item) => app.setLoginItemSettings({ openAtLogin: item.checked }),
+    },
+    { type: 'separator' },
+    { label: `스샷핀 v${app.getVersion()}`, enabled: false },
+    { label: '종료', click: () => app.quit() },
+  ]);
+  tray.setContextMenu(menu);
+}
+
+function createTray() {
+  const icon = nativeImage.createFromPath(path.join(__dirname, 'assets', 'tray.png'));
+  tray = new Tray(icon);
+  tray.setToolTip('스샷핀 — F1 캡처 / F2 가리개 / F3 핀 / Ctrl+1 확대 / Ctrl+2 판서 / Ctrl+3 타이머');
+  rebuildTrayMenu();
+  tray.on('double-click', () => startCapture('capture'));
+}
+
+// ---------- 첫 실행 ----------
+
+async function firstRunFlow() {
+  if (settings.firstRunDone) return;
+  settings.firstRunDone = true;
+  saveSettings();
+
+  openHelp();
+
+  const { response } = await dialog.showMessageBox({
+    type: 'question',
+    title: '스샷핀',
+    message: '컴퓨터를 켤 때 스샷핀을 자동으로 실행할까요?',
+    detail: '자동 실행을 켜두면 부팅 후 바로 F1(캡처), F3(핀)을 쓸 수 있습니다.\n트레이 메뉴에서 언제든 바꿀 수 있습니다.',
+    buttons: ['자동 실행 켜기 (추천)', '나중에'],
+    defaultId: 0,
+    cancelId: 1,
+  });
+  if (response === 0) {
+    app.setLoginItemSettings({ openAtLogin: true });
+    rebuildTrayMenu();
+  }
+}
+
+// ---------- 앱 라이프사이클 ----------
+
+const gotLock = app.requestSingleInstanceLock();
+if (!gotLock) {
+  app.quit();
+} else {
+  app.on('second-instance', () => notify('스샷핀이 이미 실행 중입니다. (F1 캡처 / F3 핀)'));
+
+  app.whenReady().then(() => {
+    app.setAppUserModelId('com.sshotpin.app');
+    createTray();
+
+    const registered = [
+      globalShortcut.register('F1', () => startCapture('capture')),
+      globalShortcut.register('F2', () => startCapture('cover')),
+      globalShortcut.register('F3', pinFromClipboard),
+      globalShortcut.register('CommandOrControl+1', () => toggleOverlay('zoom')),
+      globalShortcut.register('CommandOrControl+2', () => toggleOverlay('draw')),
+      globalShortcut.register('CommandOrControl+3', toggleTimer),
+    ];
+    if (registered.some((ok) => !ok)) {
+      notify('일부 단축키 등록에 실패했습니다. 다른 프로그램과 충돌일 수 있습니다.');
+    }
+
+    firstRunFlow();
+
+    // 자동 업데이트 (설치 버전에서만) — Firebase Hosting의 latest.yml 확인
+    if (app.isPackaged) {
+      try {
+        const { autoUpdater } = require('electron-updater');
+        autoUpdater.checkForUpdatesAndNotify({
+          title: '스샷핀 업데이트',
+          body: '새 버전이 다운로드됐습니다. 프로그램을 다시 시작하면 적용됩니다.',
+        });
+      } catch (e) { /* 업데이트 실패는 조용히 무시 */ }
+    }
+
+    console.log('스샷핀 시작됨 — F1 캡처 / F3 핀 / Ctrl+1 확대 / Ctrl+2 판서 / Ctrl+3 타이머');
+  });
+
+  // 트레이 상주 앱: 창이 모두 닫혀도 종료하지 않음
+  app.on('window-all-closed', () => {});
+
+  app.on('will-quit', () => globalShortcut.unregisterAll());
+}

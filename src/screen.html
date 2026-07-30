@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; user-select: none; background: #000; cursor: crosshair; }
+  #canvas { width: 100vw; height: 100vh; display: block; }
+  #hud {
+    position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%);
+    background: rgba(15, 23, 42, .88); color: #cbd5e1;
+    font: 12px 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+    padding: 7px 14px; border-radius: 18px;
+    pointer-events: none; white-space: nowrap;
+    display: flex; align-items: center; gap: 10px;
+  }
+  #dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #fff; }
+  #hud b { color: #f1f5f9; font-weight: 600; }
+</style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <div id="hud">
+    <span id="dot"></span>
+    <span id="zoomLabel"><b>100%</b></span>
+    <span>휠=확대 · 드래그=펜 · Shift=직선 · Ctrl=사각형 · Ctrl+Shift=화살표 · Tab+드래그=원 · Alt+클릭=①번호</span>
+    <span>색: R빨강 G초록 B파랑 O주황 Y노랑 P분홍 · W칠판(흰) K칠판(검)</span>
+    <span>Ctrl+Z=취소 · E=모두지움 · Enter=핀 · Ctrl+C=복사 · Esc=닫기</span>
+  </div>
+
+<script>
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  const hudDot = document.getElementById('dot');
+  const zoomLabel = document.getElementById('zoomLabel');
+  const img = new Image();
+
+  let z = 1;                 // 확대 배율 (1~8)
+  let mode = 'draw';
+  let color = '#ef4444';     // 기본 빨강 펜 (판서용)
+  let penScreen = 5;         // 화면 기준 펜 굵기(px)
+  let board = null;          // null | 'white' | 'black'
+  const strokes = [];        // {type, color, width, points|x1..y2}
+  let current = null;
+  let drawing = false;
+  let stepSeq = 0;           // 풀이 순서 번호 카운터
+  let tabHeld = false;
+  let lastMouse = { x: 0, y: 0 };
+  let frozenOrigin = null;   // 그리는 동안 팬 고정
+
+  const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+  const R = () => img.naturalWidth / window.innerWidth; // 화면px → 이미지px 배율
+
+  window.api.onOverlayInit(({ dataURL, mode: m }) => {
+    mode = m;
+    img.onload = () => {
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      if (mode === 'zoom') z = 2; // 확대 모드는 2배로 시작
+      render();
+    };
+    img.src = dataURL;
+  });
+
+  // 현재 보이는 영역의 원점(이미지 좌표)
+  function origin() {
+    if (frozenOrigin) return frozenOrigin;
+    const fx = clamp(lastMouse.x / window.innerWidth, 0, 1);
+    const fy = clamp(lastMouse.y / window.innerHeight, 0, 1);
+    return {
+      x: (canvas.width - canvas.width / z) * fx,
+      y: (canvas.height - canvas.height / z) * fy,
+    };
+  }
+
+  // 화면 좌표 → 이미지 좌표
+  function toImage(cx, cy) {
+    const o = origin();
+    return {
+      x: o.x + (cx / window.innerWidth) * (canvas.width / z),
+      y: o.y + (cy / window.innerHeight) * (canvas.height / z),
+    };
+  }
+
+  function drawStroke(c, s) {
+    c.strokeStyle = s.color;
+    c.fillStyle = s.color;
+    c.lineWidth = s.width;
+    c.lineCap = 'round';
+    c.lineJoin = 'round';
+    if (s.type === 'pen') {
+      if (s.points.length < 2) {
+        c.beginPath();
+        c.arc(s.points[0].x, s.points[0].y, s.width / 2, 0, Math.PI * 2);
+        c.fill();
+        return;
+      }
+      c.beginPath();
+      c.moveTo(s.points[0].x, s.points[0].y);
+      for (const p of s.points) c.lineTo(p.x, p.y);
+      c.stroke();
+    } else if (s.type === 'line') {
+      c.beginPath();
+      c.moveTo(s.x1, s.y1); c.lineTo(s.x2, s.y2);
+      c.stroke();
+    } else if (s.type === 'rect') {
+      c.strokeRect(Math.min(s.x1, s.x2), Math.min(s.y1, s.y2),
+        Math.abs(s.x2 - s.x1), Math.abs(s.y2 - s.y1));
+    } else if (s.type === 'ellipse') {
+      c.beginPath();
+      c.ellipse((s.x1 + s.x2) / 2, (s.y1 + s.y2) / 2,
+        Math.abs(s.x2 - s.x1) / 2, Math.abs(s.y2 - s.y1) / 2, 0, 0, Math.PI * 2);
+      c.stroke();
+    } else if (s.type === 'arrow') {
+      const ang = Math.atan2(s.y2 - s.y1, s.x2 - s.x1);
+      const head = Math.max(s.width * 3.2, 14);
+      c.beginPath();
+      c.moveTo(s.x1, s.y1); c.lineTo(s.x2, s.y2);
+      c.stroke();
+      c.beginPath();
+      c.moveTo(s.x2, s.y2);
+      c.lineTo(s.x2 - head * Math.cos(ang - 0.45), s.y2 - head * Math.sin(ang - 0.45));
+      c.lineTo(s.x2 - head * Math.cos(ang + 0.45), s.y2 - head * Math.sin(ang + 0.45));
+      c.closePath();
+      c.fill();
+    } else if (s.type === 'step') {
+      // 풀이 순서 번호 ①②③
+      c.beginPath();
+      c.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      c.fill();
+      c.fillStyle = '#ffffff';
+      c.font = `700 ${Math.round(s.r * 1.15)}px 'Malgun Gothic', sans-serif`;
+      c.textAlign = 'center';
+      c.textBaseline = 'middle';
+      c.fillText(String(s.n), s.x, s.y + s.r * 0.06);
+    }
+  }
+
+  function paintScene(c) {
+    // 배경 (칠판 모드 또는 스크린샷)
+    if (board === 'white') { c.fillStyle = '#f8fafc'; c.fillRect(0, 0, canvas.width, canvas.height); }
+    else if (board === 'black') { c.fillStyle = '#0f172a'; c.fillRect(0, 0, canvas.width, canvas.height); }
+    else c.drawImage(img, 0, 0);
+  }
+
+  function render() {
+    if (!img.naturalWidth) return;
+    const o = origin();
+    ctx.setTransform(z, 0, 0, z, -o.x * z, -o.y * z);
+    paintScene(ctx);
+    for (const s of strokes) drawStroke(ctx, s);
+    if (current) drawStroke(ctx, current);
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    hudDot.style.background = color;
+    zoomLabel.innerHTML = `<b>${Math.round(z * 100)}%</b> 펜 ${penScreen}px`;
+  }
+
+  // ----- 마우스 -----
+
+  window.addEventListener('mousedown', (e) => {
+    if (e.button === 2) return; // 우클릭은 undo (contextmenu에서)
+    if (e.button !== 0) return;
+    if (e.altKey) {
+      // Alt+클릭 = 풀이 순서 번호 ①②③ 찍기
+      const p = toImage(e.clientX, e.clientY);
+      const r = (Math.max(14, penScreen * 2.6) * R()) / z;
+      strokes.push({ type: 'step', x: p.x, y: p.y, r, n: ++stepSeq, color });
+      render();
+      return;
+    }
+    drawing = true;
+    frozenOrigin = origin(); // 그리는 동안 화면 고정
+    const p = toImage(e.clientX, e.clientY);
+    const width = (penScreen * R()) / z;
+    if (tabHeld) current = { type: 'ellipse', color, width, x1: p.x, y1: p.y, x2: p.x, y2: p.y };
+    else if (e.ctrlKey && e.shiftKey) current = { type: 'arrow', color, width, x1: p.x, y1: p.y, x2: p.x, y2: p.y };
+    else if (e.shiftKey) current = { type: 'line', color, width, x1: p.x, y1: p.y, x2: p.x, y2: p.y };
+    else if (e.ctrlKey) current = { type: 'rect', color, width, x1: p.x, y1: p.y, x2: p.x, y2: p.y };
+    else current = { type: 'pen', color, width, points: [p] };
+    render();
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    lastMouse = { x: e.clientX, y: e.clientY };
+    if (drawing && current) {
+      const p = toImage(e.clientX, e.clientY);
+      if (current.type === 'pen') current.points.push(p);
+      else { current.x2 = p.x; current.y2 = p.y; }
+    }
+    render();
+  });
+
+  window.addEventListener('mouseup', (e) => {
+    if (e.button !== 0 || !drawing) return;
+    drawing = false;
+    if (current) strokes.push(current);
+    current = null;
+    frozenOrigin = null;
+    render();
+  });
+
+  window.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    if (e.ctrlKey) {
+      penScreen = clamp(penScreen + (e.deltaY < 0 ? 1 : -1), 2, 30);
+    } else if (!drawing) {
+      z = clamp(z * (e.deltaY < 0 ? 1.2 : 1 / 1.2), 1, 8);
+      if (z < 1.05) z = 1;
+    }
+    render();
+  }, { passive: false });
+
+  function undo() {
+    const s = strokes.pop();
+    if (s && s.type === 'step') stepSeq = Math.max(0, stepSeq - 1);
+    render();
+  }
+
+  // 우클릭 = 마지막 획 취소
+  window.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+    undo();
+  });
+
+  // ----- 내보내기 -----
+
+  function exportVisible() {
+    const o = origin();
+    const w = Math.round(canvas.width / z), h = Math.round(canvas.height / z);
+    const c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    const cc = c.getContext('2d');
+    cc.translate(-o.x, -o.y);
+    // 배경
+    if (board === 'white') { cc.fillStyle = '#f8fafc'; cc.fillRect(0, 0, canvas.width, canvas.height); }
+    else if (board === 'black') { cc.fillStyle = '#0f172a'; cc.fillRect(0, 0, canvas.width, canvas.height); }
+    else cc.drawImage(img, 0, 0);
+    // 획 (내보내기용 임시 컨텍스트에 다시 그림)
+    for (const s of strokes) drawStroke(cc, s);
+    return { dataURL: c.toDataURL('image/png'), w, h };
+  }
+
+  // ----- 키보드 -----
+
+  const COLOR_KEYS = {
+    r: '#ef4444', g: '#22c55e', b: '#3b82f6',
+    o: '#f97316', y: '#eab308', p: '#ec4899',
+  };
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') { e.preventDefault(); tabHeld = true; return; }
+    if (e.key === 'Escape') { window.api.overlayFinish({ action: 'close' }); return; }
+    if (e.key === 'Enter') {
+      const { dataURL, w, h } = exportVisible();
+      window.api.overlayFinish({ action: 'pin', dataURL, w, h });
+      return;
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { undo(); return; }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c') {
+      const { dataURL, w, h } = exportVisible();
+      window.api.overlayFinish({ action: 'copy', dataURL, w, h });
+      return;
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+      e.preventDefault();
+      const { dataURL, w, h } = exportVisible();
+      window.api.overlayFinish({ action: 'save', dataURL, w, h });
+      return;
+    }
+    const k = e.key.toLowerCase();
+    if (k === 'e') { strokes.length = 0; stepSeq = 0; render(); return; }
+    if (k === 'w') { board = board === 'white' ? null : 'white'; render(); return; }
+    if (k === 'k') { board = board === 'black' ? null : 'black'; render(); return; }
+    if (COLOR_KEYS[k] && !e.ctrlKey && !e.metaKey) { color = COLOR_KEYS[k]; render(); return; }
+  });
+
+  window.addEventListener('keyup', (e) => {
+    if (e.key === 'Tab') tabHeld = false;
+  });
+</script>
+</body>
+</html>

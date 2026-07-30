@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>스샷핀 사용법</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+    background: #f8fafc; color: #1e293b;
+    padding: 24px 28px 40px;
+    line-height: 1.7;
+  }
+  h1 { font-size: 22px; margin-bottom: 4px; }
+  .sub { color: #64748b; font-size: 13px; margin-bottom: 20px; }
+  h2 {
+    font-size: 15px; margin: 22px 0 8px;
+    padding-left: 10px; border-left: 4px solid #2563eb;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; background: #fff; border-radius: 8px; overflow: hidden; }
+  th, td { padding: 7px 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+  th { background: #f1f5f9; color: #475569; font-weight: 600; width: 170px; }
+  kbd {
+    display: inline-block;
+    background: #1e293b; color: #f1f5f9;
+    border-radius: 5px; padding: 1px 7px;
+    font: 12px 'Malgun Gothic', sans-serif;
+    margin: 0 1px;
+  }
+  .tip {
+    background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px;
+    padding: 10px 14px; font-size: 13px; margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+  <h1>📌 스샷핀 사용법</h1>
+  <div class="sub">스샷을 콕! 화면에 붙이는 수업 특화 캡처 도구 — 이 창은 트레이 아이콘 → ❓ 사용법·단축키에서 언제든 다시 열 수 있습니다.</div>
+
+  <h2>전체 단축키 (어디서든 사용)</h2>
+  <table>
+    <tr><th><kbd>F1</kbd></th><td>영역 캡처 — 드래그로 화면 일부를 찍습니다</td></tr>
+    <tr><th><kbd>F2</kbd></th><td>정답 가리개 — 드래그한 영역을 가림판으로 덮습니다</td></tr>
+    <tr><th><kbd>F3</kbd></th><td>클립보드에 복사된 이미지를 화면에 핀</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+<kbd>1</kbd></th><td>화면 확대·축소 (수업 중 잘 안 보이는 부분 크게)</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+<kbd>2</kbd></th><td>판서 — 화면 위에 바로 그리기</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+<kbd>3</kbd></th><td>수업 타이머 켜기/끄기</td></tr>
+  </table>
+
+  <h2>📸 영역 캡처 (F1)</h2>
+  <table>
+    <tr><th>드래그</th><td>캡처할 영역 선택</td></tr>
+    <tr><th><kbd>Enter</kbd> 또는 📌 버튼</th><td>선택 영역을 화면에 핀 (가장 많이 쓰는 기능!)</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+<kbd>C</kbd></th><td>클립보드에 복사</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+<kbd>S</kbd></th><td>PNG 파일로 저장</td></tr>
+    <tr><th>🙈 가리개 버튼</th><td>선택 영역을 가림판으로 덮기</td></tr>
+    <tr><th><kbd>Esc</kbd></th><td>취소</td></tr>
+  </table>
+
+  <h2>🙈 정답 가리개 (F2)</h2>
+  <table>
+    <tr><th>드래그</th><td>가릴 영역 선택 — 놓는 즉시 가림판 생성</td></tr>
+    <tr><th>클릭</th><td>공개 ↔ 다시 가리기 (퀴즈 정답 공개용)</td></tr>
+    <tr><th>드래그</th><td>가림판 이동</td></tr>
+    <tr><th>우클릭</th><td>가리개 색 바꾸기 (남색·칠판 초록·회색·포스트잇 노랑)</td></tr>
+    <tr><th>휠 클릭 또는 <kbd>Esc</kbd></th><td>닫기</td></tr>
+  </table>
+  <div class="tip">💡 문제를 띄워놓고 정답 부분만 F2로 덮어두세요. 학생들 답을 들은 뒤 클릭 한 번으로 공개!</div>
+
+  <h2>📌 핀 (화면에 붙은 이미지)</h2>
+  <table>
+    <tr><th>드래그</th><td>이동</td></tr>
+    <tr><th>휠</th><td>확대 / 축소</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+휠</th><td>투명하게 / 진하게</td></tr>
+    <tr><th>더블클릭</th><td>접기 / 펼치기</td></tr>
+    <tr><th>휠 클릭 또는 <kbd>Esc</kbd></th><td>닫기</td></tr>
+    <tr><th><kbd>0</kbd></th><td>원래 크기·투명도로</td></tr>
+    <tr><th><kbd>1</kbd> / <kbd>2</kbd></th><td>시계 / 반시계 90° 회전</td></tr>
+    <tr><th><kbd>3</kbd> / <kbd>4</kbd></th><td>좌우 / 상하 반전</td></tr>
+    <tr><th>우클릭</th><td>메뉴 — 테두리 표시·색상, 확대/투명도 설정, 클릭 통과 등</td></tr>
+  </table>
+  <div class="tip">💡 <b>클릭 통과</b>: 핀을 참고자료처럼 화면에 깔아두고 아래 프로그램을 그대로 조작할 수 있습니다. 해제는 트레이 메뉴 → "클릭 통과 모두 해제".</div>
+
+  <h2>🔍 화면 확대·축소 (Ctrl+1) / ✏️ 판서 (Ctrl+2)</h2>
+  <table>
+    <tr><th>휠</th><td>확대 / 축소 (마우스를 움직이면 화면이 따라 이동)</td></tr>
+    <tr><th>드래그</th><td>펜으로 그리기 (밑줄·강조)</td></tr>
+    <tr><th><kbd>Shift</kbd>+드래그</th><td>직선 긋기</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+드래그</th><td>사각형</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+드래그</th><td>화살표</td></tr>
+    <tr><th><kbd>Tab</kbd>+드래그</th><td>원 / 타원</td></tr>
+    <tr><th><kbd>Alt</kbd>+클릭</th><td>풀이 순서 번호 ①②③ 찍기 (자동 증가)</td></tr>
+    <tr><th><kbd>R</kbd> <kbd>G</kbd> <kbd>B</kbd> <kbd>O</kbd> <kbd>Y</kbd> <kbd>P</kbd></th><td>펜 색 — 빨강·초록·파랑·주황·노랑·분홍</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+휠</th><td>펜 굵기 조절</td></tr>
+    <tr><th><kbd>W</kbd> / <kbd>K</kbd></th><td>흰 칠판 / 검은 칠판 모드 (빈 화면에 판서)</td></tr>
+    <tr><th>우클릭 또는 <kbd>Ctrl</kbd>+<kbd>Z</kbd></th><td>마지막 획 지우기</td></tr>
+    <tr><th><kbd>E</kbd></th><td>모두 지우기</td></tr>
+    <tr><th><kbd>Enter</kbd></th><td>지금 보이는 화면을 핀으로 붙이기</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+<kbd>C</kbd> / <kbd>Ctrl</kbd>+<kbd>S</kbd></th><td>지금 보이는 화면 복사 / 저장</td></tr>
+    <tr><th><kbd>Esc</kbd></th><td>종료</td></tr>
+  </table>
+
+  <h2>⏱️ 수업 타이머 (Ctrl+3)</h2>
+  <table>
+    <tr><th>시간 클릭</th><td>직접 입력 — <b>5:30</b>(분:초) 또는 <b>10</b>(분)처럼 입력 후 Enter</td></tr>
+    <tr><th>휠 / -30초·+30초 버튼</th><td>시간 ±30초</td></tr>
+    <tr><th><kbd>Space</kbd> 또는 ▶</th><td>시작 / 일시정지</td></tr>
+    <tr><th><kbd>Esc</kbd></th><td>닫기</td></tr>
+  </table>
+
+  <h2>기타</h2>
+  <table>
+    <tr><th>트레이 아이콘 더블클릭</th><td>영역 캡처 (F1과 동일)</td></tr>
+    <tr><th>트레이 우클릭</th><td>전체 메뉴 — 핀 모두 숨기기/닫기, 자동 실행 설정, 종료</td></tr>
+  </table>
+  <div class="tip">💡 <b>컴퓨터 시작 시 자동 실행</b>은 트레이 메뉴에서 켜고 끌 수 있습니다. 켜두면 부팅 후 바로 F1을 쓸 수 있습니다.</div>
+</body>
+</html>

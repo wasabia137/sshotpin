@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; user-select: none; }
+  body { cursor: crosshair; background: #000; }
+  #shot {
+    position: absolute; inset: 0;
+    width: 100vw; height: 100vh;
+    pointer-events: none;
+  }
+  #veil { position: absolute; inset: 0; }
+  #sizeLabel {
+    position: absolute; display: none;
+    background: rgba(15, 23, 42, .9); color: #e2e8f0;
+    font: 12px/1.6 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+    padding: 2px 8px; border-radius: 6px;
+    pointer-events: none; white-space: nowrap;
+  }
+  #toolbar {
+    position: absolute; display: none;
+    background: rgba(15, 23, 42, .95);
+    border: 1px solid rgba(148, 163, 184, .35);
+    border-radius: 10px; padding: 6px;
+    gap: 4px; box-shadow: 0 6px 24px rgba(0,0,0,.4);
+    cursor: default;
+  }
+  #toolbar.show { display: flex; }
+  #toolbar button {
+    border: 0; border-radius: 7px;
+    background: transparent; color: #e2e8f0;
+    font: 13px 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+    padding: 7px 12px; cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+  }
+  #toolbar button:hover { background: rgba(148, 163, 184, .2); }
+  #toolbar button.primary { background: #2563eb; }
+  #toolbar button.primary:hover { background: #1d4ed8; }
+  #hint {
+    position: absolute; top: 24px; left: 50%; transform: translateX(-50%);
+    background: rgba(15, 23, 42, .85); color: #cbd5e1;
+    font: 13px 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+    padding: 8px 16px; border-radius: 20px;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+  <img id="shot" alt="">
+  <canvas id="veil"></canvas>
+  <div id="sizeLabel"></div>
+  <div id="hint">드래그해서 영역을 선택하세요 · Enter=핀 · Ctrl+C=복사 · Esc=취소</div>
+  <div id="toolbar">
+    <button id="btnPin" class="primary" title="화면에 고정 (Enter)">📌 핀</button>
+    <button id="btnCopy" title="클립보드 복사 (Ctrl+C)">📋 복사</button>
+    <button id="btnSave" title="파일로 저장 (Ctrl+S)">💾 저장</button>
+    <button id="btnCover" title="이 영역을 가리개로 덮기">🙈 가리개</button>
+    <button id="btnCancel" title="취소 (Esc)">✕</button>
+  </div>
+
+<script>
+  const shot = document.getElementById('shot');
+  const veil = document.getElementById('veil');
+  const sizeLabel = document.getElementById('sizeLabel');
+  const toolbar = document.getElementById('toolbar');
+  const hint = document.getElementById('hint');
+  const ctx = veil.getContext('2d');
+
+  let sel = null;          // {x, y, w, h}
+  let dragStart = null;
+  let selecting = false;
+  let done = false;        // 선택 확정(툴바 표시) 상태
+  let mode = 'capture';    // 'capture' | 'cover'
+
+  window.api.onCaptureInit((d) => {
+    shot.src = d.dataURL;
+    mode = d.mode || 'capture';
+    if (mode === 'cover') {
+      hint.textContent = '🙈 가릴 영역을 드래그하세요 (놓는 즉시 가리개 생성) · Esc=취소';
+    }
+  });
+
+  function resizeCanvas() {
+    veil.width = window.innerWidth;
+    veil.height = window.innerHeight;
+    draw();
+  }
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+
+  function draw() {
+    ctx.clearRect(0, 0, veil.width, veil.height);
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+    ctx.fillRect(0, 0, veil.width, veil.height);
+    if (sel && sel.w > 0 && sel.h > 0) {
+      ctx.clearRect(sel.x, sel.y, sel.w, sel.h);
+      ctx.strokeStyle = '#3b82f6';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(sel.x + 1, sel.y + 1, sel.w - 2, sel.h - 2);
+    }
+  }
+
+  function updateSizeLabel() {
+    if (!sel || sel.w < 1) { sizeLabel.style.display = 'none'; return; }
+    sizeLabel.textContent = `${sel.w} × ${sel.h}`;
+    sizeLabel.style.display = 'block';
+    const above = sel.y > 28;
+    sizeLabel.style.left = sel.x + 'px';
+    sizeLabel.style.top = (above ? sel.y - 26 : sel.y + 6) + 'px';
+  }
+
+  function showToolbar() {
+    toolbar.classList.add('show');
+    const tw = toolbar.offsetWidth, th = toolbar.offsetHeight;
+    let tx = sel.x + sel.w - tw;
+    let ty = sel.y + sel.h + 10;
+    if (ty + th > window.innerHeight - 8) ty = sel.y - th - 10;
+    if (ty < 8) ty = sel.y + 10;
+    tx = Math.max(8, Math.min(tx, window.innerWidth - tw - 8));
+    toolbar.style.left = tx + 'px';
+    toolbar.style.top = ty + 'px';
+  }
+
+  window.addEventListener('mousedown', (e) => {
+    if (e.button !== 0) return;
+    if (toolbar.contains(e.target)) return;
+    // 새 선택 시작
+    toolbar.classList.remove('show');
+    done = false;
+    selecting = true;
+    dragStart = { x: e.clientX, y: e.clientY };
+    sel = { x: e.clientX, y: e.clientY, w: 0, h: 0 };
+    hint.style.display = 'none';
+    draw(); updateSizeLabel();
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    if (!selecting) return;
+    sel = {
+      x: Math.min(dragStart.x, e.clientX),
+      y: Math.min(dragStart.y, e.clientY),
+      w: Math.abs(e.clientX - dragStart.x),
+      h: Math.abs(e.clientY - dragStart.y),
+    };
+    draw(); updateSizeLabel();
+  });
+
+  window.addEventListener('mouseup', (e) => {
+    if (e.button !== 0 || !selecting) return;
+    selecting = false;
+    if (!sel || sel.w < 5 || sel.h < 5) {
+      sel = null; draw(); updateSizeLabel();
+      hint.style.display = 'block';
+      return;
+    }
+    done = true;
+    if (mode === 'cover') { finish('cover'); return; } // 가리개 모드: 놓는 즉시 생성
+    showToolbar();
+  });
+
+  function cropDataURL() {
+    // 화면 좌표(DIP) → 원본 이미지 픽셀 좌표
+    const rx = shot.naturalWidth / window.innerWidth;
+    const ry = shot.naturalHeight / window.innerHeight;
+    const c = document.createElement('canvas');
+    c.width = Math.max(1, Math.round(sel.w * rx));
+    c.height = Math.max(1, Math.round(sel.h * ry));
+    const cc = c.getContext('2d');
+    cc.drawImage(shot,
+      Math.round(sel.x * rx), Math.round(sel.y * ry),
+      c.width, c.height,
+      0, 0, c.width, c.height);
+    return c.toDataURL('image/png');
+  }
+
+  function finish(action) {
+    if (action === 'cancel') { window.api.captureFinish({ action: 'cancel' }); return; }
+    if (!sel || !done) return;
+    if (action === 'cover') {
+      window.api.captureFinish({ action: 'cover', rect: { ...sel } }); // 이미지 불필요
+      return;
+    }
+    window.api.captureFinish({ action, dataURL: cropDataURL(), rect: { ...sel } });
+  }
+
+  document.getElementById('btnPin').addEventListener('click', () => finish('pin'));
+  document.getElementById('btnCopy').addEventListener('click', () => finish('copy'));
+  document.getElementById('btnSave').addEventListener('click', () => finish('save'));
+  document.getElementById('btnCover').addEventListener('click', () => finish('cover'));
+  document.getElementById('btnCancel').addEventListener('click', () => finish('cancel'));
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') finish('cancel');
+    else if (e.key === 'Enter') finish('pin');
+    else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c') finish('copy');
+    else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); finish('save'); }
+  });
+</script>
+</body>
+</html>
