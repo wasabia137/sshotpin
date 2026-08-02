@@ -1,5 +1,6 @@
-// 스샷핀 — 스샷을 콕! 화면에 붙이는 수업 특화 캡처 도구
-// F1: 영역 캡처 / F3: 클립보드 핀 / Ctrl+1: 확대·축소 / Ctrl+2: 판서 / Ctrl+3: 타이머
+// 스샷핀 — 스샷을 콕! 화면에 붙여두는 캡처 도구
+// Ctrl+F1: 영역 캡처 / Ctrl+F2: 클립보드 핀 / Ctrl+1: 확대·축소 / Ctrl+2: 판서 / Ctrl+3: 타이머
+// (맥은 Ctrl+Shift+1/2/3 — DEFAULT_HOTKEYS 참조)
 
 const {
   app, BrowserWindow, globalShortcut, Tray, Menu,
@@ -481,7 +482,11 @@ async function startCapture(mode = 'capture') { // 'capture' | 'cover'
   // 이미 열려 있으면 닫는다(토글). 오버레이가 포커스를 잃어 Esc가 안 먹을 때
   // 단축키를 다시 눌러 빠져나올 수 있어야 한다.
   if (captureWin) { captureWin.close(); return; }
-  if (overlayWin) overlayWin.close();
+  if (overlayWin) {
+    // 확대·판서 창이 화면에서 실제로 사라진 뒤에 찍어야 오버레이가 함께 찍히지 않는다
+    overlayWin.close();
+    await new Promise((r) => setTimeout(r, 150));
+  }
 
   if (!ensureScreenAccess()) return;
 
@@ -510,11 +515,14 @@ async function startCapture(mode = 'capture') { // 'capture' | 'cover'
   captureWin.on('closed', () => { captureWin = null; reshowQuickbar(); });
 }
 
-// 맥은 화면 기록 권한이 없으면 캡처가 조용히 실패한다 — 미리 걸러서 안내한다
+// 맥은 화면 기록 권한이 없으면 캡처가 조용히 실패한다 — 미리 걸러서 안내한다.
+// 단, 아직 한 번도 물어보지 않은 상태(not-determined)는 통과시킨다.
+// 여기서 막으면 OS의 권한 요청 팝업이 뜰 기회가 없어
+// 사용자가 시스템 설정에서 손으로 앱을 추가해야 하기 때문이다.
 function ensureScreenAccess() {
   if (!isMac) return true;
   const status = systemPreferences.getMediaAccessStatus('screen');
-  if (status === 'granted') return true;
+  if (status === 'granted' || status === 'not-determined') return true;
   log('화면 기록 권한 없음:', status);
   notify('화면 기록 권한이 필요합니다. 시스템 설정에서 스샷핀을 허용해주세요.');
   shell.openExternal(
@@ -943,7 +951,8 @@ function createPin(dataURL, w, h, x, y) {
 function pinFromClipboard() {
   const img = clipboard.readImage();
   if (img.isEmpty()) {
-    notify('클립보드에 이미지가 없습니다. (이미지를 복사한 뒤 F3)');
+    const hk = settings.hotkeys.pin;
+    notify(`클립보드에 이미지가 없습니다.${hk ? ` (이미지를 복사한 뒤 ${hk})` : ''}`);
     return;
   }
   const cursor = screen.getCursorScreenPoint();
@@ -1234,6 +1243,8 @@ function checkUpdatesManually() {
     const { autoUpdater } = require('electron-updater');
     autoUpdater.removeAllListeners('update-available');
     autoUpdater.removeAllListeners('update-not-available');
+    // error 리스너도 지운다 — 안 지우면 확인할 때마다 쌓여 오류 한 번에 알림이 여러 개 뜬다
+    autoUpdater.removeAllListeners('error');
     autoUpdater.once('update-available', (info) =>
       notify(`새 버전 v${info.version}을 내려받는 중입니다. 완료되면 알려드려요.`));
     autoUpdater.once('update-not-available', () => notify('지금이 최신 버전입니다. 👍'));
@@ -1260,7 +1271,7 @@ async function firstRunFlow() {
     type: 'question',
     title: '스샷핀',
     message: '컴퓨터를 켤 때 스샷핀을 자동으로 실행할까요?',
-    detail: '자동 실행을 켜두면 부팅 후 바로 F1(캡처), F3(핀)을 쓸 수 있습니다.\n트레이 메뉴에서 언제든 바꿀 수 있습니다.',
+    detail: `자동 실행을 켜두면 부팅 후 바로 ${settings.hotkeys.capture}(캡처), ${settings.hotkeys.pin}(핀)을 쓸 수 있습니다.\n트레이 메뉴에서 언제든 바꿀 수 있습니다.`,
     buttons: ['자동 실행 켜기 (추천)', '나중에'],
     defaultId: 0,
     cancelId: 1,
@@ -1277,7 +1288,8 @@ const gotLock = app.requestSingleInstanceLock();
 if (!gotLock) {
   app.quit();
 } else {
-  app.on('second-instance', () => notify('스샷핀이 이미 실행 중입니다. (F1 캡처 / F3 핀)'));
+  app.on('second-instance', () =>
+    notify(`스샷핀이 이미 실행 중입니다. (${settings.hotkeys.capture} 캡처 / ${settings.hotkeys.pin} 핀)`));
 
   app.whenReady().then(() => {
     app.setAppUserModelId('com.sshotpin.app');
