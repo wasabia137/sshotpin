@@ -32,13 +32,13 @@
 <body>
   <div id="bar">
     <div id="handle" title="드래그해서 이동">⠿</div>
-    <div class="btn" data-act="capture" title="영역 캡처 (Ctrl+F1)">📸</div>
-    <div class="btn" data-act="pin" title="클립보드 이미지 핀 (Ctrl+F2)">📌</div>
-    <div class="btn" data-act="zoom" title="화면 확대 (Ctrl+1)">🔍</div>
-    <div class="btn" data-act="draw" title="판서 (Ctrl+2)">✏️</div>
-    <div class="btn" data-act="timer" title="수업 타이머 (Ctrl+3)">⏱️</div>
-    <div class="btn" data-act="cover" title="정답 가리개 (Ctrl+F3)">🙈</div>
+    <div class="btn" data-act="capture" data-hk="capture" title="영역 캡처">📸</div>
+    <div class="btn" data-act="pin" data-hk="pin" title="클립보드 이미지 핀">📌</div>
+    <div class="btn" data-act="zoom" data-hk="zoom" title="화면 확대">🔍</div>
+    <div class="btn" data-act="draw" data-hk="draw" title="판서">✏️</div>
+    <div class="btn" data-act="timer" data-hk="timer" title="수업 타이머">⏱️</div>
     <div class="btn" data-act="history" title="최근 캡처 다시 불러오기">🕘</div>
+    <div class="btn" data-act="cover" data-hk="cover" title="정답 가리개">🙈</div>
     <div class="btn" data-act="help" title="사용법·단축키">❓</div>
     <div class="btn" data-act="settings" title="설정 (단축키 변경·저장 폴더)">⚙️</div>
     <div class="btn" id="hideBtn" data-act="hide" title="퀵바 숨기기 (트레이에서 다시 켤 수 있어요)">✕</div>
@@ -49,6 +49,17 @@
   for (const el of document.querySelectorAll('.btn')) {
     el.addEventListener('click', () => window.api.quickbarAction(el.dataset.act));
   }
+
+  // 실제 지정된 단축키를 툴팁에 표시
+  window.api.onQuickbarState(({ hotkeys }) => {
+    for (const el of document.querySelectorAll('[data-hk]')) {
+      const accel = hotkeys[el.dataset.hk];
+      const base = el.title.split(' (')[0];
+      el.title = accel
+        ? `${base} (${accel.replace('CommandOrControl', 'Ctrl').replace('Control', 'Ctrl')})`
+        : base;
+    }
+  });
 
   // 손잡이 드래그로 이동
   const handle = document.getElementById('handle');

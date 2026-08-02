@@ -426,6 +426,9 @@ function createQuickbar() {
   });
   quickbarWin.setAlwaysOnTop(true, 'screen-saver');
   quickbarWin.loadFile(path.join(__dirname, 'src', 'quickbar.html'));
+  quickbarWin.webContents.once('did-finish-load', () => {
+    if (quickbarWin) quickbarWin.webContents.send('quickbar-state', { hotkeys: settings.hotkeys });
+  });
   quickbarWin.once('ready-to-show', () => quickbarWin.showInactive());
   quickbarWin.on('moved', () => {
     if (!quickbarWin) return;
@@ -766,6 +769,14 @@ function sendSettingsState() {
   });
 }
 
+// 단축키가 바뀌면 퀵바 툴팁·트레이 메뉴도 함께 갱신
+function broadcastHotkeys() {
+  if (quickbarWin && !quickbarWin.isDestroyed()) {
+    quickbarWin.webContents.send('quickbar-state', { hotkeys: settings.hotkeys });
+  }
+  rebuildTrayMenu();
+}
+
 ipcMain.on('settings-set-hotkey', (e, { key, accel }) => {
   if (!HOTKEY_ACTIONS[key]) return;
   // 빈 값('사용 안 함')은 허용, 그 외에는 ASCII 액셀러레이터만 저장
@@ -778,6 +789,7 @@ ipcMain.on('settings-set-hotkey', (e, { key, accel }) => {
   saveSettings();
   const failures = registerHotkeys();
   sendSettingsState();
+  broadcastHotkeys();
   if (accel && failures.some((f) => f.includes(accel))) {
     notify(`"${accel}" 단축키를 사용할 수 없습니다. 다른 프로그램이 이미 쓰고 있을 수 있어요.`);
   }
@@ -788,6 +800,7 @@ ipcMain.on('settings-reset-hotkeys', () => {
   saveSettings();
   registerHotkeys();
   sendSettingsState();
+  broadcastHotkeys();
 });
 
 ipcMain.on('settings-set-flag', (e, { key, value }) => {
@@ -1038,9 +1051,13 @@ function pinReset(id) {
   if (!p || p.collapsed) return;
   p.scale = 1;
   p.opacity = 1;
+  p.rot = 0;
+  p.flipH = false;
+  p.flipV = false;
   p.win.setOpacity(1);
   const [w, h] = effSize(p);
   resizePinCentered(p, w, h);
+  sendTransform(p);
 }
 
 function pinZoom(id, dir, ctrl) {

@@ -18,6 +18,7 @@ contextBridge.exposeInMainWorld('api', {
 
   // 퀵 실행바
   quickbarAction: (action) => ipcRenderer.send('quickbar-action', action),
+  onQuickbarState: (cb) => ipcRenderer.on('quickbar-state', (e, d) => cb(d)),
 
   // 사용법 창
   onHelpState: (cb) => ipcRenderer.on('help-state', (e, d) => cb(d)),
