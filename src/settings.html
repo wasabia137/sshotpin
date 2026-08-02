@@ -61,15 +61,14 @@
 </head>
 <body>
   <h1>⚙️ 스샷핀 설정</h1>
-  <div class="sub">바꾸면 바로 저장됩니다.</div>
+  <div class="sub">바꾸면 바로 적용됩니다.</div>
 
   <h2>단축키</h2>
   <div class="card" id="hotkeys"></div>
   <div id="failWrap"></div>
   <div class="tip">
-    💡 <b>다른 프로그램과 겹칠 때</b>: 예를 들어 엑셀·한글에서 <b>F1</b>은 도움말입니다.
-    겹쳐서 불편하면 위 칸을 클릭하고 원하는 키를 눌러 바꾸세요.
-    <b>비우기</b>를 누르면 그 단축키를 아예 쓰지 않습니다 (퀵 실행바나 트레이 메뉴로 실행 가능).
+    칸을 클릭하고 원하는 키를 누르면 바뀝니다. <b>비우기</b>를 누르면 그 단축키는 쓰지 않고
+    퀵 실행바나 트레이 메뉴로만 실행합니다.
   </div>
   <footer style="margin-top:12px">
     <button class="mini" id="resetKeys">단축키 기본값으로 되돌리기</button>
@@ -102,7 +101,7 @@
         <input type="checkbox" id="quickbarVisible">
         <span>
           퀵 실행바 표시
-          <div class="desc">화면에 떠 있는 버튼바 — 단축키 없이 클릭으로 실행합니다.</div>
+          <div class="desc">화면에 떠 있는 버튼바. 단축키 없이 클릭으로 실행합니다.</div>
         </span>
       </label>
     </div>
@@ -111,7 +110,7 @@
         <input type="checkbox" id="openAtLogin">
         <span>
           컴퓨터 시작 시 자동 실행
-          <div class="desc">켜두면 부팅 후 바로 쓸 수 있습니다.</div>
+          <div class="desc">부팅하면 자동으로 켜집니다.</div>
         </span>
       </label>
     </div>
@@ -119,7 +118,7 @@
 
   <footer>
     <button class="mini" id="openHelp">❓ 사용법·단축키 보기</button>
-    <button class="mini" id="openLogs" title="문제가 반복되면 이 파일을 문의에 첨부해주세요">🧾 오류 기록 열기</button>
+    <button class="mini" id="openLogs" title="문의할 때 이 파일을 첨부하면 됩니다">🧾 오류 기록 열기</button>
     <span class="ver" id="ver"></span>
   </footer>
 

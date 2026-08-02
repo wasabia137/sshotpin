@@ -19,6 +19,9 @@ contextBridge.exposeInMainWorld('api', {
   // 퀵 실행바
   quickbarAction: (action) => ipcRenderer.send('quickbar-action', action),
 
+  // 사용법 창
+  onHelpState: (cb) => ipcRenderer.on('help-state', (e, d) => cb(d)),
+
   // 설정 창
   onSettingsState: (cb) => ipcRenderer.on('settings-state', (e, d) => cb(d)),
   setHotkey: (key, accel) => ipcRenderer.send('settings-set-hotkey', { key, accel }),

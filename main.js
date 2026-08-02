@@ -4,7 +4,7 @@
 const {
   app, BrowserWindow, globalShortcut, Tray, Menu,
   clipboard, nativeImage, screen, desktopCapturer,
-  ipcMain, dialog, Notification, shell,
+  ipcMain, dialog, Notification, shell, systemPreferences,
 } = require('electron');
 const path = require('path');
 const fs = require('fs');
@@ -67,15 +67,23 @@ const settingsPath = path.join(app.getPath('userData'), 'settings.json');
 // 맥에서는 Cmd+1~3이 브라우저 탭 전환과 충돌하므로 Control 사용
 const MOD = isMac ? 'Control' : 'Ctrl';
 
-// F1/F2/F3 단독은 다른 프로그램의 기본 기능(도움말·이름바꾸기·다음찾기)을
-// 빼앗으므로 쓰지 않는다. Ctrl+F 계열은 충돌이 훨씬 적다.
-const DEFAULT_HOTKEYS = {
-  capture: `${MOD}+F1`,
-  pin: `${MOD}+F2`,
-  cover: `${MOD}+F3`,
-  zoom: `${MOD}+1`,   // ZoomIt과 동일하게 유지
-  draw: `${MOD}+2`,
-  timer: `${MOD}+3`,
+// F1/F2/F3 단독은 다른 프로그램의 도움말·이름바꾸기·다음찾기를 빼앗으므로 쓰지 않는다.
+// 맥은 Ctrl+F1이 시스템 단축키(전체 키보드 접근)라 등록돼도 앱까지 오지 않고,
+// F키 설정에 따라 밝기 조절로 전달되기도 해서 Ctrl+Shift+숫자를 쓴다.
+const DEFAULT_HOTKEYS = isMac ? {
+  capture: 'Control+Shift+1',
+  pin: 'Control+Shift+2',
+  cover: 'Control+Shift+3',
+  zoom: 'Control+1',
+  draw: 'Control+2',
+  timer: 'Control+3',
+} : {
+  capture: 'Ctrl+F1',
+  pin: 'Ctrl+F2',
+  cover: 'Ctrl+F3',
+  zoom: 'Ctrl+1',     // ZoomIt과 동일
+  draw: 'Ctrl+2',
+  timer: 'Ctrl+3',
 };
 
 // v0.5.0 이하의 기본값 — 사용자가 손대지 않았다면 새 기본값으로 올려준다
@@ -194,17 +202,39 @@ function cursorDisplay() {
 }
 
 // 디스플레이 전체 스크린샷 → dataURL
+// 화면 기록 권한이 없거나 시스템이 응답하지 않으면 무한정 기다리지 않고 끊는다.
 async function grabDisplay(display) {
   const { width, height } = display.bounds;
   const scale = display.scaleFactor;
-  const sources = await desktopCapturer.getSources({
+  const job = desktopCapturer.getSources({
     types: ['screen'],
     thumbnailSize: { width: Math.round(width * scale), height: Math.round(height * scale) },
   });
+  const sources = await Promise.race([
+    job,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('화면을 읽는 데 너무 오래 걸립니다')), 8000)),
+  ]);
   const source =
     sources.find((s) => String(s.display_id) === String(display.id)) || sources[0];
   if (!source || source.thumbnail.isEmpty()) return null;
   return source.thumbnail.toDataURL();
+}
+
+// 오버레이 창을 띄우고 실제로 보이는 것까지 확인한다.
+// did-finish-load를 놓치는 경우가 있어 로드 완료·타임아웃 양쪽으로 보호한다.
+function showOverlayWhenReady(win, channel, payload) {
+  let shown = false;
+  const reveal = () => {
+    if (shown || !win || win.isDestroyed()) return;
+    shown = true;
+    win.webContents.send(channel, payload);
+    win.show();
+    win.focus();
+  };
+  win.webContents.once('did-finish-load', reveal);
+  // 이벤트를 놓쳐도 창이 뜨도록 하는 안전장치
+  setTimeout(reveal, 1200);
 }
 
 // 전체 화면 오버레이 창 공통 옵션
@@ -450,27 +480,44 @@ async function startCapture(mode = 'capture') { // 'capture' | 'cover'
   if (captureWin) { captureWin.close(); return; }
   if (overlayWin) overlayWin.close();
 
+  if (!ensureScreenAccess()) return;
+
   const display = cursorDisplay();
   await hideQuickbarForGrab();
   let dataURL;
   try {
     dataURL = await grabDisplay(display);
   } catch (err) {
-    notify('화면 캡처 권한이 필요합니다.');
+    log('캡처 실패', err.message);
+    notify(`화면을 읽지 못했습니다. ${err.message}`);
     reshowQuickbar();
     return;
   }
-  if (!dataURL) { notify('화면을 캡처하지 못했습니다.'); reshowQuickbar(); return; }
+  if (!dataURL) {
+    log('캡처 실패 — 빈 화면');
+    notify('화면을 캡처하지 못했습니다. 잠시 후 다시 시도해주세요.');
+    reshowQuickbar();
+    return;
+  }
 
   captureDisplay = { ...display.bounds };
   captureWin = fullscreenOverlayWindow(display);
   captureWin.loadFile(path.join(__dirname, 'src', 'capture.html'));
-  captureWin.webContents.once('did-finish-load', () => {
-    captureWin.webContents.send('capture-init', { dataURL, mode });
-    captureWin.show();
-    captureWin.focus();
-  });
+  showOverlayWhenReady(captureWin, 'capture-init', { dataURL, mode });
   captureWin.on('closed', () => { captureWin = null; reshowQuickbar(); });
+}
+
+// 맥은 화면 기록 권한이 없으면 캡처가 조용히 실패한다 — 미리 걸러서 안내한다
+function ensureScreenAccess() {
+  if (!isMac) return true;
+  const status = systemPreferences.getMediaAccessStatus('screen');
+  if (status === 'granted') return true;
+  log('화면 기록 권한 없음:', status);
+  notify('화면 기록 권한이 필요합니다. 시스템 설정에서 스샷핀을 허용해주세요.');
+  shell.openExternal(
+    'x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture');
+  reshowQuickbar();
+  return false;
 }
 
 ipcMain.on('capture-finish', (e, payload) => {
@@ -562,26 +609,29 @@ async function toggleOverlay(mode) { // 'zoom' | 'draw'
   if (overlayWin) { overlayWin.close(); return; }
   if (captureWin) return;
 
+  if (!ensureScreenAccess()) return;
+
   const display = cursorDisplay();
   await hideQuickbarForGrab();
   let dataURL;
   try {
     dataURL = await grabDisplay(display);
   } catch (err) {
-    notify('화면 캡처 권한이 필요합니다.');
+    log('확대·판서 실패', err.message);
+    notify(`화면을 읽지 못했습니다. ${err.message}`);
     reshowQuickbar();
     return;
   }
-  if (!dataURL) { notify('화면을 캡처하지 못했습니다.'); reshowQuickbar(); return; }
+  if (!dataURL) {
+    notify('화면을 캡처하지 못했습니다. 잠시 후 다시 시도해주세요.');
+    reshowQuickbar();
+    return;
+  }
 
   overlayDisplay = { ...display.bounds };
   overlayWin = fullscreenOverlayWindow(display);
   overlayWin.loadFile(path.join(__dirname, 'src', 'screen.html'));
-  overlayWin.webContents.once('did-finish-load', () => {
-    overlayWin.webContents.send('overlay-init', { dataURL, mode });
-    overlayWin.show();
-    overlayWin.focus();
-  });
+  showOverlayWhenReady(overlayWin, 'overlay-init', { dataURL, mode });
   overlayWin.on('closed', () => { overlayWin = null; reshowQuickbar(); });
 }
 
@@ -803,6 +853,10 @@ function openHelp() {
     webPreferences: { preload: path.join(__dirname, 'preload.js') },
   });
   helpWin.loadFile(path.join(__dirname, 'src', 'help.html'));
+  // 실제 지정된 단축키를 표에 그대로 보여주기 위해 전달
+  helpWin.webContents.once('did-finish-load', () => {
+    helpWin.webContents.send('help-state', { hotkeys: settings.hotkeys });
+  });
   helpWin.on('closed', () => { helpWin = null; });
 }
 
@@ -1219,8 +1273,8 @@ if (!gotLock) {
     }
     if (hotkeysMigrated) {
       saveSettings();
-      log('단축키를 새 기본값(Ctrl+F 계열)으로 자동 변경');
-      notify('단축키가 바뀌었습니다: 캡처 Ctrl+F1 · 핀 Ctrl+F2. (F1·F2를 다른 프로그램에 돌려드렸어요)');
+      log('단축키를 새 기본값으로 자동 변경', JSON.stringify(settings.hotkeys));
+      notify(`단축키가 바뀌었습니다. 캡처 ${settings.hotkeys.capture}, 핀 ${settings.hotkeys.pin}`);
     }
 
     firstRunFlow();

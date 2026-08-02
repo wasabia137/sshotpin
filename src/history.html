@@ -58,11 +58,11 @@
     <h1>🕘 최근 캡처</h1>
     <button class="mini" id="clearBtn">전체 삭제</button>
   </header>
-  <div class="sub">그림을 클릭하면 화면에 다시 붙습니다. 최근 24개까지 보관됩니다.</div>
+  <div class="sub">그림을 클릭하면 화면에 다시 붙습니다. 최근 24개까지 보관합니다.</div>
 
   <div id="list"></div>
 
-  <div class="tip">💡 수업 중 앞에서 보여준 자료를 <b>다시 찍지 않고</b> 여기서 바로 불러올 수 있습니다.</div>
+  <div class="tip">앞에서 보여준 자료를 다시 찍지 않고 여기서 바로 꺼내 쓰세요.</div>
 
 <script>
   const list = document.getElementById('list');
@@ -78,7 +78,7 @@
 
   window.api.onHistoryState(({ items }) => {
     if (!items.length) {
-      list.innerHTML = '<div class="empty">아직 캡처한 것이 없습니다.<br>F1(또는 퀵 실행바 📸)로 화면을 찍어보세요.</div>';
+      list.innerHTML = '<div class="empty">아직 캡처한 것이 없습니다.<br>퀵 실행바의 📸 로 화면을 찍어보세요.</div>';
       return;
     }
     list.className = 'grid';
