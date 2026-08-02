@@ -35,6 +35,15 @@
   #penVal { min-width: 36px; text-align: center; color: #f1f5f9; }
   #zoomLabel { margin-left: 4px; color: #94a3b8; min-width: 42px; }
   #hint { text-align: center; color: #64748b; font-size: 11px; }
+
+  /* 확대 모드 첫 안내 — 잠깐 보였다가 사라진다 */
+  #zhint {
+    position: absolute; top: 26px; left: 50%; transform: translateX(-50%);
+    background: rgba(15, 23, 42, .85); color: #cbd5e1;
+    font: 13px 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+    padding: 8px 18px; border-radius: 20px;
+    pointer-events: none; opacity: 0; transition: opacity .5s;
+  }
 </style>
 </head>
 <body>
@@ -68,6 +77,7 @@
     <div id="hint">드래그=펜 · Shift=직선 · Ctrl=사각형 · Ctrl+Shift=화살표 · Tab+드래그=원 · Alt+클릭=①번호 · 휠=확대/축소</div>
     <div id="hint2" style="display:none; color:#93c5fd">🔲 모자이크 켜짐 — 가릴 부분을 드래그하세요 (버튼을 다시 누르면 끄기)</div>
   </div>
+  <div id="zhint">휠·↑↓ = 배율 &nbsp;·&nbsp; 드래그 = 그리기 &nbsp;·&nbsp; 우클릭·Esc = 닫기</div>
 
 <script>
   const canvas = document.getElementById('canvas');
@@ -94,16 +104,56 @@
   const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
   const R = () => img.naturalWidth / window.innerWidth; // 화면px → 이미지px 배율
 
-  window.api.onOverlayInit(({ dataURL, mode: m }) => {
+  const zoomHint = document.getElementById('zhint');
+  let isZoomMode = false;
+
+  window.api.onOverlayInit(({ dataURL, mode: m, cursor }) => {
     mode = m;
+    isZoomMode = mode === 'zoom';
+    // 확대를 시작한 순간의 마우스 위치를 중심으로 (ZoomIt과 동일)
+    if (cursor) lastMouse = { x: cursor.x, y: cursor.y };
+    if (isZoomMode) {
+      // ZoomIt처럼: 도구모음 없는 깨끗한 화면, 보통 커서, 부드럽게 확대
+      toolbar.style.display = 'none';
+      document.body.style.cursor = 'default';
+      zoomHint.style.opacity = '1';
+      setTimeout(() => { zoomHint.style.opacity = '0'; }, 2600);
+    }
     img.onload = () => {
       canvas.width = img.naturalWidth;
       canvas.height = img.naturalHeight;
-      if (mode === 'zoom') z = 2; // 확대 모드는 2배로 시작
+      if (isZoomMode) { z = 1; setTargetZ(2); } // 1배 → 2배로 미끄러지듯 확대
       render();
     };
     img.src = dataURL;
   });
+
+  // ----- 부드러운 배율 애니메이션 (ZoomIt 느낌) -----
+
+  let targetZ = 1;
+  let zAnimating = false;
+  let closeWhenZoomedOut = false;
+
+  function setTargetZ(t, thenClose) {
+    targetZ = clamp(t, 1, 8);
+    if (thenClose) closeWhenZoomedOut = true;
+    if (!zAnimating) { zAnimating = true; requestAnimationFrame(zTick); }
+  }
+
+  function zTick() {
+    const diff = targetZ - z;
+    if (Math.abs(diff) < 0.01) {
+      z = targetZ;
+      if (z < 1.05) z = targetZ = 1;
+      zAnimating = false;
+      render();
+      if (closeWhenZoomedOut && targetZ === 1) finish('close');
+      return;
+    }
+    z += diff * 0.28;
+    render();
+    requestAnimationFrame(zTick);
+  }
 
   // 현재 보이는 영역의 원점(이미지 좌표)
   function origin() {
@@ -286,11 +336,10 @@
     e.preventDefault();
     if (e.ctrlKey) {
       penScreen = clamp(penScreen + (e.deltaY < 0 ? 1 : -1), 2, 30);
+      render();
     } else if (!drawing) {
-      z = clamp(z * (e.deltaY < 0 ? 1.2 : 1 / 1.2), 1, 8);
-      if (z < 1.05) z = 1;
+      setTargetZ(targetZ * (e.deltaY < 0 ? 1.35 : 1 / 1.35));
     }
-    render();
   }, { passive: false });
 
   function undo() {
@@ -299,10 +348,12 @@
     render();
   }
 
-  // 우클릭 = 마지막 획 취소
+  // 우클릭: 확대 모드에서는 ZoomIt처럼 부드럽게 축소하며 종료,
+  //         판서 모드에서는 마지막 획 취소
   window.addEventListener('contextmenu', (e) => {
     e.preventDefault();
     if (e.target.closest && e.target.closest('#tb')) return;
+    if (isZoomMode) { setTargetZ(1, true); return; }
     undo();
   });
 
@@ -368,6 +419,9 @@
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Tab') { e.preventDefault(); tabHeld = true; return; }
     if (e.key === 'Escape') { finish('close'); return; }
+    // ZoomIt처럼 방향키로도 배율 조절
+    if (e.key === 'ArrowUp') { e.preventDefault(); if (!drawing) setTargetZ(targetZ * 1.35); return; }
+    if (e.key === 'ArrowDown') { e.preventDefault(); if (!drawing) setTargetZ(targetZ / 1.35); return; }
     if (e.key === 'Enter') { finish('pin'); return; }
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { undo(); return; }
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c') { finish('copy'); return; }

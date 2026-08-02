@@ -251,7 +251,11 @@ function fullscreenOverlayWindow(display) {
     skipTaskbar: true,
     hasShadow: false,
     show: false,
-    webPreferences: { preload: path.join(__dirname, 'preload.js') },
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      // 확대 애니메이션이 창 상태와 무관하게 항상 돌도록
+      backgroundThrottling: false,
+    },
   });
   win.setAlwaysOnTop(true, 'screen-saver');
   if (isMac) win.setBounds({ x, y, width, height });
@@ -478,41 +482,51 @@ ipcMain.on('quickbar-action', (e, action) => {
 
 // ---------- 영역 캡처 (F1) ----------
 
+let captureBusy = false;   // 화면을 읽는 동안 재진입 방지 (연타 → 이중 오버레이)
+
 async function startCapture(mode = 'capture') { // 'capture' | 'cover'
   // 이미 열려 있으면 닫는다(토글). 오버레이가 포커스를 잃어 Esc가 안 먹을 때
   // 단축키를 다시 눌러 빠져나올 수 있어야 한다.
   if (captureWin) { captureWin.close(); return; }
-  if (overlayWin) {
-    // 확대·판서 창이 화면에서 실제로 사라진 뒤에 찍어야 오버레이가 함께 찍히지 않는다
-    overlayWin.close();
-    await new Promise((r) => setTimeout(r, 150));
-  }
-
-  if (!ensureScreenAccess()) return;
-
-  const display = cursorDisplay();
-  await hideQuickbarForGrab();
-  let dataURL;
+  // 창 변수가 채워지기 전(화면 읽는 사이)에 다시 눌리면 오버레이가 두 겹 생기고,
+  // Esc가 최신 창만 닫아 그림이 남은 유령 창이 생긴다 — 여기서 차단
+  if (captureBusy) return;
+  captureBusy = true;
   try {
-    dataURL = await grabDisplay(display);
-  } catch (err) {
-    log('캡처 실패', err.message);
-    notify(`화면을 읽지 못했습니다. ${err.message}`);
-    reshowQuickbar();
-    return;
-  }
-  if (!dataURL) {
-    log('캡처 실패 — 빈 화면');
-    notify('화면을 캡처하지 못했습니다. 잠시 후 다시 시도해주세요.');
-    reshowQuickbar();
-    return;
-  }
+    if (overlayWin) {
+      // 확대·판서 창이 화면에서 실제로 사라진 뒤에 찍어야 오버레이가 함께 찍히지 않는다
+      overlayWin.close();
+      await new Promise((r) => setTimeout(r, 150));
+    }
 
-  captureDisplay = { ...display.bounds };
-  captureWin = fullscreenOverlayWindow(display);
-  captureWin.loadFile(path.join(__dirname, 'src', 'capture.html'));
-  showOverlayWhenReady(captureWin, 'capture-init', { dataURL, mode });
-  captureWin.on('closed', () => { captureWin = null; reshowQuickbar(); });
+    if (!ensureScreenAccess()) return;
+
+    const display = cursorDisplay();
+    await hideQuickbarForGrab();
+    let dataURL;
+    try {
+      dataURL = await grabDisplay(display);
+    } catch (err) {
+      log('캡처 실패', err.message);
+      notify(`화면을 읽지 못했습니다. ${err.message}`);
+      reshowQuickbar();
+      return;
+    }
+    if (!dataURL) {
+      log('캡처 실패 — 빈 화면');
+      notify('화면을 캡처하지 못했습니다. 잠시 후 다시 시도해주세요.');
+      reshowQuickbar();
+      return;
+    }
+
+    captureDisplay = { ...display.bounds };
+    captureWin = fullscreenOverlayWindow(display);
+    captureWin.loadFile(path.join(__dirname, 'src', 'capture.html'));
+    showOverlayWhenReady(captureWin, 'capture-init', { dataURL, mode });
+    captureWin.on('closed', () => { captureWin = null; reshowQuickbar(); });
+  } finally {
+    captureBusy = false;
+  }
 }
 
 // 맥은 화면 기록 권한이 없으면 캡처가 조용히 실패한다 — 미리 걸러서 안내한다.
@@ -533,7 +547,11 @@ function ensureScreenAccess() {
 
 ipcMain.on('capture-finish', (e, payload) => {
   const disp = captureDisplay;
-  if (captureWin) captureWin.close();
+  // 보낸 창 자신을 닫는다 — captureWin 변수가 다른 창을 가리키게 된 경우에도
+  // Esc(취소)가 항상 자기 창을 닫을 수 있도록
+  const sender = BrowserWindow.fromWebContents(e.sender);
+  if (sender && !sender.isDestroyed()) sender.close();
+  if (captureWin && captureWin !== sender) captureWin.close();
   if (!payload || payload.action === 'cancel') return;
 
   const { action, dataURL, rect } = payload;
@@ -616,40 +634,57 @@ ipcMain.on('cover-close', (e, id) => covers.get(id)?.win.close());
 
 // ---------- 확대·판서 오버레이 (Ctrl+1 / Ctrl+2) ----------
 
+let overlayBusy = false;   // 화면을 읽는 동안 재진입 방지 (연타 → 이중 오버레이)
+
 async function toggleOverlay(mode) { // 'zoom' | 'draw'
   if (overlayWin) { overlayWin.close(); return; }
-  if (captureWin) return;
-
-  if (!ensureScreenAccess()) return;
-
-  const display = cursorDisplay();
-  await hideQuickbarForGrab();
-  let dataURL;
+  if (captureWin || overlayBusy) return;
+  overlayBusy = true;
   try {
-    dataURL = await grabDisplay(display);
-  } catch (err) {
-    log('확대·판서 실패', err.message);
-    notify(`화면을 읽지 못했습니다. ${err.message}`);
-    reshowQuickbar();
-    return;
-  }
-  if (!dataURL) {
-    notify('화면을 캡처하지 못했습니다. 잠시 후 다시 시도해주세요.');
-    reshowQuickbar();
-    return;
-  }
+    if (!ensureScreenAccess()) return;
 
-  overlayDisplay = { ...display.bounds };
-  overlayWin = fullscreenOverlayWindow(display);
-  overlayWin.loadFile(path.join(__dirname, 'src', 'screen.html'));
-  showOverlayWhenReady(overlayWin, 'overlay-init', { dataURL, mode });
-  overlayWin.on('closed', () => { overlayWin = null; reshowQuickbar(); });
+    const display = cursorDisplay();
+    await hideQuickbarForGrab();
+    let dataURL;
+    try {
+      dataURL = await grabDisplay(display);
+    } catch (err) {
+      log('확대·판서 실패', err.message);
+      notify(`화면을 읽지 못했습니다. ${err.message}`);
+      reshowQuickbar();
+      return;
+    }
+    if (!dataURL) {
+      notify('화면을 캡처하지 못했습니다. 잠시 후 다시 시도해주세요.');
+      reshowQuickbar();
+      return;
+    }
+
+    overlayDisplay = { ...display.bounds };
+    overlayWin = fullscreenOverlayWindow(display);
+    overlayWin.loadFile(path.join(__dirname, 'src', 'screen.html'));
+    // 확대는 마우스 위치를 중심으로 시작해야 한다 (ZoomIt과 동일)
+    const cur = screen.getCursorScreenPoint();
+    showOverlayWhenReady(overlayWin, 'overlay-init', {
+      dataURL, mode,
+      cursor: { x: cur.x - display.bounds.x, y: cur.y - display.bounds.y },
+    });
+    overlayWin.on('closed', () => { overlayWin = null; reshowQuickbar(); });
+  } finally {
+    overlayBusy = false;
+  }
 }
 
 ipcMain.on('overlay-finish', (e, payload) => {
   const disp = overlayDisplay;
+  // 보낸 창 자신을 닫는다 — 변수가 다른 창을 가리켜도 Esc가 항상 통하게
+  const sender = BrowserWindow.fromWebContents(e.sender);
+  const closeSender = () => {
+    if (sender && !sender.isDestroyed()) sender.close();
+    if (overlayWin && overlayWin !== sender) overlayWin.close();
+  };
   if (!payload || payload.action === 'close') {
-    if (overlayWin) overlayWin.close();
+    closeSender();
     return;
   }
   const { action, dataURL, w, h } = payload;
@@ -657,10 +692,10 @@ ipcMain.on('overlay-finish', (e, payload) => {
     clipboard.writeImage(nativeImage.createFromDataURL(dataURL));
     notify('클립보드에 복사했습니다.');
   } else if (action === 'save') {
-    if (overlayWin) overlayWin.close();
+    closeSender();
     saveImageDialog(dataURL);
   } else if (action === 'pin') {
-    if (overlayWin) overlayWin.close();
+    closeSender();
     // 화면의 절반 크기로 핀 (가운데 배치)
     const pw = Math.round(disp.width / 2), ph = Math.round(h * (pw / w));
     createPin(dataURL, pw, ph,
