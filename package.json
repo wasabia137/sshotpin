@@ -1,14 +1,14 @@
 {
   "name": "sshotpin",
   "productName": "스샷핀",
-  "version": "0.6.1",
-  "description": "스샷을 콕! 화면에 붙이는 수업 특화 캡처 도구",
+  "version": "0.6.2",
+  "description": "스샷핀 (SshotPin)",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
     "dist": "electron-builder --win nsis"
   },
-  "author": "jangsung",
+  "author": "SshotPin (sshot-pin.web.app)",
   "license": "MIT",
   "devDependencies": {
     "electron": "^36.0.0",
@@ -39,7 +39,10 @@
       "target": [
         {
           "target": "dmg",
-          "arch": ["arm64", "x64"]
+          "arch": [
+            "arm64",
+            "x64"
+          ]
         }
       ],
       "icon": "assets/icon-mac.png",
@@ -59,7 +62,8 @@
       "installerLanguages": [
         "ko_KR"
       ]
-    }
+    },
+    "copyright": "Copyright (c) 2026 SshotPin (sshot-pin.web.app)"
   },
   "dependencies": {
     "electron-updater": "^6.8.9"
