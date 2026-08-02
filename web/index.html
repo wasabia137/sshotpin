@@ -155,6 +155,7 @@
   }
   .demo video {
     width: 100%; display: block;
+    aspect-ratio: 8 / 5;   /* 로드 전에도 자리를 잡아 레이아웃이 안 흔들린다 */
     border-radius: 8px;
     background: var(--chip);
   }
@@ -261,48 +262,48 @@
 
     <div class="demos">
       <figure class="demo">
-        <video src="demo-pin.mp4?v=5" autoplay loop muted playsinline preload="auto"
-               poster="demo-pin-poster.jpg?v=5" aria-label="캡처해서 화면에 붙이기 동작 화면"></video>
+        <video data-src="demo-pin.mp4?v=5" autoplay loop muted playsinline preload="none"
+               data-poster="demo-pin-poster.jpg?v=5" aria-label="캡처해서 화면에 붙이기 동작 화면"></video>
         <figcaption><b>캡처해서 화면에 붙이기<span class="hk"><kbd>Ctrl</kbd>+<kbd>F1</kbd></span></b><span>필요한 부분만 드래그해서 찍고 화면 맨 위에 고정합니다. 다른 창을 열어도 위에 남습니다. 찍은 자리에서 화살표·형광펜을 바로 얹을 수도 있습니다.</span></figcaption>
       </figure>
       <figure class="demo">
-        <video src="demo-zoom.mp4?v=5" autoplay loop muted playsinline preload="auto"
-               poster="demo-zoom-poster.jpg?v=5" aria-label="화면 확대 동작 화면"></video>
+        <video data-src="demo-zoom.mp4?v=5" autoplay loop muted playsinline preload="none"
+               data-poster="demo-zoom-poster.jpg?v=5" aria-label="화면 확대 동작 화면"></video>
         <figcaption><b>화면 확대<span class="hk"><kbd>Ctrl</kbd>+<kbd>1</kbd></span></b><span>마우스 주변을 크게 봅니다. 휠로 배율을 조절하고, 마우스를 움직이면 화면이 따라옵니다.</span></figcaption>
       </figure>
       <figure class="demo">
-        <video src="demo-draw.mp4?v=5" autoplay loop muted playsinline preload="auto"
-               poster="demo-draw-poster.jpg?v=5" aria-label="화면에 그리기 동작 화면"></video>
+        <video data-src="demo-draw.mp4?v=5" autoplay loop muted playsinline preload="none"
+               data-poster="demo-draw-poster.jpg?v=5" aria-label="화면에 그리기 동작 화면"></video>
         <figcaption><b>화면에 그리기<span class="hk"><kbd>Ctrl</kbd>+<kbd>2</kbd></span></b><span>화면 위에 바로 밑줄·동그라미·화살표를 긋습니다. 색과 굵기를 바꾸고, 빈 칠판으로 전환할 수도 있습니다.</span></figcaption>
       </figure>
       <figure class="demo">
-        <video src="demo-cover.mp4?v=5" autoplay loop muted playsinline preload="auto"
-               poster="demo-cover-poster.jpg?v=5" aria-label="가리개 동작 화면"></video>
+        <video data-src="demo-cover.mp4?v=5" autoplay loop muted playsinline preload="none"
+               data-poster="demo-cover-poster.jpg?v=5" aria-label="가리개 동작 화면"></video>
         <figcaption><b>가리개<span class="hk"><kbd>Ctrl</kbd>+<kbd>F3</kbd></span></b><span>보여주지 않을 부분을 덮어두고, 필요한 때 클릭해서 공개합니다. 다시 클릭하면 가려집니다.</span></figcaption>
       </figure>
       <figure class="demo">
-        <video src="demo-mosaic.mp4?v=5" autoplay loop muted playsinline preload="auto"
-               poster="demo-mosaic-poster.jpg?v=5" aria-label="모자이크 동작 화면"></video>
+        <video data-src="demo-mosaic.mp4?v=5" autoplay loop muted playsinline preload="none"
+               data-poster="demo-mosaic-poster.jpg?v=5" aria-label="모자이크 동작 화면"></video>
         <figcaption><b>모자이크<span class="hk">그리기 중 <kbd>M</kbd></span></b><span>이름·연락처처럼 가려야 할 정보를 드래그로 덮습니다. 화면을 공유하거나 캡처를 남길 때 씁니다.</span></figcaption>
       </figure>
       <figure class="demo">
-        <video src="demo-history.mp4?v=5" autoplay loop muted playsinline preload="auto"
-               poster="demo-history-poster.jpg?v=5" aria-label="최근 캡처 다시 꺼내기 동작 화면"></video>
+        <video data-src="demo-history.mp4?v=5" autoplay loop muted playsinline preload="none"
+               data-poster="demo-history-poster.jpg?v=5" aria-label="최근 캡처 다시 꺼내기 동작 화면"></video>
         <figcaption><b>최근 캡처 다시 꺼내기<span class="hk">퀵바 🕘</span></b><span>최근 24개를 보관합니다. 앞에서 쓴 캡처를 다시 찍지 않고 클릭 한 번으로 붙입니다.</span></figcaption>
       </figure>
       <figure class="demo">
-        <video src="demo-pinops.mp4?v=5" autoplay loop muted playsinline preload="auto"
-               poster="demo-pinops-poster.jpg?v=5" aria-label="붙여둔 그림 다루기 동작 화면"></video>
+        <video data-src="demo-pinops.mp4?v=5" autoplay loop muted playsinline preload="none"
+               data-poster="demo-pinops-poster.jpg?v=5" aria-label="붙여둔 그림 다루기 동작 화면"></video>
         <figcaption><b>붙여둔 그림 다루기<span class="hk">휠 · 우클릭</span></b><span>휠로 크기, Ctrl+휠로 투명도를 조절합니다. 더블클릭하면 작게 접히고, 우클릭하면 테두리·회전·클릭 통과를 고를 수 있습니다.</span></figcaption>
       </figure>
       <figure class="demo">
-        <video src="demo-timer.mp4?v=5" autoplay loop muted playsinline preload="auto"
-               poster="demo-timer-poster.jpg?v=5" aria-label="타이머 동작 화면"></video>
+        <video data-src="demo-timer.mp4?v=5" autoplay loop muted playsinline preload="none"
+               data-poster="demo-timer-poster.jpg?v=5" aria-label="타이머 동작 화면"></video>
         <figcaption><b>타이머<span class="hk"><kbd>Ctrl</kbd>+<kbd>3</kbd></span></b><span>남은 시간을 화면에 띄웁니다. 시간을 클릭해 직접 입력하고, 끝나면 소리로 알려줍니다.</span></figcaption>
       </figure>
       <figure class="demo">
-        <video src="demo-quickbar.mp4?v=5" autoplay loop muted playsinline preload="auto"
-               poster="demo-quickbar-poster.jpg?v=5" aria-label="퀵 실행바 동작 화면"></video>
+        <video data-src="demo-quickbar.mp4?v=5" autoplay loop muted playsinline preload="none"
+               data-poster="demo-quickbar-poster.jpg?v=5" aria-label="퀵 실행바 동작 화면"></video>
         <figcaption><b>퀵 실행바</b><span>화면 위에 떠 있는 버튼바에서 모든 기능을 실행합니다. 원하는 자리로 옮기면 위치를 기억하고, 캡처할 때는 저절로 숨습니다.</span></figcaption>
       </figure>
     </div>
@@ -465,21 +466,36 @@
   });
   document.addEventListener('click', () => macMenu.classList.remove('open'));
 
-  // 데모 영상은 화면에 보일 때만 재생 (자동재생이 막히는 경우 대비)
+  // 데모 영상 지연 로딩 — 화면에 가까워질 때만 내려받고, 보일 때만 재생
   const demos = document.querySelectorAll('.demo video');
   if (demos.length) {
-    const io = new IntersectionObserver((entries) => {
+    // 뷰포트 400px 앞에서 미리 파일을 붙인다 (스크롤 안 하면 안 받는다)
+    const loadIO = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (!e.isIntersecting) continue;
+        const v = e.target;
+        if (v.dataset.poster) { v.poster = v.dataset.poster; delete v.dataset.poster; }
+        if (v.dataset.src) { v.src = v.dataset.src; delete v.dataset.src; }
+        loadIO.unobserve(v);
+      }
+    }, { rootMargin: '400px 0px' });
+
+    // 실제로 보일 때만 재생, 벗어나면 멈춤
+    const playIO = new IntersectionObserver((entries) => {
       for (const e of entries) {
         const v = e.target;
         if (e.isIntersecting) {
-          const p = v.play();
-          if (p) p.catch(() => { /* 브라우저가 막으면 포스터 이미지가 남는다 */ });
+          if (v.src) {
+            const p = v.play();
+            if (p) p.catch(() => { /* 브라우저가 막으면 포스터 이미지가 남는다 */ });
+          }
         } else {
           v.pause();
         }
       }
     }, { threshold: 0.25 });
-    for (const v of demos) io.observe(v);
+
+    for (const v of demos) { loadIO.observe(v); playIO.observe(v); }
   }
 
   // 다운로드 횟수 — 윈도우·맥 따로 센다
