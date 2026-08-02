@@ -154,6 +154,7 @@
   window.api.onCaptureInit((d) => {
     shot.src = d.dataURL;
     mode = d.mode || 'capture';
+    window.api.log(`[capture] init 수신 — 창 ${window.innerWidth}x${window.innerHeight}, 이미지 ${Math.round(d.dataURL.length/1024)}KB`);
     if (mode === 'cover') {
       hint.textContent = '🙈 가릴 영역을 드래그하세요 (놓는 즉시 가리개 생성) · Esc=취소';
     }
@@ -293,6 +294,7 @@
   }
 
   function showToolbar() {
+    if (!sel) return; // 선택 영역이 없으면 놓을 자리가 없다 (sel.x 접근 시 TypeError)
     toolbar.classList.add('show');
     const tw = toolbar.offsetWidth, th = toolbar.offsetHeight;
     let tx = sel.x + sel.w - tw;
@@ -310,14 +312,14 @@
     document.body.style.cursor = t ? 'crosshair' : 'default';
     if (t) hint.style.display = 'none';
     draw();
-    showToolbar();
+    if (done) showToolbar(); // 영역 확정 전에는 도구모음을 띄울 자리가 없다
   }
 
   // ----- 마우스 -----
 
   window.addEventListener('mousedown', (e) => {
     if (e.button !== 0) return;
-    if (toolbar.contains(e.target)) return;
+    if (e.target instanceof Node && toolbar.contains(e.target)) return;
 
     // 핸들로 영역 조절
     if (e.target.classList && e.target.classList.contains('handle')) {
@@ -351,15 +353,17 @@
       return;
     }
 
-    // 새 선택 시작
+    // 새 선택 시작 — sel을 먼저 만들어야 setTool→showToolbar가 안전하다
     toolbar.classList.remove('show');
     document.body.classList.remove('picked');
     done = false;
     anns.length = 0; stepSeq = 0;
-    setTool(null);
-    selecting = true;
     dragStart = { x: e.clientX, y: e.clientY };
     sel = { x: e.clientX, y: e.clientY, w: 0, h: 0 };
+    setTool(null);
+    document.body.style.cursor = 'crosshair'; // 드래그 중에는 십자 커서 유지
+    selecting = true;
+    window.api.log(`[capture] 드래그 시작 @${e.clientX},${e.clientY}`);
     hint.style.display = 'none';
     draw(); updateSizeLabel();
   });
@@ -419,6 +423,7 @@
       return;
     }
     done = true;
+    window.api.log(`[capture] 영역 확정 ${Math.round(sel.w)}x${Math.round(sel.h)}`);
     document.body.classList.add('picked');
     if (mode === 'cover') { finish('cover'); return; } // 가리개는 놓는 즉시 생성
     showToolbar();
@@ -483,7 +488,7 @@
   // 우클릭: 도구를 쓰는 중이면 되돌리기, 아니면 캡처 취소
   window.addEventListener('contextmenu', (e) => {
     e.preventDefault();
-    if (toolbar.contains(e.target)) return;
+    if (e.target instanceof Node && toolbar.contains(e.target)) return;
     if (tool && anns.length) { undo(); return; }
     if (tool) { setTool(null); return; }
     finish('cancel');

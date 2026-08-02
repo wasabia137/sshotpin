@@ -232,13 +232,18 @@ function showOverlayWhenReady(win, channel, payload) {
     win.webContents.send(channel, payload);
     win.show();
     win.focus();
+    const b = win.getBounds();
+    log(`overlay 표시: ${channel} bounds=${b.width}x${b.height}@${b.x},${b.y} visible=${win.isVisible()}`);
   };
   win.webContents.once('did-finish-load', reveal);
   // 이벤트를 놓쳐도 창이 뜨도록 하는 안전장치
   setTimeout(reveal, 1200);
 }
 
-// 전체 화면 오버레이 창 공통 옵션
+// 전체 화면 오버레이 창 공통 옵션.
+// 윈도우에서 fullscreen:true는 resizable:false와 만나면 제대로 전체 화면이
+// 되지 않는 문제가 있어(오버레이가 화면을 못 덮음), 어느 플랫폼에서든
+// 디스플레이 크기 그대로 덮는 프레임 없는 창 + 최상위 고정을 쓴다.
 function fullscreenOverlayWindow(display) {
   const { x, y, width, height } = display.bounds;
   const win = new BrowserWindow({
@@ -246,7 +251,6 @@ function fullscreenOverlayWindow(display) {
     frame: false,
     resizable: false,
     movable: false,
-    fullscreen: !isMac,
     enableLargerThanScreen: true,
     skipTaskbar: true,
     hasShadow: false,
@@ -258,7 +262,15 @@ function fullscreenOverlayWindow(display) {
     },
   });
   win.setAlwaysOnTop(true, 'screen-saver');
-  if (isMac) win.setBounds({ x, y, width, height });
+  win.setBounds({ x, y, width, height });
+  // 렌더러가 죽으면 빈 창만 남아 "클릭이 안 된다"로 보인다 — 즉시 닫고 기록
+  win.webContents.on('render-process-gone', (e, details) => {
+    log(`overlay 렌더러 사망: ${JSON.stringify(details)}`);
+    if (!win.isDestroyed()) win.close();
+    notify('화면 창에 문제가 생겨 닫았습니다. 다시 시도해주세요.');
+  });
+  win.on('unresponsive', () => log('overlay 응답 없음'));
+  win.on('closed', () => log('overlay 닫힘'));
   return win;
 }
 
@@ -520,6 +532,7 @@ async function startCapture(mode = 'capture') { // 'capture' | 'cover'
     }
 
     captureDisplay = { ...display.bounds };
+    log(`capture: 화면 읽음 (${display.bounds.width}x${display.bounds.height} scale=${display.scaleFactor})`);
     captureWin = fullscreenOverlayWindow(display);
     captureWin.loadFile(path.join(__dirname, 'src', 'capture.html'));
     showOverlayWhenReady(captureWin, 'capture-init', { dataURL, mode });
@@ -546,6 +559,7 @@ function ensureScreenAccess() {
 }
 
 ipcMain.on('capture-finish', (e, payload) => {
+  log(`capture-finish: ${payload ? payload.action : 'null'}`);
   const disp = captureDisplay;
   // 보낸 창 자신을 닫는다 — captureWin 변수가 다른 창을 가리키게 된 경우에도
   // Esc(취소)가 항상 자기 창을 닫을 수 있도록
