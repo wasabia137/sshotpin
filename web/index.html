@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>스샷핀 — 화면 캡처 후 붙여두는 수업용 무료 프로그램 (윈도우·맥)</title>
-<meta name="description" content="스샷핀은 캡처한 화면을 쪽지처럼 항상 위에 고정해두는 수업 특화 무료 캡처 프로그램입니다. 클릭만으로 쓰는 퀵 실행바, 화면 확대, 판서, 수업 타이머, 정답 가리개 기능 제공. 윈도우 10/11·맥 무료 다운로드.">
+<title>스샷핀 — 화면 캡처·확대·판서 무료 프로그램 (윈도우·맥)</title>
+<meta name="description" content="캡처한 화면을 항상 위에 고정해두고, 화면을 확대하고, 그 위에 바로 그리는 무료 프로그램. 가리개·모자이크·타이머까지. 발표와 수업, 원격 설명에 씁니다. 윈도우 10/11·맥 무료 다운로드.">
 <meta name="keywords" content="스샷핀, 화면캡처 프로그램, 캡처 고정, 화면에 붙이기, 스니페이스트 대안, 수업 도구, 판서 프로그램, 화면 확대 프로그램, ZoomIt 대안, 수업 타이머, 정답 가리개, 무료 캡처 프로그램, 윈도우 캡처, 맥 캡처 프로그램">
 <meta name="author" content="스샷핀">
 <link rel="canonical" href="https://sshot-pin.web.app/">
@@ -28,16 +28,16 @@
 <meta property="og:site_name" content="스샷핀">
 <meta property="og:locale" content="ko_KR">
 <meta property="og:url" content="https://sshot-pin.web.app/">
-<meta property="og:title" content="스샷핀 — 화면 캡처 후 붙여두는 수업용 무료 프로그램">
-<meta property="og:description" content="캡처한 화면을 쪽지처럼 고정해두고 수업하세요. 화면 확대·판서·타이머·정답 가리개까지. 윈도우·맥 무료.">
+<meta property="og:title" content="스샷핀 — 화면 캡처·확대·판서 무료 프로그램">
+<meta property="og:description" content="캡처한 화면을 항상 위에 고정하고, 확대하고, 그 위에 그립니다. 발표·수업·원격 설명용. 윈도우·맥 무료.">
 <meta property="og:image" content="https://sshot-pin.web.app/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 
 <!-- 트위터 카드 -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="스샷핀 — 화면 캡처 후 붙여두는 수업용 무료 프로그램">
-<meta name="twitter:description" content="캡처한 화면을 쪽지처럼 고정해두고 수업하세요. 확대·판서·타이머·정답 가리개까지.">
+<meta name="twitter:title" content="스샷핀 — 화면 캡처·확대·판서 무료 프로그램">
+<meta name="twitter:description" content="캡처한 화면을 항상 위에 고정하고, 확대하고, 그 위에 그립니다. 발표·수업·원격 설명용.">
 <meta name="twitter:image" content="https://sshot-pin.web.app/og.png">
 
 <!-- 구조화 데이터 (구글 검색 결과 리치 스니펫) -->
@@ -47,7 +47,7 @@
   "@type": "SoftwareApplication",
   "name": "스샷핀",
   "alternateName": "SshotPin",
-  "description": "캡처한 화면을 항상 위에 고정해두는 수업 특화 무료 캡처 프로그램. 화면 확대, 판서, 수업 타이머, 정답 가리개 기능 제공.",
+  "description": "캡처한 화면을 항상 위에 고정하고 화면을 확대하며 그 위에 그리는 무료 프로그램. 가리개, 모자이크, 타이머 제공. 발표와 수업, 원격 설명에 사용.",
   "url": "https://sshot-pin.web.app/",
   "image": "https://sshot-pin.web.app/og.png",
   "applicationCategory": "UtilitiesApplication",
@@ -67,8 +67,8 @@
     "클릭만으로 쓰는 퀵 실행바",
     "화면 확대·축소",
     "화면 판서 (직선·사각형·화살표·번호)",
-    "수업 타이머",
-    "정답 가리개",
+    "타이머",
+    "가리개",
     "모자이크로 개인정보 가리기",
     "단축키 사용자 지정",
     "캡처 직후 주석(화살표·형광펜·번호)",
@@ -129,24 +129,19 @@
     border: 1px solid var(--line); border-radius: 12px;
     background: var(--chip);
   }
-  .demo figcaption {
-    font-size: 14px; color: var(--muted);
-    margin-top: 10px; padding: 0 2px;
+  .demo figcaption { margin-top: 10px; padding: 0 2px; }
+  .demo figcaption b {
+    display: block; font-size: 15px; color: var(--text); margin-bottom: 2px;
   }
-  .demo figcaption b { color: var(--text); }
-  @media (min-width: 720px) {
-    .demos { grid-template-columns: repeat(3, 1fr); gap: 16px; }
-    .demo figcaption { font-size: 13px; }
+  .demo figcaption span { font-size: 13.5px; color: var(--muted); }
+  @media (min-width: 700px) {
+    .demos { grid-template-columns: repeat(2, 1fr); gap: 24px 20px; }
   }
-
-  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; }
-  .card {
-    background: var(--card); border: 1px solid var(--line);
-    border-radius: 12px; padding: 20px;
+  @media (min-width: 1000px) {
+    .demos { grid-template-columns: repeat(3, 1fr); }
+    .demo figcaption b { font-size: 14.5px; }
+    .demo figcaption span { font-size: 13px; }
   }
-  .card .ico { font-size: 28px; display: block; margin-bottom: 8px; }
-  .card h3 { font-size: 16px; margin-bottom: 6px; }
-  .card p { font-size: 14px; color: var(--muted); }
 
   /* 단축키 표 */
   .table-scroll { overflow-x: auto; }
@@ -167,12 +162,7 @@
   /* 설치 안내 */
   ol { padding-left: 22px; }
   ol li { margin-bottom: 10px; font-size: 15px; }
-  ol li.hl {
-    background: var(--chip); border: 1px solid var(--line);
-    border-left: 4px solid var(--blue);
-    border-radius: 8px; padding: 10px 14px; margin: 12px 0 12px -6px;
-    list-style-position: inside;
-  }
+  ol li.hl b { color: var(--blue); }
   .why { font-size: 13px; color: var(--muted); margin-top: 4px; }
   .faq { display: grid; gap: 12px; }
   .qa {
@@ -181,10 +171,7 @@
   }
   .qa h3 { font-size: 15.5px; margin-bottom: 6px; }
   .qa p { font-size: 14px; color: var(--muted); }
-  .note {
-    background: var(--chip); border: 1px solid var(--line);
-    border-radius: 10px; padding: 14px 18px; font-size: 14px; margin-top: 16px;
-  }
+  .fine { font-size: 13.5px; color: var(--muted); margin-top: 16px; }
   footer {
     text-align: center; padding: 40px 0 60px;
     color: var(--muted); font-size: 13px;
@@ -203,7 +190,7 @@
   <header>
     <img class="logo" src="icon.png" alt="스샷핀 아이콘">
     <h1>스샷핀</h1>
-    <p class="tagline">스샷을 콕! 화면에 붙이는 수업 도구</p>
+    <p class="tagline">스샷을 콕! 화면에 붙여두는 도구</p>
     <p class="sub">캡처 · 확대 · 판서 · 타이머 · 정답 가리개</p>
     <a class="dl" id="dlBtn" href="https://github.com/wasabia137/sshotpin/releases/latest/download/SshotPin-Setup-0.6.1.exe">
       ⬇ 윈도우용 다운로드
@@ -216,83 +203,74 @@
   </header>
 
   <section>
-    <h2>수업에서 이렇게 씁니다</h2>
+    <h2>기능</h2>
+    <p class="lead">발표, 수업, 원격 설명 — 화면을 두고 이야기할 때 쓰는 도구입니다.</p>
 
     <div class="demos">
       <figure class="demo">
-        <video src="demo-pin.mp4" autoplay loop muted playsinline preload="metadata"
-               poster="demo-pin-poster.jpg" aria-label="캡처한 자료를 화면에 고정하는 장면"></video>
-        <figcaption><b>찍어서 붙여두기</b> — 자료를 캡처하고 화살표를 그려 화면에 고정합니다. 다른 창을 열어도 위에 남습니다.</figcaption>
+        <video src="demo-pin.mp4" autoplay loop muted playsinline preload="none"
+               poster="demo-pin-poster.jpg" aria-label="캡처해서 화면에 붙이기 동작 화면"></video>
+        <figcaption><b>캡처해서 화면에 붙이기</b><span>필요한 부분만 드래그해서 찍고, 그 자리에서 화살표·형광펜·모자이크를 얹어 화면에 고정합니다. 다른 창을 열어도 위에 남습니다.</span></figcaption>
       </figure>
       <figure class="demo">
-        <video src="demo-cover.mp4" autoplay loop muted playsinline preload="metadata"
-               poster="demo-cover-poster.jpg" aria-label="정답을 가렸다가 클릭으로 공개하는 장면"></video>
-        <figcaption><b>정답 가리개</b> — 정답을 덮어두고, 학생들 답을 들은 뒤 클릭해서 공개합니다.</figcaption>
+        <video src="demo-zoom.mp4" autoplay loop muted playsinline preload="none"
+               poster="demo-zoom-poster.jpg" aria-label="화면 확대 동작 화면"></video>
+        <figcaption><b>화면 확대</b><span>마우스 주변을 크게 봅니다. 휠로 배율을 조절하고, 마우스를 움직이면 화면이 따라옵니다.</span></figcaption>
       </figure>
       <figure class="demo">
-        <video src="demo-zoom.mp4" autoplay loop muted playsinline preload="metadata"
-               poster="demo-zoom-poster.jpg" aria-label="화면을 확대하고 밑줄을 긋는 장면"></video>
-        <figcaption><b>확대하고 판서</b> — 화면을 키워서 보여주고, 그 위에 바로 밑줄과 동그라미를 그립니다.</figcaption>
+        <video src="demo-draw.mp4" autoplay loop muted playsinline preload="none"
+               poster="demo-draw-poster.jpg" aria-label="화면에 그리기 동작 화면"></video>
+        <figcaption><b>화면에 그리기</b><span>화면 위에 바로 밑줄·동그라미·화살표를 긋습니다. 색과 굵기를 바꾸고, 빈 칠판으로 전환할 수도 있습니다.</span></figcaption>
+      </figure>
+      <figure class="demo">
+        <video src="demo-cover.mp4" autoplay loop muted playsinline preload="none"
+               poster="demo-cover-poster.jpg" aria-label="가리개 동작 화면"></video>
+        <figcaption><b>가리개</b><span>보여주지 않을 부분을 덮어두고, 필요한 때 클릭해서 공개합니다. 다시 클릭하면 가려집니다.</span></figcaption>
+      </figure>
+      <figure class="demo">
+        <video src="demo-mosaic.mp4" autoplay loop muted playsinline preload="none"
+               poster="demo-mosaic-poster.jpg" aria-label="모자이크 동작 화면"></video>
+        <figcaption><b>모자이크</b><span>이름·연락처처럼 가려야 할 정보를 드래그로 덮습니다. 화면을 공유하거나 캡처를 남길 때 씁니다.</span></figcaption>
+      </figure>
+      <figure class="demo">
+        <video src="demo-history.mp4" autoplay loop muted playsinline preload="none"
+               poster="demo-history-poster.jpg" aria-label="최근 캡처 다시 꺼내기 동작 화면"></video>
+        <figcaption><b>최근 캡처 다시 꺼내기</b><span>최근 24개를 보관합니다. 앞에서 쓴 캡처를 다시 찍지 않고 클릭 한 번으로 붙입니다.</span></figcaption>
+      </figure>
+      <figure class="demo">
+        <video src="demo-pinops.mp4" autoplay loop muted playsinline preload="none"
+               poster="demo-pinops-poster.jpg" aria-label="붙여둔 그림 다루기 동작 화면"></video>
+        <figcaption><b>붙여둔 그림 다루기</b><span>휠로 크기, Ctrl+휠로 투명도를 조절합니다. 더블클릭하면 작게 접히고, 우클릭하면 테두리·회전·클릭 통과를 고를 수 있습니다.</span></figcaption>
+      </figure>
+      <figure class="demo">
+        <video src="demo-timer.mp4" autoplay loop muted playsinline preload="none"
+               poster="demo-timer-poster.jpg" aria-label="타이머 동작 화면"></video>
+        <figcaption><b>타이머</b><span>남은 시간을 화면에 띄웁니다. 시간을 클릭해 직접 입력하고, 끝나면 소리로 알려줍니다.</span></figcaption>
+      </figure>
+      <figure class="demo">
+        <video src="demo-quickbar.mp4" autoplay loop muted playsinline preload="none"
+               poster="demo-quickbar-poster.jpg" aria-label="퀵 실행바 동작 화면"></video>
+        <figcaption><b>퀵 실행바</b><span>화면 위에 떠 있는 버튼바에서 모든 기능을 실행합니다. 원하는 자리로 옮기면 위치를 기억하고, 캡처할 때는 저절로 숨습니다.</span></figcaption>
       </figure>
     </div>
+  </section>
 
-    <div class="cards">
-      <div class="card">
-        <span class="ico">🖱️</span>
-        <h3>퀵 실행바</h3>
-        <p>화면 위에 떠 있는 버튼바에서 바로 실행합니다. 원하는 자리로 옮기면 위치를 기억합니다.</p>
-      </div>
-      <div class="card">
-        <span class="ico">📌</span>
-        <h3>화면에 붙여두기</h3>
-        <p>캡처한 문제나 자료가 화면 맨 위에 고정됩니다. 다른 프로그램을 써도 계속 보입니다.</p>
-      </div>
-      <div class="card">
-        <span class="ico">🔍</span>
-        <h3>화면 확대</h3>
-        <p><kbd>Ctrl</kbd>+<kbd>1</kbd>로 마우스 주변을 크게 봅니다. 뒷자리에서도 보입니다.</p>
-      </div>
-      <div class="card">
-        <span class="ico">✏️</span>
-        <h3>화면에 판서</h3>
-        <p><kbd>Ctrl</kbd>+<kbd>2</kbd>로 화면 위에 밑줄·동그라미·화살표를 긋습니다. 흰 칠판, 검은 칠판 모드도 있습니다.</p>
-      </div>
-      <div class="card">
-        <span class="ico">🙈</span>
-        <h3>정답 가리개</h3>
-        <p><kbd>Ctrl</kbd>+<kbd>F3</kbd>(또는 퀵바 🙈)으로 정답을 덮어두고, 학생들 답을 들은 뒤 클릭 한 번으로 공개.</p>
-      </div>
-      <div class="card">
-        <span class="ico">⏱️</span>
-        <h3>수업 타이머</h3>
-        <p><kbd>Ctrl</kbd>+<kbd>3</kbd>으로 모둠활동·시험 시간을 띄웁니다. 시간은 직접 입력합니다.</p>
-      </div>
-      <div class="card">
-        <span class="ico">📸</span>
-        <h3>찍고 바로 그리기</h3>
-        <p><kbd>Ctrl</kbd>+<kbd>F1</kbd> 드래그로 영역을 찍고, <b>그 자리에서 화살표·형광펜·모자이크</b>를 넣어 학생들에게 보여주세요. 영역은 핸들로 다시 조절됩니다.</p>
-      </div>
-      <div class="card">
-        <span class="ico">⚙️</span>
-        <h3>단축키 바꾸기</h3>
-        <p>손에 안 맞는 키는 설정에서 바꾸거나 비워두세요. 비워두면 퀵 실행바 버튼으로 실행합니다.</p>
-      </div>
-      <div class="card">
-        <span class="ico">🔲</span>
-        <h3>모자이크</h3>
-        <p>학생 이름처럼 가려야 할 부분을 드래그로 덮습니다.</p>
-      </div>
-      <div class="card">
-        <span class="ico">🕘</span>
-        <h3>최근 캡처 다시 불러오기</h3>
-        <p>앞에서 보여준 자료를 클릭 한 번으로 다시 붙입니다. 최근 24개를 보관합니다.</p>
-      </div>
+  <section>
+    <h2>화면에 드러나지 않는 기능</h2>
+    <div class="table-scroll">
+      <table>
+        <tr><th>단축키 바꾸기</th><td>기본 단축키가 다른 프로그램과 겹치면 원하는 키로 바꾸거나 비워둡니다. 비워둬도 퀵 실행바로 실행합니다.</td></tr>
+        <tr><th>저장 방식 선택</th><td>저장 폴더를 지정해두고, 위치를 묻지 않고 바로 저장하게 할 수 있습니다.</td></tr>
+        <tr><th>클릭 통과</th><td>붙여둔 그림을 깔아둔 채로 그 아래 프로그램을 그대로 조작합니다.</td></tr>
+        <tr><th>시작 시 자동 실행</th><td>컴퓨터를 켜면 트레이에 올라와 바로 쓸 수 있습니다.</td></tr>
+        <tr><th>자동 업데이트</th><td>새 버전이 나오면 알아서 받아둡니다. 직접 확인할 수도 있습니다.</td></tr>
+        <tr><th>오류 기록</th><td>문제가 생기면 기록이 남습니다. 문의할 때 그 파일만 첨부하면 됩니다.</td></tr>
+      </table>
     </div>
   </section>
 
   <section>
     <h2>설치 방법</h2>
-    <p class="lead"></p>
     <ol>
       <li>위 <b>다운로드</b> 버튼을 눌러 설치파일을 받습니다.</li>
       <li class="hl">받은 <b>SshotPin-Setup.exe</b>를 <b>우클릭 → 속성</b> → 맨 아래 <b>"차단 해제"에 체크</b> → <b>확인</b>
@@ -301,14 +279,10 @@
       <li>파일을 <b>두 번 클릭</b>해서 실행하고 안내에 따라 설치합니다.</li>
       <li>설치가 끝나면 <b>사용법 창</b>이 열리고, "컴퓨터 시작 시 자동 실행"을 물어봅니다. <b>켜기</b>를 누르면 다음 부팅부터 바로 씁니다.</li>
     </ol>
-    <div class="note">
-      <b>"Windows에서 PC를 보호했습니다" 창이 떴다면</b> <b>추가 정보</b> → <b>실행</b>을 누르세요.
-      위 <b>2번(차단 해제)</b>을 먼저 하면 나오지 않습니다.
-    </div>
-    <div class="note">
-      💡 프로그램은 <b>작업표시줄 오른쪽 트레이 아이콘</b>으로 상주합니다.
-      아이콘을 <b>우클릭</b>하면 모든 기능과 <b>❓ 사용법·단축키</b>를 볼 수 있습니다.
-    </div>
+    <p class="fine">
+      "Windows에서 PC를 보호했습니다" 창이 떴다면 <b>추가 정보 → 실행</b>. 위 2번을 먼저 하면 나오지 않습니다.<br>
+      설치하면 창이 아니라 <b>작업표시줄 오른쪽 트레이 아이콘</b>으로 올라옵니다. 우클릭하면 전체 메뉴가 나옵니다.
+    </p>
   </section>
 
   <section>
@@ -319,17 +293,14 @@
         <tr><th><kbd>Ctrl</kbd>+<kbd>F2</kbd></th><td>복사해둔 이미지를 화면에 핀</td></tr>
         <tr><th><kbd>Ctrl</kbd>+<kbd>1</kbd></th><td>화면 확대·축소</td></tr>
         <tr><th><kbd>Ctrl</kbd>+<kbd>2</kbd></th><td>판서 — <kbd>Shift</kbd>=직선, <kbd>Ctrl</kbd>=사각형, <kbd>Alt</kbd>+클릭=①②③</td></tr>
-        <tr><th><kbd>Ctrl</kbd>+<kbd>3</kbd></th><td>수업 타이머</td></tr>
-        <tr><th><kbd>Ctrl</kbd>+<kbd>F3</kbd></th><td>정답 가리개 — 덮어뒀다가 클릭하면 공개</td></tr>
+        <tr><th><kbd>Ctrl</kbd>+<kbd>3</kbd></th><td>타이머</td></tr>
+        <tr><th><kbd>Ctrl</kbd>+<kbd>F3</kbd></th><td>가리개 — 덮어뒀다가 클릭하면 공개</td></tr>
       </table>
     </div>
-    <div class="note">
-      다른 프로그램과 겹치면 <b>트레이 아이콘 우클릭 → 설정</b>에서 바꾸거나 비워두세요.
-      비워두면 퀵 실행바 버튼으로 실행합니다. 맥은 <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>1</kbd>·<kbd>2</kbd>·<kbd>3</kbd>을 씁니다.
-    </div>
-    <div class="note">
-      핀 위에서 <b>휠</b>=확대/축소, <kbd>Ctrl</kbd>+<b>휠</b>=투명도, <b>더블클릭</b>=접기, <b>우클릭</b>=테두리 색·회전·클릭 통과 등 전체 메뉴.
-    </div>
+    <p class="fine">
+      겹치는 키는 <b>트레이 우클릭 → 설정</b>에서 바꿉니다.
+      맥은 <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>1</kbd>·<kbd>2</kbd>·<kbd>3</kbd>을 씁니다.
+    </p>
   </section>
 
   <section>
@@ -347,7 +318,7 @@
         },
         {
           "@type": "Question",
-          "name": "일반 캡처 프로그램과 무엇이 다른가요?",
+          "name": "보통 캡처 프로그램과 무엇이 다른가요?",
           "acceptedAnswer": { "@type": "Answer", "text": "보통 캡처 프로그램은 찍어서 저장하거나 붙여넣으면 끝입니다. 스샷핀은 캡처한 화면을 쪽지처럼 화면 맨 위에 고정해둘 수 있습니다. 다른 프로그램을 쓰는 동안에도 계속 보이기 때문에 수업 중 문제나 자료를 띄워놓고 진행하기 좋습니다." }
         },
         {
@@ -362,7 +333,7 @@
         },
         {
           "@type": "Question",
-          "name": "수업에 어떻게 활용하나요?",
+          "name": "어떤 때 쓰나요?",
           "acceptedAnswer": { "@type": "Answer", "text": "문제를 캡처해 화면에 고정해두고 풀이를 진행하거나, 정답 부분을 가리개로 덮어두고 학생들 답을 들은 뒤 클릭으로 공개할 수 있습니다. 화면 확대로 크게 보여주고, 화면 위에 바로 밑줄이나 동그라미를 그려 설명할 수 있습니다. 모둠 활동 시간은 타이머로 표시합니다." }
         },
         {
@@ -379,8 +350,8 @@
         <p>무료입니다. 결제도 회원가입도 없고 사용 기간 제한도 없습니다.</p>
       </div>
       <div class="qa">
-        <h3>일반 캡처 프로그램과 무엇이 다른가요?</h3>
-        <p>보통은 찍어서 저장하거나 붙여넣으면 끝입니다. 스샷핀은 캡처한 화면을 <b>쪽지처럼 맨 위에 고정</b>합니다. 다른 프로그램을 쓰는 동안에도 보이니 문제나 자료를 띄워놓고 수업하기 좋습니다.</p>
+        <h3>보통 캡처 프로그램과 무엇이 다른가요?</h3>
+        <p>보통은 찍어서 저장하거나 붙여넣으면 끝입니다. 스샷핀은 캡처한 화면을 <b>쪽지처럼 맨 위에 고정</b>합니다. 다른 프로그램을 쓰는 동안에도 보이니 참고할 자료를 띄워두고 일할 수 있습니다.</p>
       </div>
       <div class="qa">
         <h3>"Windows에서 PC를 보호했습니다" 경고가 떠요.</h3>
@@ -391,8 +362,8 @@
         <p>Windows 10·11 64비트에서 동작합니다. 맥용(Apple Silicon·Intel)은 다운로드 버튼 아래 링크에서 받으세요. 맥에서 처음 실행할 때 "확인되지 않은 개발자" 안내가 나오면 앱을 <b>우클릭 → 열기</b>.</p>
       </div>
       <div class="qa">
-        <h3>수업에 어떻게 활용하나요?</h3>
-        <p>문제를 캡처해 고정해두고 풀이를 진행합니다. 정답은 가리개로 덮어뒀다가 학생들 답을 들은 뒤 클릭으로 공개합니다. 잘 안 보이는 부분은 확대해서 보여주고, 화면 위에 바로 밑줄이나 동그라미를 그립니다. 모둠 활동 시간은 타이머로 띄웁니다.</p>
+        <h3>어떤 때 쓰나요?</h3>
+        <p>화면을 두고 설명하는 자리 전반에 씁니다. 발표에서는 자료를 띄워두고 확대·판서로 짚어가며 이야기하고, 수업에서는 문제를 고정해두고 정답을 가려뒀다가 공개합니다. 원격으로 도와줄 때는 화면을 캡처해 화살표를 얹어 보내고, 화면 공유 중에는 모자이크로 개인정보를 덮습니다.</p>
       </div>
       <div class="qa">
         <h3>설치 후 프로그램이 안 보여요.</h3>

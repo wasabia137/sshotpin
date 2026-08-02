@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""메인 페이지용 기능 데모 영상 3편 생성 (PIL 프레임 → ffmpeg mp4).
+"""메인 페이지용 기능 데모 영상 생성 (PIL 프레임 → ffmpeg mp4).
 
-  demo-pin.mp4    캡처 → 화살표 → 핀 → 창을 바꿔도 핀은 그대로
-  demo-cover.mp4  정답 가리개 → 클릭 공개 → 다시 가리기
-  demo-zoom.mp4   화면 확대 → 빨간 펜 밑줄
+기능별로 한 편씩. 목록은 파일 끝 CLIPS 참고.
+인수를 주면 그 이름이 포함된 클립만 다시 만든다:  python3 tools/make_demos.py zoom draw
 """
 import math
 import os
@@ -65,6 +64,42 @@ def cursor_path(f, keys):
     return keys[-1][1], keys[-1][2]
 
 
+_EMOJI_FONT_PATH = '/System/Library/Fonts/Apple Color Emoji.ttc'
+_EMOJI_CACHE = {}
+
+
+def emoji(img, ch, x, y, size):
+    """컬러 이모지를 그린다.
+
+    PIL은 한글 폰트로 이모지를 못 그려서 빈 사각형이 된다. Apple Color Emoji는
+    160px 한 종류만 렌더되므로, 크게 그린 뒤 필요한 크기로 줄여 붙인다.
+    """
+    key = (ch, size)
+    if key not in _EMOJI_CACHE:
+        try:
+            f = ImageFont.truetype(_EMOJI_FONT_PATH, 160)
+            big = Image.new('RGBA', (200, 200), (0, 0, 0, 0))
+            ImageDraw.Draw(big).text((12, 18), ch, font=f, embedded_color=True)
+            bb = big.getbbox()
+            glyph = big.crop(bb) if bb else big
+            _EMOJI_CACHE[key] = glyph.resize((size, size), Image.LANCZOS)
+        except Exception:
+            _EMOJI_CACHE[key] = None
+    g = _EMOJI_CACHE[key]
+    if g is None:
+        return
+    img.paste(g, (int(x), int(y)), g)
+
+
+def caption(d, text):
+    """화면 아래 가운데 자막."""
+    bb = d.textbbox((0, 0), text, font=font(15))
+    w = bb[2] + 44
+    d.rounded_rectangle([W / 2 - w / 2, H - 42, W / 2 + w / 2, H - 12],
+                        radius=15, fill=(15, 23, 42))
+    d.text((W / 2 - bb[2] / 2, H - 38), text, font=font(15), fill=(241, 245, 249))
+
+
 def desktop_bg():
     img = Image.new('RGB', (W, H), (226, 232, 240))
     d = ImageDraw.Draw(img)
@@ -86,12 +121,20 @@ def window(d, x0, y0, x1, y1, title, active=True):
 
 
 def doc_window(d, scroll=0):
-    """수업 자료 창 — 문제 하나와 회색 본문 줄."""
+    """수업 자료 창 — 문제 하나와 회색 본문 줄.
+
+    주석을 정확한 위치에 얹으려면 좌표를 짐작하지 말고 실제 글자
+    바운딩 박스를 돌려받아 써야 한다.
+    """
     window(d, 70, 60, 730, 470, '3단원 수업자료.pdf')
     y = 120 - scroll
+    boxes = {}
     d.text((110, y), '문제 3.', font=font(20), fill=(30, 41, 59))
     d.text((190, y), '밑변이 6cm, 높이가 4cm인 삼각형의', font=font(20), fill=(30, 41, 59))
-    d.text((110, y + 34), '넓이를 구하시오.', font=font(20), fill=(30, 41, 59))
+    line2 = '넓이를 구하시오.'
+    d.text((110, y + 34), line2, font=font(20), fill=(30, 41, 59))
+    boxes['line2'] = d.textbbox((110, y + 34), line2, font=font(20))
+    boxes['label4'] = d.textbbox((306, y + 136), '4cm', font=font(15))
     # 삼각형 그림
     d.polygon([(160, y + 190), (360, y + 190), (300, y + 100)],
               outline=(59, 130, 246), width=3)
@@ -104,6 +147,7 @@ def doc_window(d, scroll=0):
         if 100 < yy < 450:
             d.rounded_rectangle([110, yy, 110 + (520 - i * 60), yy + 12],
                                 radius=6, fill=(226, 232, 240))
+    return boxes
 
 
 def toolbar(d, x, y, active_btn=None):
@@ -248,9 +292,7 @@ def clip_pin(frames_dir):
         elif f < 105: cap = '그 자리에서 화살표까지'
         elif f < 116: cap = '핀 버튼 클릭'
         else: cap = '화면 맨 위에 고정'
-        d.rounded_rectangle([W / 2 - 150, H - 42, W / 2 + 150, H - 12], radius=15, fill=(15, 23, 42))
-        bb = d.textbbox((0, 0), cap, font=font(15))
-        d.text((W / 2 - bb[2] / 2, H - 38), cap, font=font(15), fill=(241, 245, 249))
+        caption(d, cap)
 
         img.save(f'{frames_dir}/f_{n:04d}.png')
         n += 1
@@ -307,9 +349,7 @@ def clip_cover(frames_dir):
         elif f < 84: cap = '학생들 답을 듣고'
         elif f < 120: cap = '클릭 한 번으로 공개'
         else: cap = '다시 클릭하면 가려짐'
-        d.rounded_rectangle([W / 2 - 150, H - 42, W / 2 + 150, H - 12], radius=15, fill=(15, 23, 42))
-        bb = d.textbbox((0, 0), cap, font=font(15))
-        d.text((W / 2 - bb[2] / 2, H - 38), cap, font=font(15), fill=(241, 245, 249))
+        caption(d, cap)
 
         img.save(f'{frames_dir}/f_{n:04d}.png')
         n += 1
@@ -324,40 +364,403 @@ def clip_zoom(frames_dir):
     for f in range(total):
         base = desktop_bg()
         d = ImageDraw.Draw(base)
-        doc_window(d)
+        boxes = doc_window(d)          # 글자 위치를 실측해서 받아온다
 
-        # 18~60f: 1.0 → 1.9배 확대 (문제 영역 중심)
-        z = lerp(1.0, 1.9, seg(f, 18, 60))
-        cx, cy = 300, 200
+        # 18~60f: 1.0 → 1.8배 확대 (문제 텍스트 중심)
+        z = lerp(1.0, 1.8, seg(f, 18, 60))
+        cx, cy = 300, 230
+        x0 = y0 = 0
+        sx = sy = 1.0
         if z > 1.001:
             zw, zh = int(W / z), int(H / z)
             x0 = int(min(max(cx - zw / 2, 0), W - zw))
             y0 = int(min(max(cy - zh / 2, 0), H - zh))
             base = base.crop((x0, y0, x0 + zw, y0 + zh)).resize((W, H), Image.LANCZOS)
+            sx, sy = W / zw, H / zh
         d = ImageDraw.Draw(base)
 
-        # 밑줄 (66~96f) — 확대된 좌표 기준으로 문제 텍스트 아래
+        def mp(bx, by):
+            """문서 좌표 → 지금 화면(확대 반영) 좌표."""
+            return ((bx - x0) * sx, (by - y0) * sy)
+
+        # 밑줄 (66~96f) — 실측한 글자 박스 바로 아래에 정확히 긋는다
         ut = seg(f, 66, 96)
         if ut > 0:
-            d.line([(150, 208), (lerp(150, 640, ut), 208)], fill=(239, 68, 68), width=7)
-        # 동그라미 (100~126f) — 확대 화면에서 4cm 라벨 주위
+            bx0, _, bx1, by1 = boxes['line2']
+            ux0, uy = mp(bx0, by1 + 5)
+            ux1, _ = mp(bx1, by1 + 5)
+            d.line([(ux0, uy), (lerp(ux0, ux1, ut), uy)], fill=(239, 68, 68), width=7)
+
+        # 동그라미 (100~126f) — '4cm' 라벨을 감싸도록
         ot = seg(f, 100, 126)
         if ot > 0:
-            cxo, cyo, r = 425, 350, 52
-            start = -90
-            arc = 360 * ot
-            d.arc([cxo - r, cyo - r, cxo + r, cyo + r], start, start + arc,
+            lx0, ly0, lx1, ly1 = boxes['label4']
+            ccx, ccy = mp((lx0 + lx1) / 2, (ly0 + ly1) / 2)
+            r = max((lx1 - lx0) * sx, (ly1 - ly0) * sy) / 2 + 16
+            d.arc([ccx - r, ccy - r, ccx + r, ccy + r], -90, -90 + 360 * ot,
                   fill=(239, 68, 68), width=6)
 
         if f < 18: cap = '뒷자리에서 잘 안 보일 때'
         elif f < 62: cap = '휠로 화면 확대'
         elif f < 98: cap = '그대로 밑줄 긋고'
         else: cap = '중요한 곳에 동그라미'
-        d.rounded_rectangle([W / 2 - 150, H - 42, W / 2 + 150, H - 12], radius=15, fill=(15, 23, 42))
-        bb = d.textbbox((0, 0), cap, font=font(15))
-        d.text((W / 2 - bb[2] / 2, H - 38), cap, font=font(15), fill=(241, 245, 249))
+        caption(d, cap)
 
         base.save(f'{frames_dir}/f_{n:04d}.png')
+        n += 1
+    return n
+
+
+# ---------------------------------------------------------------- clip D 판서
+
+def pen_toolbar(img, d, x, y, active_color=0, board=None):
+    cols = [(239, 68, 68), (247, 115, 22), (234, 179, 8),
+            (34, 197, 94), (59, 130, 246), (30, 41, 59)]
+    wide = 22 * len(cols) + 150
+    d.rounded_rectangle([x, y, x + wide, y + 40], radius=10, fill=(15, 23, 42))
+    cxx = x + 12
+    for i, c in enumerate(cols):
+        r = 9
+        d.ellipse([cxx, y + 11, cxx + 2 * r, y + 11 + 2 * r], fill=c,
+                  outline=(255, 255, 255) if i == active_color else (71, 85, 105),
+                  width=2 if i == active_color else 1)
+        cxx += 22
+    cxx += 8
+    marks = [('⬜', board == 'white'), ('⬛', board == 'black'), ('🗑', False)]
+    for label, on in marks:
+        if on:
+            d.rounded_rectangle([cxx - 4, y + 6, cxx + 26, y + 34], radius=7, fill=(37, 99, 235))
+        cxx += 34
+    cxx = x + 22 * 6 + 20
+    for label, _ in marks:
+        emoji(img, label, cxx, y + 11, 18)
+        cxx += 34
+
+
+def clip_draw(frames_dir):
+    total = 165
+    n = 0
+    for f in range(total):
+        board = 'white' if f >= 118 else None
+        if board:
+            img = Image.new('RGB', (W, H), (248, 250, 252))
+            d = ImageDraw.Draw(img)
+            boxes = None
+        else:
+            img = desktop_bg()
+            d = ImageDraw.Draw(img)
+            boxes = doc_window(d)
+
+        color_i = 0 if f < 76 else 4
+        if f >= 10:
+            pen_toolbar(img, d, 210, H - 96, active_color=color_i, board=board)
+            d = ImageDraw.Draw(img)
+
+        if boxes:
+            # 빨간 밑줄 (24~62f) — 글자 박스 아래
+            ut = seg(f, 24, 62)
+            if ut > 0:
+                bx0, _, bx1, by1 = boxes['line2']
+                d.line([(bx0, by1 + 5), (lerp(bx0, bx1, ut), by1 + 5)],
+                       fill=(239, 68, 68), width=6)
+            # 파란 동그라미 (80~112f) — 4cm 라벨
+            ot = seg(f, 80, 112)
+            if ot > 0:
+                lx0, ly0, lx1, ly1 = boxes['label4']
+                ccx, ccy = (lx0 + lx1) / 2, (ly0 + ly1) / 2
+                r = max(lx1 - lx0, ly1 - ly0) / 2 + 16
+                d.arc([ccx - r, ccy - r, ccx + r, ccy + r], -90, -90 + 360 * ot,
+                      fill=(59, 130, 246), width=6)
+        else:
+            # 흰 칠판에 새로 그리기
+            t = seg(f, 126, 158)
+            if t > 0:
+                d.line([(200, 180), (lerp(200, 560, t), 180)], fill=(59, 130, 246), width=7)
+                if t > 0.5:
+                    tt = seg(f, 142, 160)
+                    d.arc([300, 230, 420, 350], -90, -90 + 360 * tt,
+                          fill=(239, 68, 68), width=6)
+
+        if f < 20: cap = '화면 위에 바로 그리기'
+        elif f < 70: cap = '드래그하면 펜'
+        elif f < 116: cap = '색을 바꿔서 강조'
+        else: cap = '빈 칠판으로도 전환'
+        caption(d, cap)
+        img.save(f'{frames_dir}/f_{n:04d}.png')
+        n += 1
+    return n
+
+
+# ---------------------------------------------------------------- clip E 모자이크
+
+def clip_mosaic(frames_dir):
+    total = 140
+    n = 0
+    AREA = (272, 158, 575, 262)
+    cur = [(0, 640, 400), (16, 640, 400), (26, AREA[0], AREA[1]),
+           (60, AREA[2], AREA[3]), (140, AREA[2] + 30, AREA[3] + 30)]
+    for f in range(total):
+        img = desktop_bg()
+        d = ImageDraw.Draw(img)
+        window(d, 70, 60, 730, 470, '학생 명단.xlsx')
+        rows = [('김민준', '010-2345-6781'), ('이서연', '010-3456-7892'),
+                ('박지호', '010-4567-8903')]
+        d.text((110, 130), '이름', font=font(15), fill=(100, 116, 139))
+        d.text((280, 130), '연락처', font=font(15), fill=(100, 116, 139))
+        for i, (nm, ph) in enumerate(rows):
+            yy = 165 + i * 34
+            d.text((110, yy), nm, font=font(18), fill=(30, 41, 59))
+            d.text((280, yy), ph, font=font(18), fill=(30, 41, 59))
+
+        drag_t = seg(f, 26, 60)
+        if f >= 26:
+            x1 = lerp(AREA[0] + 10, AREA[2], drag_t)
+            reg = (AREA[0], AREA[1], x1, AREA[3])
+            # 실제 앱처럼 원본을 격자 단위로 확대해 모자이크
+            src = img.crop((int(reg[0]), int(reg[1]), int(reg[2]), int(reg[3])))
+            cell = 9
+            small = src.resize((max(1, src.width // cell), max(1, src.height // cell)),
+                               Image.BILINEAR)
+            img.paste(small.resize(src.size, Image.NEAREST), (int(reg[0]), int(reg[1])))
+            d = ImageDraw.Draw(img)
+            if drag_t < 1:
+                d.rectangle(reg, outline=(59, 130, 246), width=2)
+
+        cx, cy = cursor_path(f, cur)
+        draw_cursor(d, cx, cy)
+        if f < 22: cap = '가려야 할 정보가 보일 때'
+        elif f < 66: cap = '드래그로 모자이크'
+        else: cap = '그 부분만 알아볼 수 없게'
+        caption(d, cap)
+        img.save(f'{frames_dir}/f_{n:04d}.png')
+        n += 1
+    return n
+
+
+# ---------------------------------------------------------------- clip F 최근 캡처
+
+def clip_history(frames_dir):
+    total = 145
+    n = 0
+    THUMB = (150, 190)
+    cur = [(0, 640, 420), (30, 640, 420), (54, THUMB[0] + 55, THUMB[1] + 40),
+           (145, THUMB[0] + 55, THUMB[1] + 40)]
+    for f in range(total):
+        img = desktop_bg()
+        d = ImageDraw.Draw(img)
+        window(d, 100, 110, 700, 430, '최근 캡처')
+        d.text((130, 150), '최근 캡처', font=font(18), fill=(30, 41, 59))
+        for i in range(4):
+            tx = 130 + (i % 4) * 140
+            ty = 190
+            d.rounded_rectangle([tx, ty, tx + 120, ty + 84], radius=8,
+                                fill=(255, 255, 255), outline=(203, 213, 225))
+            d.rounded_rectangle([tx + 10, ty + 12, tx + 96, ty + 20], radius=4,
+                                fill=(226, 232, 240))
+            d.polygon([(tx + 20, ty + 70), (tx + 74, ty + 70), (tx + 50, ty + 34)],
+                      outline=(147, 197, 253), width=2)
+            d.text((tx + 8, ty + 90), f'{600 - i * 40}×{420 - i * 20}',
+                   font=font(11), fill=(100, 116, 139))
+        if 54 <= f <= 70:
+            d.rounded_rectangle([THUMB[0] - 3, THUMB[1] - 3, THUMB[0] + 123, THUMB[1] + 87],
+                                radius=9, outline=(37, 99, 235), width=3)
+
+        if f >= 78:
+            s = seg(f, 78, 104)
+            pw, ph = int(300 * s), int(210 * s)
+            px, py = 430, 90
+            if pw > 12:
+                d.rounded_rectangle([px, py, px + pw, py + ph], radius=6,
+                                    fill=(255, 255, 255), outline=(59, 130, 246), width=3)
+                if s > 0.6:
+                    d.rounded_rectangle([px + 20, py + 24, px + pw - 60, py + 36],
+                                        radius=5, fill=(226, 232, 240))
+                    d.polygon([(px + 40, py + ph - 40), (px + pw - 90, py + ph - 40),
+                               (px + pw / 2 - 20, py + 70)], outline=(59, 130, 246), width=3)
+                    d.ellipse([px + pw - 26, py + 8, px + pw - 8, py + 26], fill=(229, 57, 53))
+
+        cx, cy = cursor_path(f, cur)
+        if 60 <= f <= 72:
+            click_ripple(d, cx, cy, seg(f, 60, 72))
+        draw_cursor(d, cx, cy)
+        if f < 40: cap = '앞에서 쓴 캡처가 쌓여 있고'
+        elif f < 78: cap = '그림을 클릭하면'
+        else: cap = '다시 화면에 붙습니다'
+        caption(d, cap)
+        img.save(f'{frames_dir}/f_{n:04d}.png')
+        n += 1
+    return n
+
+
+# ---------------------------------------------------------------- clip G 타이머
+
+TIMER_BTNS = [('-30초', 62), ('▶ 시작', 84), ('리셋', 44), ('+30초', 62)]
+
+
+def clip_timer(frames_dir):
+    total = 150
+    n = 0
+    TX, TY = 250, 150
+    cur = [(0, 620, 400), (18, 620, 400), (34, TX + 150, TY + 78),
+           (60, TX + 150, TY + 78), (76, TX + 60, TY + 148), (150, TX + 60, TY + 148)]
+    for f in range(total):
+        img = desktop_bg()
+        d = ImageDraw.Draw(img)
+        # 타이머 위젯
+        alarm = f >= 132 and (f // 5) % 2 == 0
+        d.rounded_rectangle([TX, TY, TX + 300, TY + 176], radius=14,
+                            fill=(124, 45, 18) if alarm else (15, 23, 42),
+                            outline=(51, 65, 85))
+        d.text((TX + 16, TY + 12), '수업 타이머 · 시간을 클릭하면 직접 입력',
+               font=font(12), fill=(148, 163, 184))
+        editing = 42 <= f < 72
+        if editing:
+            d.rounded_rectangle([TX + 70, TY + 44, TX + 230, TY + 104], radius=8,
+                                fill=(30, 41, 59), outline=(37, 99, 235), width=2)
+            typed = '3:00'[:max(0, (f - 44) // 5)]
+            d.text((TX + 96, TY + 52), typed or '|', font=font(40), fill=(241, 245, 249))
+        else:
+            if f < 42:
+                label = '05:00'
+            elif f < 84:
+                label = '03:00'
+            else:
+                left = max(0, 180 - (f - 84) * 3)
+                label = f'{left // 60:02d}:{left % 60:02d}'
+            if f >= 132:
+                label = '시간 종료'
+            d.text((TX + (44 if f >= 132 else 62), TY + (58 if f >= 132 else 44)), label,
+                   font=font(36 if f >= 132 else 52), fill=(241, 245, 249))
+        for i, (bl, w) in enumerate(TIMER_BTNS):
+            bx = TX + 16 + sum(x for _, x in TIMER_BTNS[:i]) + i * 6
+            running = f >= 84 and i == 1
+            d.rounded_rectangle([bx, TY + 128, bx + w, TY + 160], radius=8,
+                                fill=(37, 99, 235) if i == 1 else (30, 41, 59))
+            txt = '⏸ 정지' if running else bl
+            bb = d.textbbox((0, 0), txt, font=font(13))
+            d.text((bx + (w - bb[2]) / 2, TY + 137), txt, font=font(13), fill=(226, 232, 240))
+
+        cx, cy = cursor_path(f, cur)
+        for cf in (36, 80):
+            if cf <= f <= cf + 10:
+                click_ripple(d, cx, cy, seg(f, cf, cf + 10))
+        draw_cursor(d, cx, cy)
+        if f < 34: cap = '남은 시간을 띄워두기'
+        elif f < 74: cap = '시간을 클릭해 직접 입력'
+        elif f < 130: cap = '시작하면 카운트다운'
+        else: cap = '끝나면 알려줍니다'
+        caption(d, cap)
+        img.save(f'{frames_dir}/f_{n:04d}.png')
+        n += 1
+    return n
+
+
+# ---------------------------------------------------------------- clip H 퀵 실행바
+
+QB_ICONS = ['📸', '📌', '🔍', '✏️', '⏱️', '🕘', '❓', '⚙️']
+QB_NAMES = ['영역 캡처', '클립보드 핀', '화면 확대', '판서', '타이머', '최근 캡처', '사용법', '설정']
+
+
+def clip_quickbar(frames_dir):
+    total = 170
+    n = 0
+    for f in range(total):
+        img = desktop_bg()
+        d = ImageDraw.Draw(img)
+        doc_window(d)
+        # (아래에서 이모지를 붙일 때마다 d를 다시 만들어야 한다)
+
+        # 110f 이후 아래로 이동
+        move_t = seg(f, 118, 150)
+        bx = lerp(200, 200, move_t)
+        by = lerp(40, 330, move_t)
+        bw = 34 * len(QB_ICONS) + 46
+        d.rounded_rectangle([bx, by, bx + bw, by + 44], radius=22, fill=(15, 23, 42),
+                            outline=(100, 116, 139))
+        d.text((bx + 12, by + 13), '⠿', font=font(15), fill=(100, 116, 139))
+        hover = None
+        if 18 <= f < 114:
+            hover = min(len(QB_ICONS) - 1, (f - 18) // 12)
+        for i, ic in enumerate(QB_ICONS):
+            ix = bx + 32 + i * 34
+            if i == hover:
+                d.rounded_rectangle([ix - 4, by + 5, ix + 30, by + 39], radius=9,
+                                    fill=(51, 65, 85))
+        for i, ic in enumerate(QB_ICONS):
+            emoji(img, ic, bx + 32 + i * 34, by + 13, 19)
+        d = ImageDraw.Draw(img)
+        if hover is not None:
+            tip = QB_NAMES[hover]
+            tw = d.textbbox((0, 0), tip, font=font(13))[2] + 20
+            tx = bx + 32 + hover * 34 + 13 - tw / 2
+            ty = by + 52
+            d.rounded_rectangle([tx, ty, tx + tw, ty + 28], radius=7, fill=(30, 41, 59))
+            d.text((tx + 10, ty + 5), tip, font=font(13), fill=(226, 232, 240))
+            draw_cursor(d, bx + 32 + hover * 34 + 12, by + 34)
+        else:
+            handle_x = bx + 16
+            draw_cursor(d, handle_x, by + 22)
+
+        if f < 16: cap = '화면 위에 떠 있는 버튼바'
+        elif f < 114: cap = '버튼 하나로 기능 실행'
+        else: cap = '원하는 자리로 옮겨두기'
+        caption(d, cap)
+        img.save(f'{frames_dir}/f_{n:04d}.png')
+        n += 1
+    return n
+
+
+# ---------------------------------------------------------------- clip I 핀 조작
+
+def clip_pinops(frames_dir):
+    total = 165
+    n = 0
+    for f in range(total):
+        img = desktop_bg()
+        d = ImageDraw.Draw(img)
+        window(d, 60, 250, 740, 470, '메모.txt')
+        for i in range(4):
+            d.rounded_rectangle([90, 300 + i * 30, 90 + (560 - i * 70), 312 + i * 30],
+                                radius=6, fill=(226, 232, 240))
+
+        # 휠로 확대 (20~56f) → Ctrl+휠 투명도 (70~104f) → 더블클릭 접기 (120f~)
+        grow = lerp(1.0, 1.35, seg(f, 20, 56))
+        fade = 1.0 - 0.55 * seg(f, 70, 104)
+        collapsed = f >= 124
+        pw, ph = int(300 * grow), int(200 * grow)
+        px, py = 120, 70
+
+        if collapsed:
+            d.rounded_rectangle([px, py, px + 170, py + 34], radius=7,
+                                fill=(30, 41, 59), outline=(59, 130, 246))
+            emoji(img, '📌', px + 12, py + 9, 16)
+            d = ImageDraw.Draw(img)
+            d.text((px + 36, py + 8), '접힌 핀', font=font(14), fill=(226, 232, 240))
+        else:
+            pin = Image.new('RGB', (pw, ph), (255, 255, 255))
+            pdw = ImageDraw.Draw(pin)
+            pdw.rounded_rectangle([18, 18, pw - 70, 30], radius=5, fill=(226, 232, 240))
+            pdw.polygon([(40, ph - 34), (pw - 70, ph - 34), (pw / 2 - 14, 60)],
+                        outline=(59, 130, 246), width=3)
+            if fade < 1.0:
+                bgc = img.crop((px, py, px + pw, py + ph))
+                pin = Image.blend(bgc, pin, fade)
+            img.paste(pin, (px, py))
+            d = ImageDraw.Draw(img)
+            d.rectangle([px, py, px + pw, py + ph], outline=(59, 130, 246), width=3)
+            d.ellipse([px + pw - 26, py + 8, px + pw - 8, py + 26], fill=(229, 57, 53))
+
+        cx, cy = px + pw / 2, py + ph / 2
+        draw_cursor(d, cx, cy if not collapsed else py + 18)
+        if 120 <= f <= 132:
+            click_ripple(d, cx, py + 18, seg(f, 120, 132))
+
+        if f < 18: cap = '붙여둔 핀은 마우스로 조절'
+        elif f < 64: cap = '휠로 크기 조절'
+        elif f < 116: cap = 'Ctrl+휠로 투명하게'
+        else: cap = '더블클릭하면 접힘'
+        caption(d, cap)
+        img.save(f'{frames_dir}/f_{n:04d}.png')
         n += 1
     return n
 
@@ -383,7 +786,22 @@ def build(name, fn):
         shutil.rmtree(tmp, ignore_errors=True)
 
 
+CLIPS = [
+    ('demo-pin.mp4', clip_pin),
+    ('demo-zoom.mp4', clip_zoom),
+    ('demo-draw.mp4', clip_draw),
+    ('demo-cover.mp4', clip_cover),
+    ('demo-mosaic.mp4', clip_mosaic),
+    ('demo-history.mp4', clip_history),
+    ('demo-timer.mp4', clip_timer),
+    ('demo-quickbar.mp4', clip_quickbar),
+    ('demo-pinops.mp4', clip_pinops),
+]
+
 if __name__ == '__main__':
-    build('demo-pin.mp4', clip_pin)
-    build('demo-cover.mp4', clip_cover)
-    build('demo-zoom.mp4', clip_zoom)
+    import sys
+    want = sys.argv[1:]
+    for name, fn in CLIPS:
+        if want and not any(w in name for w in want):
+            continue
+        build(name, fn)
