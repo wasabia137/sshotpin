@@ -209,17 +209,17 @@
   .fine { font-size: 13.5px; color: var(--muted); margin-top: 16px; }
   /* 다운로드 횟수 */
   .counts {
-    display: flex; justify-content: center; gap: 56px;
-    padding: 34px 0; border-top: 1px solid var(--line);
+    display: grid; grid-template-columns: auto auto;
+    justify-content: center; align-items: baseline;
+    column-gap: 14px; row-gap: 6px;
+    padding: 32px 0; border-top: 1px solid var(--line);
   }
   .counts[hidden] { display: none; }
-  .count { text-align: center; }
+  .clab { text-align: right; font-size: 15px; color: var(--muted); }
   .cnum {
-    display: block; font-size: 30px; font-weight: 800;
-    color: var(--text); letter-spacing: -.02em;
+    font-size: 18px; font-weight: 700; color: var(--text);
     font-variant-numeric: tabular-nums;
   }
-  .clab { display: block; margin-top: 4px; font-size: 13px; color: var(--muted); }
 
   footer {
     text-align: center; padding: 40px 0 60px;
@@ -427,14 +427,8 @@
   </section>
 
   <div class="counts" id="counts" hidden>
-    <div class="count">
-      <span class="cnum" id="cWin">0</span>
-      <span class="clab">윈도우 다운로드</span>
-    </div>
-    <div class="count">
-      <span class="cnum" id="cMac">0</span>
-      <span class="clab">맥 다운로드</span>
-    </div>
+    <span class="clab">Windows</span><span class="cnum" id="cWin">0</span>
+    <span class="clab">Mac</span><span class="cnum" id="cMac">0</span>
   </div>
 
   <footer>
