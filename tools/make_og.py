@@ -36,11 +36,11 @@ img.paste(icon, (92, 108), icon)
 
 # 텍스트
 d.text((92, 330), '스샷핀', font=font(96), fill=(248, 250, 252))
-d.text((96, 452), '스샷을 콕! 화면에 붙이는 수업 도구', font=font(40), fill=(148, 163, 184))
-d.text((96, 522), '캡처 · 화면 고정 · 확대 · 판서 · 타이머 · 정답 가리개', font=font(28), fill=(100, 116, 139))
+d.text((96, 452), '스샷을 콕! 화면에 붙여두는 도구', font=font(40), fill=(148, 163, 184))
+d.text((96, 522), '캡처 · 고정 · 확대 · 판서 · 가리개 · 타이머', font=font(28), fill=(100, 116, 139))
 
 # 우측 배지
-badge = 'Windows 무료'
+badge = '윈도우 · 맥 무료'
 bw, bh = 300, 64
 bx, by = W - bw - 92, 108
 d.rounded_rectangle([bx, by, bx + bw, by + bh], radius=32, fill=(37, 99, 235))

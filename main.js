@@ -23,7 +23,7 @@ let pinSeq = 0;
 const pins = new Map();
 let pinsHidden = false;
 let coverSeq = 0;
-const covers = new Map();     // 정답 가리개 창
+const covers = new Map();     // 가리개 창
 const dragOrigins = new Map(); // webContents.id -> [x, y]
 
 // ---------- 로그 (문의 대응·문제 진단용) ----------
@@ -96,14 +96,14 @@ const LEGACY_DEFAULT_HOTKEYS = {
   timer: `${MOD}+3`,
 };
 
-// 표시 순서 = 실제 사용 빈도 순 (정답 가리개는 보조 기능이라 뒤로)
+// 표시 순서 = 실제 사용 빈도 순 (가리개는 보조 기능이라 뒤로)
 const HOTKEY_LABELS = {
   capture: '영역 캡처',
   pin: '클립보드 이미지 핀',
   zoom: '화면 확대·축소',
   draw: '판서',
-  timer: '수업 타이머',
-  cover: '정답 가리개',
+  timer: '타이머',
+  cover: '가리개',
 };
 
 const defaultSettings = {
@@ -546,7 +546,7 @@ ipcMain.on('capture-finish', (e, payload) => {
   }
 });
 
-// ---------- 정답 가리개 (F2) ----------
+// ---------- 가리개 (F2) ----------
 
 const COVER_COLORS = [
   ['남색', '#1e293b'], ['칠판 초록', '#14532d'],
@@ -1184,8 +1184,8 @@ function rebuildTrayMenu() {
     { label: '📌 클립보드 이미지 핀', accelerator: hk.pin || undefined, click: pinFromClipboard },
     { label: '🔍 화면 확대·축소', accelerator: hk.zoom || undefined, click: () => toggleOverlay('zoom') },
     { label: '✏️ 판서 (화면에 그리기)', accelerator: hk.draw || undefined, click: () => toggleOverlay('draw') },
-    { label: '⏱️ 수업 타이머', accelerator: hk.timer || undefined, click: toggleTimer },
-    { label: '🙈 정답 가리개', accelerator: hk.cover || undefined, click: () => startCapture('cover') },
+    { label: '⏱️ 타이머', accelerator: hk.timer || undefined, click: toggleTimer },
+    { label: '🙈 가리개', accelerator: hk.cover || undefined, click: () => startCapture('cover') },
     { label: `🕘 최근 캡처 (${history.length})`, click: openHistory, enabled: history.length > 0 },
     { type: 'separator' },
     { label: pinsHidden ? '핀 모두 보이기' : '핀 모두 숨기기', click: toggleAllPinsVisible, enabled: pins.size > 0 || pinsHidden },

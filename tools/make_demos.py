@@ -121,12 +121,12 @@ def window(d, x0, y0, x1, y1, title, active=True):
 
 
 def doc_window(d, scroll=0):
-    """수업 자료 창 — 문제 하나와 회색 본문 줄.
+    """자료 창 — 문제 하나와 회색 본문 줄.
 
     주석을 정확한 위치에 얹으려면 좌표를 짐작하지 말고 실제 글자
     바운딩 박스를 돌려받아 써야 한다.
     """
-    window(d, 70, 60, 730, 470, '3단원 수업자료.pdf')
+    window(d, 70, 60, 730, 470, '자료.pdf')
     y = 120 - scroll
     boxes = {}
     d.text((110, y), '문제 3.', font=font(20), fill=(30, 41, 59))
@@ -150,7 +150,7 @@ def doc_window(d, scroll=0):
     return boxes
 
 
-def toolbar(d, x, y, active_btn=None):
+def toolbar(d, x, y, active_btn='pin'):
     """캡처 도구모음 — (버튼이름, 중심좌표) 목록을 돌려준다."""
     btns = [('arrow', '↗'), ('rect', '▭'), ('ellipse', '◯'),
             ('sep', None), ('pin', '핀'), ('copy', '복사'), ('save', '저장')]
@@ -213,8 +213,6 @@ def clip_pin(frames_dir):
         (0, 640, 420), (18, 640, 420),
         (26, SEL[0], SEL[1]),                 # 선택 시작점
         (58, SEL[2], SEL[3]),                 # 드래그 끝
-        (70, 250, 170), (96, 470, 285),       # 화살표 긋기
-        (108, 0, 0),                          # (핀 버튼 위치는 프레임에서 계산)
         (150, 660, 430), (175, 660, 430),
     ]
     for f in range(total):
@@ -229,8 +227,7 @@ def clip_pin(frames_dir):
             sel_now = (SEL[0], SEL[1],
                        lerp(SEL[0] + 8, SEL[2], drag_t), lerp(SEL[1] + 8, SEL[3], drag_t))
 
-        arrow_t = seg(f, 74, 96)
-        pin_done = f >= 116
+        pin_done = f >= 92
 
         if veil_on and not pin_done:
             veil_over(img, sel_now)
@@ -238,18 +235,13 @@ def clip_pin(frames_dir):
             if sel_now:
                 d.rectangle(sel_now, outline=(59, 130, 246), width=3)
 
-        # 화살표 (선택 영역 안)
-        if not pin_done and arrow_t > 0:
-            red_arrow(d, 240, 160, 480, 290, arrow_t)
-
         centers = {}
         if 58 <= f and not pin_done:
-            centers = toolbar(d, SEL[0] + 40, SEL[3] + 14,
-                              active_btn='arrow' if f < 100 else None)
+            centers = toolbar(d, SEL[0] + 40, SEL[3] + 14)
 
         if pin_done:
             # 다른 창이 앞으로 나옴 — 핀은 그 위에 남는다
-            sl = seg(f, 116, 140)
+            sl = seg(f, 92, 118)
             wy = int(lerp(520, 120, sl))
             window(d, 240, wy, 780, wy + 360, '출석부.xlsx')
             for i in range(6):
@@ -265,7 +257,6 @@ def clip_pin(frames_dir):
             pd.text((95, 18), '밑변 6cm, 높이 4cm인', font=font(17), fill=(30, 41, 59))
             pd.text((28, 46), '삼각형의 넓이는?', font=font(17), fill=(30, 41, 59))
             pd.polygon([(70, 170), (215, 170), (170, 100)], outline=(59, 130, 246), width=3)
-            red_arrow(pd, 60, 60, 250, 150, 1.0)
             sh = Image.new('RGB', (W, H), (0, 0, 0))
             img.paste((100, 116, 139), (px + 6, py + 8, px + pw + 6, py + ph + 8))
             img.paste(pin_img, (px, py))
@@ -277,20 +268,20 @@ def clip_pin(frames_dir):
             d.text((520, 60), '창을 바꿔도 핀은 그대로', font=font(17), fill=(15, 23, 42))
 
         # 커서
-        if 100 <= f < 116 and 'pin' in centers:
-            cx, cy = cursor_path(f, [(96, 470, 285), (108, *centers['pin']), (116, *centers['pin'])])
+        if 58 <= f < 92 and 'pin' in centers:
+            cx, cy = cursor_path(f, [(58, SEL[2], SEL[3]),
+                                     (76, *centers['pin']), (92, *centers['pin'])])
         else:
             cx, cy = cursor_path(f, cur)
-        if 108 <= f <= 118 and 'pin' in centers:
-            click_ripple(d, *centers['pin'], seg(f, 108, 118))
+        if 78 <= f <= 90 and 'pin' in centers:
+            click_ripple(d, *centers['pin'], seg(f, 78, 90))
         draw_cursor(d, cx, cy)
 
         # 캡션
         cap = ''
-        if f < 20: cap = '자료에서 필요한 부분만'
-        elif f < 60: cap = '드래그해서 캡처'
-        elif f < 105: cap = '그 자리에서 화살표까지'
-        elif f < 116: cap = '핀 버튼 클릭'
+        if f < 20: cap = '필요한 부분만'
+        elif f < 58: cap = '드래그해서 캡처'
+        elif f < 92: cap = '핀 버튼을 누르면'
         else: cap = '화면 맨 위에 고정'
         caption(d, cap)
 
@@ -359,51 +350,39 @@ def clip_cover(frames_dir):
 # ---------------------------------------------------------------- clip C
 
 def clip_zoom(frames_dir):
+    """확대만 보여준다. 그리기는 clip_draw가 따로 담당."""
     total = 150
     n = 0
     for f in range(total):
         base = desktop_bg()
         d = ImageDraw.Draw(base)
-        boxes = doc_window(d)          # 글자 위치를 실측해서 받아온다
+        doc_window(d)
 
-        # 18~60f: 1.0 → 1.8배 확대 (문제 텍스트 중심)
-        z = lerp(1.0, 1.8, seg(f, 18, 60))
-        cx, cy = 300, 230
-        x0 = y0 = 0
-        sx = sy = 1.0
+        # 확대 배율: 1.0 → 2.0 (18~56f), 마지막에 살짝 되돌림
+        z = lerp(1.0, 2.0, seg(f, 18, 56))
+        if f >= 124:
+            z = lerp(2.0, 1.35, seg(f, 124, 148))
+
+        # 확대 중심이 마우스를 따라 이동 (64~118f)
+        pan = seg(f, 64, 118)
+        cx = lerp(250, 470, pan)
+        cy = lerp(190, 300, pan)
+
         if z > 1.001:
             zw, zh = int(W / z), int(H / z)
             x0 = int(min(max(cx - zw / 2, 0), W - zw))
             y0 = int(min(max(cy - zh / 2, 0), H - zh))
             base = base.crop((x0, y0, x0 + zw, y0 + zh)).resize((W, H), Image.LANCZOS)
-            sx, sy = W / zw, H / zh
         d = ImageDraw.Draw(base)
 
-        def mp(bx, by):
-            """문서 좌표 → 지금 화면(확대 반영) 좌표."""
-            return ((bx - x0) * sx, (by - y0) * sy)
+        # 확대 중심(=마우스)이 화면 가운데 오도록 커서를 그린다
+        if f >= 60:
+            draw_cursor(d, W / 2 - 6, H / 2 - 8)
 
-        # 밑줄 (66~96f) — 실측한 글자 박스 바로 아래에 정확히 긋는다
-        ut = seg(f, 66, 96)
-        if ut > 0:
-            bx0, _, bx1, by1 = boxes['line2']
-            ux0, uy = mp(bx0, by1 + 5)
-            ux1, _ = mp(bx1, by1 + 5)
-            d.line([(ux0, uy), (lerp(ux0, ux1, ut), uy)], fill=(239, 68, 68), width=7)
-
-        # 동그라미 (100~126f) — '4cm' 라벨을 감싸도록
-        ot = seg(f, 100, 126)
-        if ot > 0:
-            lx0, ly0, lx1, ly1 = boxes['label4']
-            ccx, ccy = mp((lx0 + lx1) / 2, (ly0 + ly1) / 2)
-            r = max((lx1 - lx0) * sx, (ly1 - ly0) * sy) / 2 + 16
-            d.arc([ccx - r, ccy - r, ccx + r, ccy + r], -90, -90 + 360 * ot,
-                  fill=(239, 68, 68), width=6)
-
-        if f < 18: cap = '뒷자리에서 잘 안 보일 때'
-        elif f < 62: cap = '휠로 화면 확대'
-        elif f < 98: cap = '그대로 밑줄 긋고'
-        else: cap = '중요한 곳에 동그라미'
+        if f < 18: cap = '작아서 잘 안 보일 때'
+        elif f < 60: cap = '휠로 확대'
+        elif f < 120: cap = '마우스를 움직이면 화면이 따라옵니다'
+        else: cap = '휠을 반대로 돌리면 축소'
         caption(d, cap)
 
         base.save(f'{frames_dir}/f_{n:04d}.png')
@@ -611,7 +590,7 @@ def clip_timer(frames_dir):
         d.rounded_rectangle([TX, TY, TX + 300, TY + 176], radius=14,
                             fill=(124, 45, 18) if alarm else (15, 23, 42),
                             outline=(51, 65, 85))
-        d.text((TX + 16, TY + 12), '수업 타이머 · 시간을 클릭하면 직접 입력',
+        d.text((TX + 16, TY + 12), '타이머 · 시간을 클릭하면 직접 입력',
                font=font(12), fill=(148, 163, 184))
         editing = 42 <= f < 72
         if editing:
