@@ -1,0 +1,30 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 다운로드 버튼 클릭 수 (stats/downloads: win, mac)
+    // 누구나 읽을 수 있고, 쓰기는 두 값 중 하나를 1 올리는 것만 허용한다.
+    match /stats/downloads {
+      allow read: if true;
+
+      allow update: if request.resource.data.keys().hasOnly(['win', 'mac'])
+        && request.resource.data.win is int
+        && request.resource.data.mac is int
+        && (
+          (request.resource.data.win == resource.data.win + 1
+            && request.resource.data.mac == resource.data.mac)
+          ||
+          (request.resource.data.mac == resource.data.mac + 1
+            && request.resource.data.win == resource.data.win)
+        );
+
+      allow create, delete: if false;
+    }
+
+    // 그 밖은 전부 차단
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

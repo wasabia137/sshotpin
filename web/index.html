@@ -207,6 +207,20 @@
   .qa h3 { font-size: 15.5px; margin-bottom: 6px; }
   .qa p { font-size: 14px; color: var(--muted); }
   .fine { font-size: 13.5px; color: var(--muted); margin-top: 16px; }
+  /* 다운로드 횟수 */
+  .counts {
+    display: flex; justify-content: center; gap: 56px;
+    padding: 34px 0; border-top: 1px solid var(--line);
+  }
+  .counts[hidden] { display: none; }
+  .count { text-align: center; }
+  .cnum {
+    display: block; font-size: 30px; font-weight: 800;
+    color: var(--text); letter-spacing: -.02em;
+    font-variant-numeric: tabular-nums;
+  }
+  .clab { display: block; margin-top: 4px; font-size: 13px; color: var(--muted); }
+
   footer {
     text-align: center; padding: 40px 0 60px;
     color: var(--muted); font-size: 13px;
@@ -412,6 +426,17 @@
     </div>
   </section>
 
+  <div class="counts" id="counts" hidden>
+    <div class="count">
+      <span class="cnum" id="cWin">0</span>
+      <span class="clab">윈도우 다운로드</span>
+    </div>
+    <div class="count">
+      <span class="cnum" id="cMac">0</span>
+      <span class="clab">맥 다운로드</span>
+    </div>
+  </div>
+
   <footer>
     화면 캡처 · 고정 · 확대 · 판서 · 가리개 · 모자이크 · 타이머<br>
     <a href="privacy.html">개인정보처리방침</a> ·
@@ -463,15 +488,71 @@
     for (const v of demos) io.observe(v);
   }
 
-  // 다운로드 버튼 클릭을 애널리틱스 이벤트로 기록
-  document.getElementById('dlBtn').addEventListener('click', () => {
+  // 다운로드 횟수 — 윈도우·맥 따로 센다
+  const FS = 'https://firestore.googleapis.com/v1/projects/sshot-pin/databases/(default)/documents';
+  const FS_KEY = 'AIzaSyB7bPKgsbBv_qVMc03JShxNPV27PSfxd-o';
+  const FS_DOC = 'projects/sshot-pin/databases/(default)/documents/stats/downloads';
+  const countsBox = document.getElementById('counts');
+  const cEl = { win: document.getElementById('cWin'), mac: document.getElementById('cMac') };
+
+  function paint(win, mac) {
+    cEl.win.textContent = Number(win).toLocaleString('ko-KR');
+    cEl.mac.textContent = Number(mac).toLocaleString('ko-KR');
+    countsBox.hidden = false;
+  }
+
+  fetch(FS + '/stats/downloads?key=' + FS_KEY, { cache: 'no-store' })
+    .then((r) => r.ok ? r.json() : Promise.reject())
+    .then((d) => paint(d.fields.win.integerValue, d.fields.mac.integerValue))
+    .catch(() => { /* 못 읽으면 아예 표시하지 않는다 */ });
+
+  // 같은 브라우저에서 10분 안에 다시 누른 것은 중복으로 보고 세지 않는다
+  function tooSoon(platform) {
+    try {
+      const k = 'dl_' + platform;
+      const last = Number(localStorage.getItem(k) || 0);
+      if (Date.now() - last < 600000) return true;
+      localStorage.setItem(k, String(Date.now()));
+    } catch (e) { /* 저장이 막혀 있으면 그냥 센다 */ }
+    return false;
+  }
+
+  function countDownload(platform, href) {
     if (typeof gtag === 'function') {
       gtag('event', 'download', {
-        file_name: document.getElementById('dlBtn').getAttribute('href'),
+        file_name: href,
+        platform: platform === 'win' ? 'windows' : 'mac',
         app_version: document.getElementById('ver').textContent,
       });
     }
-  });
+    if (tooSoon(platform)) return;
+
+    // 화면 숫자를 먼저 올려 바로 반영되게 한다
+    const el = cEl[platform];
+    if (!countsBox.hidden) {
+      el.textContent = (Number(el.textContent.replace(/[^0-9]/g, '')) + 1).toLocaleString('ko-KR');
+    }
+
+    fetch(FS + ':commit?key=' + FS_KEY, {
+      method: 'POST',
+      keepalive: true,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        writes: [{
+          transform: {
+            document: FS_DOC,
+            fieldTransforms: [{ fieldPath: platform, increment: { integerValue: '1' } }],
+          },
+        }],
+      }),
+    }).catch(() => { /* 실패해도 다운로드에는 영향 없다 */ });
+  }
+
+  for (const [id, platform] of [['dlBtn', 'win'], ['dlMacArm', 'mac'], ['dlMacX64', 'mac']]) {
+    document.getElementById(id).addEventListener('click', (e) => {
+      countDownload(platform, e.currentTarget.getAttribute('href'));
+    });
+  }
 </script>
 </body>
 </html>
