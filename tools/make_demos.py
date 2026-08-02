@@ -215,6 +215,14 @@ def clip_pin(frames_dir):
         (58, SEL[2], SEL[3]),                 # 드래그 끝
         (150, 660, 430), (175, 660, 430),
     ]
+
+    # 핀 내용 = 실제 화면에서 선택 영역을 그대로 잘라낸 것 (실제 앱과 동일)
+    clean = desktop_bg()
+    doc_window(ImageDraw.Draw(clean))
+    pw = int((SEL[2] - SEL[0]) * 0.82)
+    ph = int((SEL[3] - SEL[1]) * 0.82)
+    pin_img = clean.crop(SEL).resize((pw, ph), Image.LANCZOS)
+
     for f in range(total):
         img = desktop_bg()
         d = ImageDraw.Draw(img)
@@ -248,16 +256,8 @@ def clip_pin(frames_dir):
                 yy = wy + 60 + i * 34
                 if yy < wy + 340:
                     d.rounded_rectangle([270, yy, 620, yy + 12], radius=6, fill=(226, 232, 240))
-            # 핀(캡처 결과) — 항상 위
-            pw, ph = int((SEL[2] - SEL[0]) * 0.82), int((SEL[3] - SEL[1]) * 0.82)
+            # 핀(캡처 결과) — 항상 위. 내용은 위에서 잘라둔 실제 선택 영역
             px, py = 60, 70
-            pin_img = Image.new('RGB', (pw, ph), (255, 255, 255))
-            pd = ImageDraw.Draw(pin_img)
-            pd.text((28, 18), '문제 3.', font=font(17), fill=(30, 41, 59))
-            pd.text((95, 18), '밑변 6cm, 높이 4cm인', font=font(17), fill=(30, 41, 59))
-            pd.text((28, 46), '삼각형의 넓이는?', font=font(17), fill=(30, 41, 59))
-            pd.polygon([(70, 170), (215, 170), (170, 100)], outline=(59, 130, 246), width=3)
-            sh = Image.new('RGB', (W, H), (0, 0, 0))
             img.paste((100, 116, 139), (px + 6, py + 8, px + pw + 6, py + ph + 8))
             img.paste(pin_img, (px, py))
             d = ImageDraw.Draw(img)
