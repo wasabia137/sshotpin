@@ -64,23 +64,38 @@ process.on('unhandledRejection', (reason) => log('UNHANDLED', String(reason)));
 // ---------- 설정 ----------
 
 const settingsPath = path.join(app.getPath('userData'), 'settings.json');
+// 맥에서는 Cmd+1~3이 브라우저 탭 전환과 충돌하므로 Control 사용
+const MOD = isMac ? 'Control' : 'Ctrl';
+
+// F1/F2/F3 단독은 다른 프로그램의 기본 기능(도움말·이름바꾸기·다음찾기)을
+// 빼앗으므로 쓰지 않는다. Ctrl+F 계열은 충돌이 훨씬 적다.
 const DEFAULT_HOTKEYS = {
+  capture: `${MOD}+F1`,
+  pin: `${MOD}+F2`,
+  cover: `${MOD}+F3`,
+  zoom: `${MOD}+1`,   // ZoomIt과 동일하게 유지
+  draw: `${MOD}+2`,
+  timer: `${MOD}+3`,
+};
+
+// v0.5.0 이하의 기본값 — 사용자가 손대지 않았다면 새 기본값으로 올려준다
+const LEGACY_DEFAULT_HOTKEYS = {
   capture: 'F1',
   cover: 'F2',
   pin: 'F3',
-  // 맥에서는 Cmd+1~3이 브라우저 탭 전환과 충돌하므로 Control 사용
-  zoom: isMac ? 'Control+1' : 'Ctrl+1',
-  draw: isMac ? 'Control+2' : 'Ctrl+2',
-  timer: isMac ? 'Control+3' : 'Ctrl+3',
+  zoom: `${MOD}+1`,
+  draw: `${MOD}+2`,
+  timer: `${MOD}+3`,
 };
 
+// 표시 순서 = 실제 사용 빈도 순 (정답 가리개는 보조 기능이라 뒤로)
 const HOTKEY_LABELS = {
   capture: '영역 캡처',
-  cover: '정답 가리개',
   pin: '클립보드 이미지 핀',
   zoom: '화면 확대·축소',
   draw: '판서',
   timer: '수업 타이머',
+  cover: '정답 가리개',
 };
 
 const defaultSettings = {
@@ -94,11 +109,21 @@ const defaultSettings = {
   quickSave: false,   // true면 대화상자 없이 바로 저장
 };
 let settings = { ...defaultSettings };
+let hotkeysMigrated = false;   // 예전 F1/F2/F3 기본값에서 자동 변경됐는지
 try {
   const loaded = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
   settings = { ...defaultSettings, ...loaded };
   // 단축키는 항목별로 병합해 새 기능이 추가돼도 누락되지 않게
   settings.hotkeys = { ...DEFAULT_HOTKEYS, ...(loaded.hotkeys || {}) };
+
+  // 예전 기본값(F1/F2/F3)을 그대로 쓰던 사용자는 새 기본값으로 올려준다.
+  // 직접 바꿔 쓰던 사용자의 설정은 건드리지 않는다.
+  const untouched = Object.entries(LEGACY_DEFAULT_HOTKEYS)
+    .every(([k, v]) => settings.hotkeys[k] === v);
+  if (untouched) {
+    settings.hotkeys = { ...DEFAULT_HOTKEYS };
+    hotkeysMigrated = true;
+  }
 } catch (e) { /* 첫 실행 */ }
 function saveSettings() {
   try { fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2)); } catch (e) {}
@@ -1085,11 +1110,11 @@ function rebuildTrayMenu() {
   const hk = settings.hotkeys;
   const menu = Menu.buildFromTemplate([
     { label: '📸 영역 캡처', accelerator: hk.capture || undefined, click: () => startCapture('capture') },
-    { label: '🙈 정답 가리개', accelerator: hk.cover || undefined, click: () => startCapture('cover') },
     { label: '📌 클립보드 이미지 핀', accelerator: hk.pin || undefined, click: pinFromClipboard },
     { label: '🔍 화면 확대·축소', accelerator: hk.zoom || undefined, click: () => toggleOverlay('zoom') },
     { label: '✏️ 판서 (화면에 그리기)', accelerator: hk.draw || undefined, click: () => toggleOverlay('draw') },
     { label: '⏱️ 수업 타이머', accelerator: hk.timer || undefined, click: toggleTimer },
+    { label: '🙈 정답 가리개', accelerator: hk.cover || undefined, click: () => startCapture('cover') },
     { label: `🕘 최근 캡처 (${history.length})`, click: openHistory, enabled: history.length > 0 },
     { type: 'separator' },
     { label: pinsHidden ? '핀 모두 보이기' : '핀 모두 숨기기', click: toggleAllPinsVisible, enabled: pins.size > 0 || pinsHidden },
@@ -1191,6 +1216,11 @@ if (!gotLock) {
     const failures = registerHotkeys();
     if (failures.length) {
       notify(`단축키 충돌: ${failures.join(', ')} — 트레이 → ⚙️ 설정에서 바꿀 수 있어요.`);
+    }
+    if (hotkeysMigrated) {
+      saveSettings();
+      log('단축키를 새 기본값(Ctrl+F 계열)으로 자동 변경');
+      notify('단축키가 바뀌었습니다: 캡처 Ctrl+F1 · 핀 Ctrl+F2. (F1·F2를 다른 프로그램에 돌려드렸어요)');
     }
 
     firstRunFlow();
