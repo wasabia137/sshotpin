@@ -209,14 +209,14 @@
   .fine { font-size: 13.5px; color: var(--muted); margin-top: 16px; }
   /* 다운로드 횟수 */
   .counts {
-    display: grid; grid-template-columns: auto auto;
-    justify-content: center; align-items: baseline;
-    column-gap: 14px; row-gap: 6px;
-    padding: 32px 0; border-top: 1px solid var(--line);
+    display: flex; justify-content: center; align-items: baseline;
+    gap: 32px; padding: 32px 0; border-top: 1px solid var(--line);
   }
   .counts[hidden] { display: none; }
-  .clab { text-align: right; font-size: 15px; color: var(--muted); }
+  .count { white-space: nowrap; }
+  .clab { font-size: 15px; color: var(--muted); }
   .cnum {
+    margin-left: 8px;
     font-size: 18px; font-weight: 700; color: var(--text);
     font-variant-numeric: tabular-nums;
   }
@@ -427,8 +427,8 @@
   </section>
 
   <div class="counts" id="counts" hidden>
-    <span class="clab">Windows</span><span class="cnum" id="cWin">0</span>
-    <span class="clab">Mac</span><span class="cnum" id="cMac">0</span>
+    <span class="count"><span class="clab">Windows</span><span class="cnum" id="cWin">0</span></span>
+    <span class="count"><span class="clab">Mac</span><span class="cnum" id="cMac">0</span></span>
   </div>
 
   <footer>
