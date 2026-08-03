@@ -77,9 +77,30 @@ export APPLE_KEYCHAIN_PROFILE="$PROFILE"
 export APPLE_TEAM_ID="$TEAM_ID"
 npx electron-builder --mac --arm64 --x64 -c.mac.notarize=true
 
+VER=$(python3 -c "import json;print(json.load(open('package.json'))['version'])")
+
+# electron-builder는 .app만 서명·공증하고 그 뒤에 DMG를 만든다.
+# 사용자가 내려받는 파일은 DMG이므로 DMG도 직접 처리해야 한다.
+# 순서가 중요하다: 서명 → 공증 → 티켓 부착.
+# (서명을 나중에 하면 파일이 바뀌어 붙여둔 티켓이 무효가 된다.
+#  서명이 없으면 spctl이 "no usable signature"로 거부한다.)
+echo
+echo "── DMG 서명 + 공증 (배포 파일 자체) ──"
+for ARCH in arm64 x64; do
+  DMG="dist/SshotPin-${VER}-mac-${ARCH}.dmg"
+  [ -f "$DMG" ] || continue
+  echo "· $ARCH 서명…"
+  codesign --force --keychain "$KC_PATH" \
+    --sign "Developer ID Application: Yongsu Jung ($TEAM_ID)" \
+    --timestamp "$DMG" 2>&1 | tail -1
+  echo "· $ARCH 공증 제출… (몇 분 걸립니다)"
+  xcrun notarytool submit "$DMG" --keychain-profile "$PROFILE" --wait 2>&1 \
+    | grep -E "^ *status:|^ *message:" | tail -2
+  xcrun stapler staple "$DMG" >/dev/null 2>&1 && echo "  티켓 부착" || echo "  티켓 부착 실패"
+done
+
 echo
 echo "── 검증 ──"
-VER=$(python3 -c "import json;print(json.load(open('package.json'))['version'])")
 FAIL=0
 for ARCH in arm64 x64; do
   DMG="dist/SshotPin-${VER}-mac-${ARCH}.dmg"
@@ -89,10 +110,11 @@ for ARCH in arm64 x64; do
   else
     echo "✗ $ARCH — 공증 티켓 없음"; FAIL=1
   fi
-  if spctl -a -vvv -t open --context context:primary-signature "$DMG" 2>&1 | grep -q accepted; then
+  OUT=$(spctl -a -vvv -t open --context context:primary-signature "$DMG" 2>&1)
+  if echo "$OUT" | grep -q accepted; then
     echo "✓ $ARCH — Gatekeeper 통과 (경고 안 뜸)"
   else
-    echo "✗ $ARCH — Gatekeeper 거부"; FAIL=1
+    echo "✗ $ARCH — Gatekeeper 거부: $(echo "$OUT" | head -2 | tr '\n' ' ')"; FAIL=1
   fi
 done
 
