@@ -10,3 +10,8 @@ web/latest.yml
 .firebase/
 .harness/
 .claude/launch.json
+
+# Developer ID 인증서 작업용 (커밋 금지)
+devid.key
+devid.csr
+devid.cer
