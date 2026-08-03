@@ -24,11 +24,34 @@
   }
   body.collapsed #canvas, body.collapsed #frame { display: none; }
   body.collapsed #collapsed { display: flex; }
+
+  /* 모퉁이 크기 조절 — 스니페이스트처럼 끌어서 조절 */
+  .grip { position: absolute; width: 16px; height: 16px; z-index: 5; }
+  .grip.nw { top: 0; left: 0; cursor: nwse-resize; }
+  .grip.ne { top: 0; right: 0; cursor: nesw-resize; }
+  .grip.sw { bottom: 0; left: 0; cursor: nesw-resize; }
+  .grip.se { bottom: 0; right: 0; cursor: nwse-resize; }
+  /* 마우스를 올리면 조절 지점을 눈에 보이게 */
+  .grip::after {
+    content: ''; position: absolute; width: 8px; height: 8px;
+    background: #fff; border: 2px solid #3b82f6; border-radius: 50%;
+    opacity: 0; transition: opacity .12s;
+  }
+  .grip.nw::after { top: 1px; left: 1px; }
+  .grip.ne::after { top: 1px; right: 1px; }
+  .grip.sw::after { bottom: 1px; left: 1px; }
+  .grip.se::after { bottom: 1px; right: 1px; }
+  body:hover .grip::after { opacity: .85; }
+  body.collapsed .grip, body.resizing .grip:not(.on)::after { display: none; }
 </style>
 </head>
 <body>
   <canvas id="canvas"></canvas>
   <div id="frame"></div>
+  <div class="grip nw" data-c="nw" title="끌어서 크기 조절"></div>
+  <div class="grip ne" data-c="ne" title="끌어서 크기 조절"></div>
+  <div class="grip sw" data-c="sw" title="끌어서 크기 조절"></div>
+  <div class="grip se" data-c="se" title="끌어서 크기 조절"></div>
   <div id="collapsed">📌 스샷핀 (더블클릭 펼치기)</div>
 
 <script>
@@ -68,8 +91,21 @@
     document.body.classList.toggle('collapsed', collapsed);
   });
 
+  let resizing = null;   // 모퉁이 크기 조절 중이면 'nw'|'ne'|'sw'|'se'
+
   window.addEventListener('mousedown', (e) => {
     if (e.button === 0) {
+      const grip = e.target.closest && e.target.closest('.grip');
+      if (grip && !document.body.classList.contains('collapsed')) {
+        // 모퉁이를 잡았으면 이동이 아니라 크기 조절
+        resizing = grip.dataset.c;
+        grip.classList.add('on');
+        document.body.classList.add('resizing');
+        sx = e.screenX; sy = e.screenY;
+        window.api.pinResizeStart(id, resizing);
+        e.preventDefault();
+        return;
+      }
       dragging = true;
       sx = e.screenX; sy = e.screenY;
       window.api.winDragStart();
@@ -78,17 +114,28 @@
     }
   });
   window.addEventListener('mousemove', (e) => {
-    if (dragging) window.api.winDragMove(e.screenX - sx, e.screenY - sy);
+    if (resizing) window.api.pinResizeMove(id, e.screenX - sx, e.screenY - sy);
+    else if (dragging) window.api.winDragMove(e.screenX - sx, e.screenY - sy);
   });
-  window.addEventListener('mouseup', () => { dragging = false; });
-  window.addEventListener('blur', () => { dragging = false; });
+  function endGesture() {
+    dragging = false;
+    resizing = null;
+    document.body.classList.remove('resizing');
+    for (const g of document.querySelectorAll('.grip.on')) g.classList.remove('on');
+  }
+  window.addEventListener('mouseup', endGesture);
+  window.addEventListener('blur', endGesture);
 
   window.addEventListener('wheel', (e) => {
     e.preventDefault();
     window.api.pinZoom(id, e.deltaY < 0 ? 1 : -1, e.ctrlKey);
   }, { passive: false });
 
-  window.addEventListener('dblclick', () => window.api.pinToggleCollapse(id));
+  window.addEventListener('dblclick', (e) => {
+    // 모퉁이는 크기 조절용이므로 접기로 오작동하지 않게
+    if (e.target.closest && e.target.closest('.grip')) return;
+    window.api.pinToggleCollapse(id);
+  });
 
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') window.api.pinClose(id);

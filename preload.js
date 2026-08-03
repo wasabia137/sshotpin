@@ -68,4 +68,6 @@ contextBridge.exposeInMainWorld('api', {
   pinToggleCollapse: (id) => ipcRenderer.send('pin-toggle-collapse', id),
   pinRotate: (id, delta) => ipcRenderer.send('pin-rotate', { id, delta }),
   pinFlip: (id, axis) => ipcRenderer.send('pin-flip', { id, axis }),
+  pinResizeStart: (id, corner) => ipcRenderer.send('pin-resize-start', { id, corner }),
+  pinResizeMove: (id, dx, dy) => ipcRenderer.send('pin-resize-move', { id, dx, dy }),
 });

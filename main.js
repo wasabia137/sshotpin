@@ -12,6 +12,15 @@ const fs = require('fs');
 
 const isMac = process.platform === 'darwin';
 
+// macOS 26에서 화면 캡처 목록을 관리하는 스레드가 스스로 죽는 일이 있었다
+// (DesktopMediaListCaptureThread 크래시, 캡처가 끝난 뒤에도 발생).
+// 가장 최신이라 검증이 덜 된 ScreenCaptureKit 선택기 경로를 끄고
+// 안정적인 경로만 쓰게 한다. 캡처 품질·동작에는 영향이 없음을 확인했다.
+if (isMac) {
+  app.commandLine.appendSwitch('disable-features',
+    'ScreenCaptureKitPickerScreen,ScreenCaptureKitStreamPickerSonoma');
+}
+
 let tray = null;
 let captureWin = null;        // 캡처 오버레이 (한 번에 하나)
 let captureDisplay = null;
@@ -511,22 +520,23 @@ async function startCapture(mode = 'capture') { // 'capture' | 'cover'
       await new Promise((r) => setTimeout(r, 150));
     }
 
-    if (!ensureScreenAccess()) return;
-
     const display = cursorDisplay();
     await hideQuickbarForGrab();
     let dataURL;
     try {
+      // 이 호출 자체가 맥의 화면 기록 권한 요청이다 (미리 막으면 요청창이 안 뜬다)
       dataURL = await grabDisplay(display);
     } catch (err) {
       log('캡처 실패', err.message);
-      notify(`화면을 읽지 못했습니다. ${err.message}`);
+      if (!screenAccessGranted()) guideScreenAccess();
+      else notify(`화면을 읽지 못했습니다. ${err.message}`);
       reshowQuickbar();
       return;
     }
     if (!dataURL) {
       log('캡처 실패 — 빈 화면');
-      notify('화면을 캡처하지 못했습니다. 잠시 후 다시 시도해주세요.');
+      if (!screenAccessGranted()) guideScreenAccess();
+      else notify('화면을 캡처하지 못했습니다. 잠시 후 다시 시도해주세요.');
       reshowQuickbar();
       return;
     }
@@ -546,16 +556,54 @@ async function startCapture(mode = 'capture') { // 'capture' | 'cover'
 // 단, 아직 한 번도 물어보지 않은 상태(not-determined)는 통과시킨다.
 // 여기서 막으면 OS의 권한 요청 팝업이 뜰 기회가 없어
 // 사용자가 시스템 설정에서 손으로 앱을 추가해야 하기 때문이다.
-function ensureScreenAccess() {
-  if (!isMac) return true;
-  const status = systemPreferences.getMediaAccessStatus('screen');
-  if (status === 'granted' || status === 'not-determined') return true;
-  log('화면 기록 권한 없음:', status);
-  notify('화면 기록 권한이 필요합니다. 시스템 설정에서 스샷핀을 허용해주세요.');
+// 화면 기록 권한은 프로그램이 켤 수 없다(맥 보안 정책). 사용자가 직접 켜야 한다.
+// 중요: 미리 막으면 안 된다. getMediaAccessStatus('screen')은 허용 전까지 늘
+// 'denied'를 돌려주는데, 여기서 차단하면 시스템이 권한 창을 띄우고 목록에
+// 앱을 추가할 기회가 사라진다(설정 목록에 아예 나타나지 않는 원인).
+// 그래서 캡처를 그냥 시도하고 — 그 시도가 곧 권한 요청이다 — 실패했을 때만 안내한다.
+function screenAccessGranted() {
+  return !isMac || systemPreferences.getMediaAccessStatus('screen') === 'granted';
+}
+
+let screenGuideShownAt = 0;
+function guideScreenAccess() {
+  if (!isMac) return;
+  log('화면 기록 권한 없음 — 설정 안내');
+  // 캡처를 연달아 눌러도 설정 창이 여러 번 열리지 않게
+  const now = Date.now();
+  if (now - screenGuideShownAt < 5000) return;
+  screenGuideShownAt = now;
+  notify('화면 기록 권한을 허용해주세요. 목록에서 스샷핀을 켜면 바로 됩니다.');
   shell.openExternal(
     'x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture');
-  reshowQuickbar();
-  return false;
+}
+
+// 응용 프로그램 폴더 밖(다운로드 폴더·DMG)에서 실행하면 맥이 앱을 매번 다른
+// 임시 경로로 옮겨(App Translocation) 화면 기록 권한이 계속 초기화된다.
+// 첫 실행에 옮겨두면 한 번 허용한 권한이 그대로 유지된다.
+async function ensureInApplicationsFolder() {
+  if (!isMac || !app.isPackaged) return;
+  try {
+    if (app.isInApplicationsFolder()) return;
+  } catch (e) { return; }
+
+  const { response } = await dialog.showMessageBox({
+    type: 'question',
+    title: '스샷핀',
+    message: '스샷핀을 응용 프로그램 폴더로 옮길까요?',
+    detail: '지금 위치에서 실행하면 맥이 앱을 임시 폴더로 옮겨 화면 기록 권한이 매번 초기화됩니다.\n옮겨두면 권한을 한 번만 허용하면 계속 유지됩니다.',
+    buttons: ['옮기기 (추천)', '나중에'],
+    defaultId: 0,
+    cancelId: 1,
+  });
+  if (response !== 0) return;
+  try {
+    // 성공하면 옮긴 자리에서 다시 실행되고 지금 인스턴스는 종료된다
+    app.moveToApplicationsFolder();
+  } catch (e) {
+    log('응용 프로그램 폴더 이동 실패', e.message);
+    notify('옮기지 못했습니다. 스샷핀을 응용 프로그램 폴더로 직접 끌어다 놓아주세요.');
+  }
 }
 
 ipcMain.on('capture-finish', (e, payload) => {
@@ -655,8 +703,6 @@ async function toggleOverlay(mode) { // 'zoom' | 'draw'
   if (captureWin || overlayBusy) return;
   overlayBusy = true;
   try {
-    if (!ensureScreenAccess()) return;
-
     const display = cursorDisplay();
     await hideQuickbarForGrab();
     let dataURL;
@@ -664,12 +710,14 @@ async function toggleOverlay(mode) { // 'zoom' | 'draw'
       dataURL = await grabDisplay(display);
     } catch (err) {
       log('확대·판서 실패', err.message);
-      notify(`화면을 읽지 못했습니다. ${err.message}`);
+      if (!screenAccessGranted()) guideScreenAccess();
+      else notify(`화면을 읽지 못했습니다. ${err.message}`);
       reshowQuickbar();
       return;
     }
     if (!dataURL) {
-      notify('화면을 캡처하지 못했습니다. 잠시 후 다시 시도해주세요.');
+      if (!screenAccessGranted()) guideScreenAccess();
+      else notify('화면을 캡처하지 못했습니다. 잠시 후 다시 시도해주세요.');
       reshowQuickbar();
       return;
     }
@@ -992,7 +1040,7 @@ function createPin(dataURL, w, h, x, y) {
     win.show();
   });
   win.webContents.on('context-menu', () => popupPinMenu(id));
-  win.on('closed', () => { pins.delete(id); rebuildTrayMenu(); });
+  win.on('closed', () => { pins.delete(id); pinResizeOrigins.delete(id); rebuildTrayMenu(); });
   rebuildTrayMenu();
   return id;
 }
@@ -1025,7 +1073,7 @@ function popupPinMenu(id) {
     { label: '저장…', accelerator: 'Ctrl+S', click: () => pinSave(id) },
     { type: 'separator' },
     {
-      label: `확대/축소 (${Math.round(p.scale * 100)}%)`,
+      label: `크기 (${Math.round(p.scale * 100)}%) — 모퉁이를 끌어도 됩니다`,
       submenu: [33, 50, 100, 150, 200].map((pct) => ({
         label: `${pct}%`,
         type: 'radio', checked: Math.round(p.scale * 100) === pct,
@@ -1132,6 +1180,45 @@ function pinZoom(id, dir, ctrl) {
   resizePinCentered(p, w, h);
 }
 
+// 모퉁이를 끌어 크기 조절 (스니페이스트 방식). 원본 비율은 유지하고,
+// 잡지 않은 쪽 모퉁이는 제자리에 남는다.
+const pinResizeOrigins = new Map();   // id -> 드래그 시작 시점의 창 위치·크기·배율
+
+function pinResizeStart(id, corner) {
+  const p = pins.get(id);
+  if (!p || p.collapsed) return;
+  const b = p.win.getBounds();
+  pinResizeOrigins.set(id, { corner, x: b.x, y: b.y, w: b.width, h: b.height, scale: p.scale });
+}
+
+function pinResizeMove(id, dx, dy) {
+  const p = pins.get(id);
+  const o = pinResizeOrigins.get(id);
+  if (!p || !o || p.collapsed) return;
+
+  // 회전을 반영한 배율 1일 때의 크기
+  const bw = p.rot % 2 === 1 ? p.baseH : p.baseW;
+  const bh = p.rot % 2 === 1 ? p.baseW : p.baseH;
+
+  // 서쪽·북쪽 모퉁이는 끌는 방향이 반대다
+  const sgnX = o.corner.includes('w') ? -1 : 1;
+  const sgnY = o.corner.includes('n') ? -1 : 1;
+  const wantW = o.w + dx * sgnX;
+  const wantH = o.h + dy * sgnY;
+
+  // 가로·세로 중 더 많이 끈 축을 따라가 비율을 유지한다
+  const scale = clamp(
+    Math.abs(wantW - o.w) >= Math.abs(wantH - o.h) ? wantW / bw : wantH / bh,
+    0.1, 8);
+  const w = Math.max(24, Math.round(bw * scale));
+  const h = Math.max(24, Math.round(bh * scale));
+  const x = o.corner.includes('w') ? o.x + (o.w - w) : o.x;
+  const y = o.corner.includes('n') ? o.y + (o.h - h) : o.y;
+
+  p.scale = scale;
+  setBoundsForce(p.win, { x: Math.round(x), y: Math.round(y), width: w, height: h });
+}
+
 function pinRotate(id, delta) {
   const p = pins.get(id);
   if (!p || p.collapsed) return;
@@ -1229,6 +1316,8 @@ ipcMain.on('pin-reset', (e, id) => pinReset(id));
 ipcMain.on('pin-toggle-collapse', (e, id) => pinToggleCollapse(id));
 ipcMain.on('pin-rotate', (e, { id, delta }) => pinRotate(id, delta));
 ipcMain.on('pin-flip', (e, { id, axis }) => pinFlip(id, axis));
+ipcMain.on('pin-resize-start', (e, { id, corner }) => pinResizeStart(id, corner));
+ipcMain.on('pin-resize-move', (e, { id, dx, dy }) => pinResizeMove(id, dx, dy));
 
 // ---------- 트레이 ----------
 
@@ -1355,7 +1444,7 @@ if (!gotLock) {
       notify(`단축키가 바뀌었습니다. 캡처 ${settings.hotkeys.capture}, 핀 ${settings.hotkeys.pin}`);
     }
 
-    firstRunFlow();
+    ensureInApplicationsFolder().then(() => firstRunFlow());
 
     // 자동 업데이트 (설치 버전에서만) — GitHub Releases 확인
     if (app.isPackaged) {
