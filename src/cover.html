@@ -24,13 +24,27 @@
     border: 2px dashed rgba(100, 116, 139, .6);
   }
   body.revealed #mark, body.revealed #label { visibility: hidden; }
+
+  /* 닫기 버튼 — 마우스를 올리면 우측 위에 나타난다 */
+  #close {
+    position: absolute; top: 6px; right: 6px; z-index: 5;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: rgba(15, 23, 42, .82); color: #fff;
+    font: 700 13px/1 -apple-system, 'Malgun Gothic', sans-serif;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; opacity: 0; transition: opacity .12s, background .12s;
+    border: 1px solid rgba(255, 255, 255, .45);
+  }
+  body:hover #close { opacity: 1; }
+  #close:hover { background: #ef4444; }
 </style>
 </head>
 <body>
   <div id="cover">
     <div id="mark">?</div>
-    <div id="label">클릭하면 공개 · 휠클릭 닫기</div>
+    <div id="label">클릭하면 공개</div>
   </div>
+  <div id="close" title="닫기 (Esc)">✕</div>
 
 <script>
   let id = null;
@@ -55,6 +69,11 @@
 
   window.addEventListener('mousedown', (e) => {
     if (e.button === 0) {
+      if (e.target.closest && e.target.closest('#close')) {
+        e.preventDefault();
+        window.api.coverClose(id);
+        return;
+      }
       dragging = true; moved = 0;
       sx = e.screenX; sy = e.screenY;
       window.api.winDragStart();

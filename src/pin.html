@@ -43,6 +43,20 @@
   .grip.se::after { bottom: 1px; right: 1px; }
   body:hover .grip::after { opacity: .85; }
   body.collapsed .grip, body.resizing .grip:not(.on)::after { display: none; }
+
+  /* 닫기 버튼 — 마우스를 올리면 우측 위에 나타난다 */
+  #close {
+    position: absolute; top: 6px; right: 6px; z-index: 6;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: rgba(15, 23, 42, .82); color: #fff;
+    font: 700 13px/1 -apple-system, 'Malgun Gothic', sans-serif;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; opacity: 0; transition: opacity .12s, background .12s;
+    border: 1px solid rgba(255, 255, 255, .35);
+  }
+  body:hover #close { opacity: 1; }
+  #close:hover { background: #ef4444; }
+  body.collapsed #close, body.resizing #close { display: none; }
 </style>
 </head>
 <body>
@@ -52,6 +66,7 @@
   <div class="grip ne" data-c="ne" title="끌어서 크기 조절"></div>
   <div class="grip sw" data-c="sw" title="끌어서 크기 조절"></div>
   <div class="grip se" data-c="se" title="끌어서 크기 조절"></div>
+  <div id="close" title="닫기 (Esc)">✕</div>
   <div id="collapsed">📌 스샷핀 (더블클릭 펼치기)</div>
 
 <script>
@@ -95,6 +110,11 @@
 
   window.addEventListener('mousedown', (e) => {
     if (e.button === 0) {
+      if (e.target.closest && e.target.closest('#close')) {
+        e.preventDefault();
+        window.api.pinClose(id);
+        return;
+      }
       const grip = e.target.closest && e.target.closest('.grip');
       if (grip && !document.body.classList.contains('collapsed')) {
         // 모퉁이를 잡았으면 이동이 아니라 크기 조절
@@ -133,7 +153,7 @@
 
   window.addEventListener('dblclick', (e) => {
     // 모퉁이는 크기 조절용이므로 접기로 오작동하지 않게
-    if (e.target.closest && e.target.closest('.grip')) return;
+    if (e.target.closest && e.target.closest('.grip, #close')) return;
     window.api.pinToggleCollapse(id);
   });
 

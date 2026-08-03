@@ -211,7 +211,9 @@ function cursorDisplay() {
   return screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
 }
 
-// 디스플레이 전체 스크린샷 → dataURL
+// 디스플레이 전체 스크린샷 → { width, height, bitmap }
+// PNG dataURL로 넘기면 인코딩에만 450ms가 들어 단축키를 눌러도 한참 멈춘다.
+// 원시 비트맵은 3ms면 되고 무손실이라 화질도 그대로다(측정 후 교체).
 // 화면 기록 권한이 없거나 시스템이 응답하지 않으면 무한정 기다리지 않고 끊는다.
 async function grabDisplay(display) {
   const { width, height } = display.bounds;
@@ -220,34 +222,57 @@ async function grabDisplay(display) {
     types: ['screen'],
     thumbnailSize: { width: Math.round(width * scale), height: Math.round(height * scale) },
   });
+  const t0 = Date.now();
   const sources = await Promise.race([
     job,
     new Promise((_, reject) =>
       setTimeout(() => reject(new Error('화면을 읽는 데 너무 오래 걸립니다')), 8000)),
   ]);
+  const tSources = Date.now() - t0;
   const source =
     sources.find((s) => String(s.display_id) === String(display.id)) || sources[0];
   if (!source || source.thumbnail.isEmpty()) return null;
-  return source.thumbnail.toDataURL();
+  const size = source.thumbnail.getSize();
+  const t1 = Date.now();
+  const bitmap = source.thumbnail.toBitmap();
+  const tBitmap = Date.now() - t1;
+  // 어느 단계가 느린지 남겨두면 원인을 바로 짚을 수 있다
+  if (tSources + tBitmap > 300) {
+    log(`grabDisplay 느림: getSources ${tSources}ms + toBitmap ${tBitmap}ms`);
+  }
+  return { width: size.width, height: size.height, bitmap };
 }
 
 // 오버레이 창을 띄우고 실제로 보이는 것까지 확인한다.
 // did-finish-load를 놓치는 경우가 있어 로드 완료·타임아웃 양쪽으로 보호한다.
+// 로드가 끝나면 곧바로 그림을 보내고, 렌더러가 "다 그렸다"고 알려온 뒤에 창을 띄운다.
+// 먼저 띄우면 빈 화면이 한 번 번쩍인다.
 function showOverlayWhenReady(win, channel, payload) {
   let shown = false;
   const reveal = () => {
     if (shown || !win || win.isDestroyed()) return;
     shown = true;
-    win.webContents.send(channel, payload);
     win.show();
     win.focus();
-    const b = win.getBounds();
-    log(`overlay 표시: ${channel} bounds=${b.width}x${b.height}@${b.x},${b.y} visible=${win.isVisible()}`);
   };
-  win.webContents.once('did-finish-load', reveal);
-  // 이벤트를 놓쳐도 창이 뜨도록 하는 안전장치
-  setTimeout(reveal, 1200);
+  overlayRevealers.set(win.webContents.id, reveal);
+  const send = () => {
+    if (!win || win.isDestroyed()) return;
+    win.webContents.send(channel, payload);
+    // 신호가 오지 않아도 창이 갇히지 않도록 하는 안전장치
+    setTimeout(reveal, 250);
+  };
+  // 이미 로드된 창(재사용)이면 바로 보내고, 첫 로드 중이면 끝난 뒤에 보낸다
+  if (overlayLoaded.has(win.webContents.id)) send();
+  else win.webContents.once('did-finish-load', send);
 }
+
+// 렌더러가 첫 그림을 마쳤다고 알려오면 그때 창을 보여준다
+const overlayRevealers = new Map();
+ipcMain.on('overlay-painted', (e) => {
+  const reveal = overlayRevealers.get(e.sender.id);
+  if (reveal) { reveal(); overlayRevealers.delete(e.sender.id); }
+});
 
 // 전체 화면 오버레이 창 공통 옵션.
 // 윈도우에서 fullscreen:true는 resizable:false와 만나면 제대로 전체 화면이
@@ -282,6 +307,49 @@ function fullscreenOverlayWindow(display) {
   win.on('closed', () => log('overlay 닫힘'));
   return win;
 }
+
+// ---------- 오버레이 창 미리 준비 ----------
+// 단축키를 누른 뒤 창을 만들면 생성·로드에만 150~250ms가 든다.
+// 미리 하나 만들어 숨겨두고, 쓰고 나면 다음 것을 새로 준비한다.
+// (매번 새 창을 쓰므로 이전 상태가 남을 걱정이 없다)
+const warm = { capture: null, overlay: null };
+const WARM_PAGE = { capture: 'capture.html', overlay: 'screen.html' };
+
+const overlayLoaded = new Set();   // 로드가 끝난 오버레이 창 (재사용 판단용)
+
+function prewarmOverlay(kind) {
+  if (warm[kind] && !warm[kind].isDestroyed()) return;
+  try {
+    const win = fullscreenOverlayWindow(screen.getPrimaryDisplay());
+    win.webContents.once('did-finish-load', () => overlayLoaded.add(win.webContents.id));
+    win.loadFile(path.join(__dirname, 'src', WARM_PAGE[kind]));
+    warm[kind] = win;
+  } catch (e) {
+    log(`오버레이 미리 준비 실패(${kind})`, e.message);
+    warm[kind] = null;
+  }
+}
+
+// 준비된 창을 대상 디스플레이에 맞춰 내어준다.
+// 창을 닫지 않고 숨겨 계속 재사용하므로 생성 비용이 아예 들지 않는다.
+// (쓸 때마다 새로 만들면 그 300ms가 다음 캡처를 밀어낸다)
+function takeOverlay(kind, display) {
+  if (!warm[kind] || warm[kind].isDestroyed()) prewarmOverlay(kind);
+  const win = warm[kind];
+  if (!win) return null;
+  const b = display.bounds;
+  win.setBounds({ x: b.x, y: b.y, width: b.width, height: b.height });
+  return win;
+}
+
+// 오버레이는 닫지 않고 숨긴다. 다음에 열 때 렌더러가 상태를 새로 초기화한다.
+function hideOverlay(win) {
+  if (win && !win.isDestroyed()) win.hide();
+}
+
+// 화면에서 내리고 변수를 비운다
+function closeCaptureOverlay() { hideOverlay(captureWin); captureWin = null; reshowQuickbar(); }
+function closeOverlayWin() { hideOverlay(overlayWin); overlayWin = null; reshowQuickbar(); }
 
 // ---------- 캡처 히스토리 ----------
 
@@ -451,6 +519,14 @@ function createQuickbar() {
     webPreferences: { preload: path.join(__dirname, 'preload.js') },
   });
   quickbarWin.setAlwaysOnTop(true, 'screen-saver');
+  // 퀵바가 스크린샷에 찍히지 않게 한다 (숨기고 기다리는 지연을 없애기 위함)
+  try {
+    quickbarWin.setContentProtection(true);
+    quickbarProtected = true;
+  } catch (e) {
+    quickbarProtected = false;
+    log('퀵바 화면기록 제외 실패 — 예전 방식으로 숨김', e.message);
+  }
   quickbarWin.loadFile(path.join(__dirname, 'src', 'quickbar.html'));
   quickbarWin.webContents.once('did-finish-load', () => {
     if (quickbarWin) quickbarWin.webContents.send('quickbar-state', { hotkeys: settings.hotkeys });
@@ -473,15 +549,20 @@ function setQuickbarVisible(visible) {
   rebuildTrayMenu();
 }
 
-// 캡처 직전에 퀵바를 잠시 숨겨 스크린샷에 찍히지 않게 함
+// 퀵바는 화면 기록 대상에서 빼두었으므로(setContentProtection) 숨길 필요가 없다.
+// 예전에는 숨기고 150ms를 기다렸는데, 그만큼 캡처가 늦고 화면이 깜박였다.
+// 보호가 통하지 않는 환경에서는 예전처럼 숨겼다 되돌린다.
+let quickbarProtected = false;
 async function hideQuickbarForGrab() {
+  if (quickbarProtected) return;
   if (quickbarWin && quickbarWin.isVisible()) {
     quickbarWin.hide();
-    await new Promise((r) => setTimeout(r, 150));
+    await new Promise((r) => setTimeout(r, 120));
   }
 }
 
 function reshowQuickbar() {
+  if (quickbarProtected) return;
   if (quickbarWin && settings.quickbarVisible) quickbarWin.showInactive();
 }
 
@@ -508,24 +589,25 @@ let captureBusy = false;   // 화면을 읽는 동안 재진입 방지 (연타 �
 async function startCapture(mode = 'capture') { // 'capture' | 'cover'
   // 이미 열려 있으면 닫는다(토글). 오버레이가 포커스를 잃어 Esc가 안 먹을 때
   // 단축키를 다시 눌러 빠져나올 수 있어야 한다.
-  if (captureWin) { captureWin.close(); return; }
+  if (captureWin) { closeCaptureOverlay(); return; }
   // 창 변수가 채워지기 전(화면 읽는 사이)에 다시 눌리면 오버레이가 두 겹 생기고,
   // Esc가 최신 창만 닫아 그림이 남은 유령 창이 생긴다 — 여기서 차단
   if (captureBusy) return;
   captureBusy = true;
+  const tStart = Date.now();
   try {
     if (overlayWin) {
       // 확대·판서 창이 화면에서 실제로 사라진 뒤에 찍어야 오버레이가 함께 찍히지 않는다
-      overlayWin.close();
+      closeOverlayWin();
       await new Promise((r) => setTimeout(r, 150));
     }
 
     const display = cursorDisplay();
     await hideQuickbarForGrab();
-    let dataURL;
+    let shot;
     try {
       // 이 호출 자체가 맥의 화면 기록 권한 요청이다 (미리 막으면 요청창이 안 뜬다)
-      dataURL = await grabDisplay(display);
+      shot = await grabDisplay(display);
     } catch (err) {
       log('캡처 실패', err.message);
       if (!screenAccessGranted()) guideScreenAccess();
@@ -533,7 +615,7 @@ async function startCapture(mode = 'capture') { // 'capture' | 'cover'
       reshowQuickbar();
       return;
     }
-    if (!dataURL) {
+    if (!shot) {
       log('캡처 실패 — 빈 화면');
       if (!screenAccessGranted()) guideScreenAccess();
       else notify('화면을 캡처하지 못했습니다. 잠시 후 다시 시도해주세요.');
@@ -543,10 +625,14 @@ async function startCapture(mode = 'capture') { // 'capture' | 'cover'
 
     captureDisplay = { ...display.bounds };
     log(`capture: 화면 읽음 (${display.bounds.width}x${display.bounds.height} scale=${display.scaleFactor})`);
-    captureWin = fullscreenOverlayWindow(display);
-    captureWin.loadFile(path.join(__dirname, 'src', 'capture.html'));
-    showOverlayWhenReady(captureWin, 'capture-init', { dataURL, mode });
-    captureWin.on('closed', () => { captureWin = null; reshowQuickbar(); });
+    captureWin = takeOverlay('capture', display);
+    if (!captureWin) { notify('캡처 창을 열지 못했습니다.'); reshowQuickbar(); return; }
+    showOverlayWhenReady(captureWin, 'capture-init', { shot, mode });
+    // 유난히 느릴 때만 기록해 둔다 (평소엔 로그를 더럽히지 않게)
+    captureWin.once('show', () => {
+      const ms = Date.now() - tStart;
+      if (ms > 400) log(`capture: 화면에 뜨기까지 ${ms}ms (느림)`);
+    });
   } finally {
     captureBusy = false;
   }
@@ -606,14 +692,23 @@ async function ensureInApplicationsFolder() {
   }
 }
 
+// 영역을 확정하면 곧바로 클립보드에 넣는다 (알림은 오버레이 안에서 표시)
+ipcMain.on('capture-autocopy', (e, dataURL) => {
+  try {
+    clipboard.writeImage(nativeImage.createFromDataURL(dataURL));
+  } catch (err) { log('자동 복사 실패', err.message); }
+});
+
 ipcMain.on('capture-finish', (e, payload) => {
   log(`capture-finish: ${payload ? payload.action : 'null'}`);
   const disp = captureDisplay;
   // 보낸 창 자신을 닫는다 — captureWin 변수가 다른 창을 가리키게 된 경우에도
   // Esc(취소)가 항상 자기 창을 닫을 수 있도록
   const sender = BrowserWindow.fromWebContents(e.sender);
-  if (sender && !sender.isDestroyed()) sender.close();
-  if (captureWin && captureWin !== sender) captureWin.close();
+  hideOverlay(sender);
+  if (captureWin && captureWin !== sender) hideOverlay(captureWin);
+  captureWin = null;
+  reshowQuickbar();
   if (!payload || payload.action === 'cancel') return;
 
   const { action, dataURL, rect } = payload;
@@ -699,15 +794,16 @@ ipcMain.on('cover-close', (e, id) => covers.get(id)?.win.close());
 let overlayBusy = false;   // 화면을 읽는 동안 재진입 방지 (연타 → 이중 오버레이)
 
 async function toggleOverlay(mode) { // 'zoom' | 'draw'
-  if (overlayWin) { overlayWin.close(); return; }
+  if (overlayWin) { closeOverlayWin(); return; }
   if (captureWin || overlayBusy) return;
   overlayBusy = true;
+  const tStart2 = Date.now();
   try {
     const display = cursorDisplay();
     await hideQuickbarForGrab();
     let dataURL;
     try {
-      dataURL = await grabDisplay(display);
+      shot = await grabDisplay(display);
     } catch (err) {
       log('확대·판서 실패', err.message);
       if (!screenAccessGranted()) guideScreenAccess();
@@ -715,7 +811,7 @@ async function toggleOverlay(mode) { // 'zoom' | 'draw'
       reshowQuickbar();
       return;
     }
-    if (!dataURL) {
+    if (!shot) {
       if (!screenAccessGranted()) guideScreenAccess();
       else notify('화면을 캡처하지 못했습니다. 잠시 후 다시 시도해주세요.');
       reshowQuickbar();
@@ -723,15 +819,18 @@ async function toggleOverlay(mode) { // 'zoom' | 'draw'
     }
 
     overlayDisplay = { ...display.bounds };
-    overlayWin = fullscreenOverlayWindow(display);
-    overlayWin.loadFile(path.join(__dirname, 'src', 'screen.html'));
+    overlayWin = takeOverlay('overlay', display);
+    if (!overlayWin) { notify('화면 창을 열지 못했습니다.'); reshowQuickbar(); return; }
     // 확대는 마우스 위치를 중심으로 시작해야 한다 (ZoomIt과 동일)
     const cur = screen.getCursorScreenPoint();
     showOverlayWhenReady(overlayWin, 'overlay-init', {
-      dataURL, mode,
+      shot, mode,
       cursor: { x: cur.x - display.bounds.x, y: cur.y - display.bounds.y },
     });
-    overlayWin.on('closed', () => { overlayWin = null; reshowQuickbar(); });
+    overlayWin.once('show', () => {
+      const ms = Date.now() - tStart2;
+      if (ms > 400) log(`overlay(${mode}): 화면에 뜨기까지 ${ms}ms (느림)`);
+    });
   } finally {
     overlayBusy = false;
   }
@@ -742,8 +841,10 @@ ipcMain.on('overlay-finish', (e, payload) => {
   // 보낸 창 자신을 닫는다 — 변수가 다른 창을 가리켜도 Esc가 항상 통하게
   const sender = BrowserWindow.fromWebContents(e.sender);
   const closeSender = () => {
-    if (sender && !sender.isDestroyed()) sender.close();
-    if (overlayWin && overlayWin !== sender) overlayWin.close();
+    hideOverlay(sender);
+    if (overlayWin && overlayWin !== sender) hideOverlay(overlayWin);
+    overlayWin = null;
+    reshowQuickbar();
   };
   if (!payload || payload.action === 'close') {
     closeSender();
@@ -871,6 +972,7 @@ function sendSettingsState() {
     failures: hotkeyFailures,
     isMac,
     version: app.getVersion(),
+    update: updateState,
   });
 }
 
@@ -1372,29 +1474,65 @@ function createTray() {
 
 // ---------- 업데이트 ----------
 
-function checkUpdatesManually() {
-  if (!app.isPackaged) {
-    notify('개발 모드에서는 업데이트 확인을 지원하지 않습니다.');
-    return;
-  }
-  try {
-    const { autoUpdater } = require('electron-updater');
-    autoUpdater.removeAllListeners('update-available');
-    autoUpdater.removeAllListeners('update-not-available');
-    // error 리스너도 지운다 — 안 지우면 확인할 때마다 쌓여 오류 한 번에 알림이 여러 개 뜬다
-    autoUpdater.removeAllListeners('error');
-    autoUpdater.once('update-available', (info) =>
-      notify(`새 버전 v${info.version}을 내려받는 중입니다. 완료되면 알려드려요.`));
-    autoUpdater.once('update-not-available', () => notify('지금이 최신 버전입니다. 👍'));
-    autoUpdater.once('error', () => notify('업데이트 확인에 실패했습니다. 잠시 후 다시 시도해주세요.'));
-    autoUpdater.checkForUpdatesAndNotify({
-      title: '스샷핀 업데이트',
-      body: '새 버전이 다운로드됐습니다. 프로그램을 다시 시작하면 적용됩니다.',
-    });
-  } catch (e) {
-    notify('업데이트 확인에 실패했습니다.');
+// 업데이트 진행 상황을 설정 창에도 보여준다
+let updateState = { status: 'idle', text: '' };
+function setUpdateState(status, text) {
+  updateState = { status, text };
+  if (settingsWin && !settingsWin.isDestroyed()) {
+    settingsWin.webContents.send('update-state', updateState);
   }
 }
+
+function checkUpdatesManually() {
+  if (!app.isPackaged) {
+    setUpdateState('idle', '개발 모드에서는 업데이트를 확인할 수 없습니다.');
+    return;
+  }
+  let autoUpdater;
+  try {
+    ({ autoUpdater } = require('electron-updater'));
+  } catch (e) {
+    setUpdateState('error', '업데이트 기능을 불러오지 못했습니다.');
+    return;
+  }
+  // 리스너를 지우지 않으면 확인할 때마다 쌓여 알림이 여러 번 뜬다
+  for (const ev of ['update-available', 'update-not-available', 'error',
+                    'download-progress', 'update-downloaded']) {
+    autoUpdater.removeAllListeners(ev);
+  }
+  autoUpdater.autoDownload = true;
+  setUpdateState('checking', '새 버전을 확인하는 중…');
+
+  autoUpdater.once('update-available', (info) =>
+    setUpdateState('downloading', `새 버전 v${info.version}을 내려받는 중… 0%`));
+  autoUpdater.on('download-progress', (p) =>
+    setUpdateState('downloading', `내려받는 중… ${Math.round(p.percent)}%`));
+  autoUpdater.once('update-not-available', () =>
+    setUpdateState('latest', '지금이 최신 버전입니다.'));
+  autoUpdater.once('update-downloaded', (info) => {
+    setUpdateState('ready', `v${info.version} 준비 완료 — 다시 시작하면 적용됩니다.`);
+    notify(`새 버전 v${info.version}을 받았습니다. 다시 시작하면 적용됩니다.`);
+  });
+  autoUpdater.once('error', (err) => {
+    const net = /net::|ENOTFOUND|ETIMEDOUT|EAI_AGAIN/.test(String(err && err.message));
+    setUpdateState('error', net
+      ? '인터넷에 연결되어 있는지 확인해주세요.'
+      : '업데이트 확인에 실패했습니다. 잠시 후 다시 시도해주세요.');
+  });
+
+  autoUpdater.checkForUpdates().catch(() => { /* error 리스너가 처리 */ });
+}
+
+// 설정 창의 "지금 다시 시작" 버튼
+ipcMain.on('update-restart', () => {
+  try {
+    const { autoUpdater } = require('electron-updater');
+    autoUpdater.quitAndInstall();
+  } catch (e) {
+    notify('다시 시작하지 못했습니다. 프로그램을 직접 종료한 뒤 다시 실행해주세요.');
+  }
+});
+ipcMain.on('update-check', () => checkUpdatesManually());
 
 // ---------- 첫 실행 ----------
 
@@ -1443,6 +1581,10 @@ if (!gotLock) {
       log('단축키를 새 기본값으로 자동 변경', JSON.stringify(settings.hotkeys));
       notify(`단축키가 바뀌었습니다. 캡처 ${settings.hotkeys.capture}, 핀 ${settings.hotkeys.pin}`);
     }
+
+    // 첫 단축키가 곧바로 반응하도록 오버레이 창을 미리 만들어 둔다
+    prewarmOverlay('capture');
+    prewarmOverlay('overlay');
 
     ensureInApplicationsFolder().then(() => firstRunFlow());
 

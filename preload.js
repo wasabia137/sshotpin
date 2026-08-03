@@ -33,6 +33,9 @@ contextBridge.exposeInMainWorld('api', {
   openSaveDir: () => ipcRenderer.send('settings-open-dir'),
   openHelpFromSettings: () => ipcRenderer.send('settings-open-help'),
   openLogs: () => ipcRenderer.send('settings-open-logs'),
+  onUpdateState: (cb) => ipcRenderer.on('update-state', (e, d) => cb(d)),
+  checkUpdate: () => ipcRenderer.send('update-check'),
+  restartForUpdate: () => ipcRenderer.send('update-restart'),
 
   // 최근 캡처
   onHistoryState: (cb) => ipcRenderer.on('history-state', (e, d) => cb(d)),
@@ -42,8 +45,12 @@ contextBridge.exposeInMainWorld('api', {
   historyDelete: (id) => ipcRenderer.send('history-delete', id),
   historyClear: () => ipcRenderer.send('history-clear'),
 
+  // 오버레이가 첫 그림을 마쳤음을 알림 (그 뒤에 창을 띄워 번쩍임을 없앤다)
+  overlayPainted: () => ipcRenderer.send('overlay-painted'),
+
   // 캡처 오버레이
   onCaptureInit: (cb) => ipcRenderer.on('capture-init', (e, d) => cb(d)),
+  captureAutoCopy: (dataURL) => ipcRenderer.send('capture-autocopy', dataURL),
   captureFinish: (payload) => ipcRenderer.send('capture-finish', payload),
 
   // 확대·판서 오버레이

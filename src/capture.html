@@ -50,9 +50,22 @@
     display: flex; align-items: center; justify-content: center; gap: 5px;
   }
   #toolbar button:hover { background: rgba(148, 163, 184, .22); }
-  #toolbar button.on { background: rgba(59, 130, 246, .6); }
-  #toolbar button.primary { background: #2563eb; font-size: 13px; font-weight: 600; }
-  #toolbar button.primary:hover { background: #1d4ed8; }
+  /* 선택된 도구 — 눌린 상태로 보이도록 회색 계열 (파란 실행 버튼과 헷갈리지 않게) */
+  #toolbar button.on {
+    background: rgba(255, 255, 255, .2);
+    box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .55);
+  }
+  /* 실행 버튼 — 눌러야 할 버튼임이 드러나게 (밝은 파랑 + 살짝 떠 있는 느낌) */
+  #toolbar button.primary {
+    background: #3b82f6; font-size: 13px; font-weight: 700;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, .55);
+    transition: background .12s, transform .12s, box-shadow .12s;
+  }
+  #toolbar button.primary:hover {
+    background: #60a5fa; transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, .7);
+  }
+  #toolbar button.primary:active { transform: translateY(0); background: #2563eb; }
   .vsep { width: 1px; height: 22px; background: rgba(148,163,184,.35); margin: 0 3px; }
   .sw {
     width: 19px; height: 19px; border-radius: 50%;
@@ -62,6 +75,18 @@
   #penVal { color: #f1f5f9; font-size: 12px; min-width: 32px; text-align: center; }
   #styleRow { display: none; }
   body.tooling #styleRow { display: flex; }
+
+  /* 복사 완료 알림 — 잠깐 떠 있다 사라진다 */
+  #copied {
+    position: absolute; top: 24px; left: 50%;
+    transform: translateX(-50%) translateY(-8px);
+    background: #16a34a; color: #fff; font-weight: 600;
+    font: 600 13px 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+    padding: 9px 18px; border-radius: 20px;
+    box-shadow: 0 6px 20px rgba(0,0,0,.35);
+    pointer-events: none; opacity: 0; transition: opacity .15s, transform .15s;
+  }
+  #copied.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
   #hint {
     position: absolute; top: 24px; left: 50%; transform: translateX(-50%);
@@ -73,7 +98,7 @@
 </style>
 </head>
 <body>
-  <img id="shot" alt="">
+  <canvas id="shot"></canvas>
   <canvas id="veil"></canvas>
   <div class="handle" data-h="nw"></div>
   <div class="handle" data-h="n"></div>
@@ -84,7 +109,8 @@
   <div class="handle" data-h="sw"></div>
   <div class="handle" data-h="w"></div>
   <div id="sizeLabel"></div>
-  <div id="hint">드래그해서 영역을 선택하세요 · Enter=핀 · Ctrl+C=복사 · Esc=취소</div>
+  <div id="hint">드래그해서 영역을 선택하세요 · Enter=핀 · Esc=취소</div>
+  <div id="copied">✓ 클립보드에 복사했습니다</div>
 
   <div id="toolbar">
     <div class="trow" id="toolRow">
@@ -148,16 +174,41 @@
   let moveOrigin = null;
 
   const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
-  const rx = () => shot.naturalWidth / window.innerWidth;
-  const ry = () => shot.naturalHeight / window.innerHeight;
+  const rx = () => shot.width / window.innerWidth;
+  const ry = () => shot.height / window.innerHeight;
+
+  // 메인에서 온 원시 비트맵(BGRA)을 캔버스에 그린다.
+  // PNG로 주고받으면 인코딩·디코딩에만 0.5초가 들어 단축키 반응이 느려진다.
+  function paintShot({ width, height, bitmap }) {
+    const u = new Uint8ClampedArray(bitmap.buffer || bitmap);
+    for (let i = 0; i < u.length; i += 4) { const b = u[i]; u[i] = u[i + 2]; u[i + 2] = b; }
+    shot.width = width; shot.height = height;
+    shot.getContext('2d').putImageData(new ImageData(u, width, height), 0, 0);
+  }
 
   window.api.onCaptureInit((d) => {
-    shot.src = d.dataURL;
+    // 창을 닫지 않고 재사용하므로, 열 때마다 지난 상태를 남김없이 되돌린다
+    sel = null; dragStart = null; selecting = false; done = false;
+    tool = null; cur = null; drawing = false; stepSeq = 0;
+    resizing = null; moving = false; moveOrigin = null;
+    anns.length = 0;
+    document.body.classList.remove('picked', 'tooling');
+    document.body.style.cursor = 'crosshair';
+    toolbar.classList.remove('show');
+    sizeLabel.style.display = 'none';
+    document.getElementById('copied').classList.remove('show');
+    hint.textContent = '드래그해서 영역을 선택하세요 · Enter=핀 · Esc=취소';
+    hint.style.display = 'block';
+
     mode = d.mode || 'capture';
-    window.api.log(`[capture] init 수신 — 창 ${window.innerWidth}x${window.innerHeight}, 이미지 ${Math.round(d.dataURL.length/1024)}KB`);
+    paintShot(d.shot);
+    resizeCanvas();
     if (mode === 'cover') {
       hint.textContent = '🙈 가릴 영역을 드래그하세요 (놓는 즉시 가리개 생성) · Esc=취소';
     }
+    // 그리기는 위에서 동기적으로 끝났으므로 곧바로 알린다.
+    // (숨겨진 창에서는 requestAnimationFrame이 돌지 않아 기다리면 안 된다)
+    window.api.overlayPainted();
   });
 
   function resizeCanvas() {
@@ -222,7 +273,7 @@
     } else if (a.type === 'mosaic') {
       const x = Math.min(a.x1, a.x2), y = Math.min(a.y1, a.y2);
       const w = Math.abs(a.x2 - a.x1), h = Math.abs(a.y2 - a.y1);
-      if (w >= 2 && h >= 2 && shot.naturalWidth) {
+      if (w >= 2 && h >= 2 && shot.width) {
         const cell = Math.max(5, Math.round(Math.min(w, h) / 8));
         c.beginPath(); c.rect(x, y, w, h); c.clip();
         c.imageSmoothingEnabled = false;
@@ -411,10 +462,11 @@
       if (cur) anns.push(cur);
       cur = null;
       draw();
+      autoCopy();   // 그린 내용까지 포함해 다시 복사
       return;
     }
-    if (resizing) { resizing = null; return; }
-    if (moving) { moving = false; return; }
+    if (resizing) { resizing = null; autoCopy(); return; }
+    if (moving) { moving = false; autoCopy(); return; }
     if (!selecting) return;
     selecting = false;
     if (!sel || sel.w < 5 || sel.h < 5) {
@@ -423,13 +475,12 @@
       return;
     }
     done = true;
-    window.api.log(`[capture] 영역 확정 ${Math.round(sel.w)}x${Math.round(sel.h)}`);
     document.body.classList.add('picked');
     if (mode === 'cover') { finish('cover'); return; } // 가리개는 놓는 즉시 생성
     showToolbar();
-    hint.textContent = '도구를 눌러 그리거나, 핸들로 영역을 조절하세요 · Enter=핀';
-    hint.style.display = 'block';
+    hint.style.display = 'none';
     draw();
+    autoCopy();   // 놓는 즉시 클립보드로
   });
 
   // ----- 내보내기 -----
@@ -459,6 +510,22 @@
       return;
     }
     window.api.captureFinish({ action, dataURL: exportDataURL(), rect: { ...sel } });
+  }
+
+  // 선택이 확정되면 곧바로 클립보드에 넣는다. 그림을 더 얹으면 그때 다시 복사된다.
+  let copyTimer = null;
+  function autoCopy() {
+    if (!sel || !done || sel.w < 5 || sel.h < 5) return;
+    try {
+      window.api.captureAutoCopy(exportDataURL());
+      showCopied();
+    } catch (e) { /* 복사 실패는 캡처를 막지 않는다 */ }
+  }
+  function showCopied() {
+    const el = document.getElementById('copied');
+    el.classList.add('show');
+    clearTimeout(copyTimer);
+    copyTimer = setTimeout(() => el.classList.remove('show'), 1400);
   }
 
   function undo() {

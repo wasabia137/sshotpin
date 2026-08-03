@@ -85,7 +85,8 @@
   const zoomLabel = document.getElementById('zoomLabel');
   const penVal = document.getElementById('penVal');
   const toolbar = document.getElementById('tb');
-  const img = new Image();
+  // 원본 스크린샷을 담는 오프스크린 캔버스 (원시 비트맵을 그려 넣는다)
+  const img = document.createElement('canvas');
 
   let z = 1;                 // 확대 배율 (1~8)
   let mode = 'draw';
@@ -102,12 +103,22 @@
   let frozenOrigin = null;   // 그리는 동안 팬 고정
 
   const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
-  const R = () => img.naturalWidth / window.innerWidth; // 화면px → 이미지px 배율
+  const R = () => img.width / window.innerWidth; // 화면px → 이미지px 배율
 
   const zoomHint = document.getElementById('zhint');
   let isZoomMode = false;
 
-  window.api.onOverlayInit(({ dataURL, mode: m, cursor }) => {
+  window.api.onOverlayInit(({ shot, mode: m, cursor }) => {
+    // 창을 재사용하므로 지난 판서·상태를 모두 지운다
+    strokes.length = 0;
+    current = null; drawing = false; stepSeq = 0;
+    mosaicMode = false; board = null; tabHeld = false; frozenOrigin = null;
+    penScreen = 5; color = '#ef4444';
+    targetZ = 1; closeWhenZoomedOut = false;
+    toolbar.style.display = '';
+    document.body.style.cursor = 'crosshair';
+    zoomHint.style.opacity = '0';
+
     mode = m;
     isZoomMode = mode === 'zoom';
     // 확대를 시작한 순간의 마우스 위치를 중심으로 (ZoomIt과 동일)
@@ -119,13 +130,19 @@
       zoomHint.style.opacity = '1';
       setTimeout(() => { zoomHint.style.opacity = '0'; }, 2600);
     }
-    img.onload = () => {
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
-      if (isZoomMode) { z = 1; setTargetZ(2); } // 1배 → 2배로 미끄러지듯 확대
-      render();
-    };
-    img.src = dataURL;
+    // 원시 비트맵(BGRA)을 그려 넣는다. PNG로 주고받으면 0.5초가 그냥 사라진다.
+    const u = new Uint8ClampedArray(shot.bitmap.buffer || shot.bitmap);
+    for (let i = 0; i < u.length; i += 4) { const b = u[i]; u[i] = u[i + 2]; u[i + 2] = b; }
+    img.width = shot.width; img.height = shot.height;
+    img.getContext('2d').putImageData(new ImageData(u, shot.width, shot.height), 0, 0);
+    canvas.width = img.width;
+    canvas.height = img.height;
+    z = 1;
+    render();
+    // 그리기가 끝났으니 바로 알린다 (숨겨진 창에서는 rAF가 돌지 않는다).
+    // 창이 뜬 뒤 1배 → 2배로 미끄러지듯 확대해야 시작이 매끄럽다.
+    window.api.overlayPainted();
+    if (isZoomMode) setTimeout(() => setTargetZ(2), 16);
   });
 
   // ----- 부드러운 배율 애니메이션 (ZoomIt 느낌) -----
@@ -151,7 +168,7 @@
       return;
     }
     z += diff * 0.28;
-    render();
+    render();          // 애니메이션 프레임 안이므로 바로 그린다
     requestAnimationFrame(zTick);
   }
 
@@ -262,11 +279,28 @@
     else c.drawImage(img, 0, 0);
   }
 
+  // 마우스 이벤트마다 그리면 한 프레임에 여러 번 그려 버벅인다 — 프레임당 한 번으로 묶는다
+  let renderQueued = false;
+  function requestRender() {
+    if (renderQueued) return;
+    renderQueued = true;
+    requestAnimationFrame(() => { renderQueued = false; render(); });
+  }
+
   function render() {
-    if (!img.naturalWidth) return;
+    if (!img.width) return;
     const o = origin();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    // 배경: 전체 이미지를 변환하지 않고 "보이는 부분만" 잘라서 확대한다.
+    // 3456x2234 전체를 매 프레임 변환하면 확대 중에 눈에 띄게 끊긴다.
+    if (board === 'white') { ctx.fillStyle = '#f8fafc'; ctx.fillRect(0, 0, canvas.width, canvas.height); }
+    else if (board === 'black') { ctx.fillStyle = '#0f172a'; ctx.fillRect(0, 0, canvas.width, canvas.height); }
+    else {
+      ctx.imageSmoothingEnabled = z < 2.5;   // 많이 확대하면 픽셀을 또렷하게
+      ctx.drawImage(img, o.x, o.y, canvas.width / z, canvas.height / z,
+                    0, 0, canvas.width, canvas.height);
+    }
     ctx.setTransform(z, 0, 0, z, -o.x * z, -o.y * z);
-    paintScene(ctx);
     for (const s of strokes) drawStroke(ctx, s);
     if (current) drawStroke(ctx, current);
     ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -320,7 +354,7 @@
       if (current.type === 'pen') current.points.push(p);
       else { current.x2 = p.x; current.y2 = p.y; }
     }
-    render();
+    requestRender();
   });
 
   window.addEventListener('mouseup', (e) => {

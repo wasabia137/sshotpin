@@ -119,6 +119,11 @@
   <footer>
     <button class="mini" id="openHelp">❓ 사용법·단축키 보기</button>
     <button class="mini" id="openLogs" title="문의할 때 이 파일을 첨부하면 됩니다">🧾 오류 기록 열기</button>
+    <div style="margin-top:14px; display:flex; align-items:center; gap:10px; flex-wrap:wrap">
+      <button class="mini" id="btnUpdate">⬆️ 업데이트 확인</button>
+      <button class="mini" id="btnRestart" style="display:none">🔄 지금 다시 시작</button>
+      <span id="updateMsg" style="font-size:13px; color:#64748b"></span>
+    </div>
     <span class="ver" id="ver"></span>
   </footer>
 
@@ -251,6 +256,7 @@
   }
 
   window.api.onSettingsState((d) => {
+    if (d.update) applyUpdateState(d.update);
     state = d;
     renderHotkeys();
     renderRest();
@@ -268,6 +274,31 @@
   document.getElementById('resetDir').addEventListener('click', () => window.api.resetSaveDir());
   document.getElementById('openHelp').addEventListener('click', () => window.api.openHelpFromSettings());
   document.getElementById('openLogs').addEventListener('click', () => window.api.openLogs());
+
+  // ----- 업데이트 -----
+  const btnUpdate = document.getElementById('btnUpdate');
+  const btnRestart = document.getElementById('btnRestart');
+  const updateMsg = document.getElementById('updateMsg');
+
+  function applyUpdateState(u) {
+    if (!u) return;
+    updateMsg.textContent = u.text || '';
+    btnRestart.style.display = u.status === 'ready' ? '' : 'none';
+    // 확인·내려받는 중에는 버튼을 잠근다
+    btnUpdate.disabled = u.status === 'checking' || u.status === 'downloading';
+  }
+
+  btnUpdate.addEventListener('click', () => {
+    if (!navigator.onLine) {
+      updateMsg.textContent = '인터넷에 연결되어 있지 않습니다.';
+      return;
+    }
+    btnUpdate.disabled = true;
+    updateMsg.textContent = '확인하는 중…';
+    window.api.checkUpdate();
+  });
+  btnRestart.addEventListener('click', () => window.api.restartForUpdate());
+  window.api.onUpdateState(applyUpdateState);
 </script>
 </body>
 </html>
