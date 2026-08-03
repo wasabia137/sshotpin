@@ -1,7 +1,7 @@
 {
   "name": "sshotpin",
   "productName": "스샷핀",
-  "version": "0.6.4",
+  "version": "0.6.5",
   "description": "스샷핀 (SshotPin)",
   "main": "main.js",
   "scripts": {
@@ -52,7 +52,7 @@
       "gatekeeperAssess": false,
       "entitlements": "build/entitlements.mac.plist",
       "entitlementsInherit": "build/entitlements.mac.plist",
-      "identity": "Developer ID Application: Yongsu Jung (T5YN2MB5DY)",
+      "identity": "Yongsu Jung (T5YN2MB5DY)",
       "notarize": false
     },
     "dmg": {

@@ -15,7 +15,8 @@ PROFILE="sshotpin"
 KC_NAME="sshotpin-signing.keychain-db"
 KC_PATH="$HOME/Library/Keychains/$KC_NAME"
 BUILD_DIR="$HOME/sshotpin-build"
-IDENTITY="Developer ID Application: Yongsu Jung (T5YN2MB5DY)"
+# electron-builder는 종류 prefix를 붙이면 거부한다 (인증서는 자동 선택)
+IDENTITY="Yongsu Jung (T5YN2MB5DY)"
 
 echo "── 준비 상태 확인 ──"
 
@@ -71,9 +72,10 @@ echo "── 빌드 + 서명 + 공증 (10~20분, 공증 심사 대기 포함) �
 cd "$BUILD_DIR"
 export CSC_KEYCHAIN="$KC_PATH"
 export CSC_NAME="$IDENTITY"
+# electron-builder 26: notarize는 boolean이고 팀 ID·자격증명은 환경변수로 받는다
 export APPLE_KEYCHAIN_PROFILE="$PROFILE"
-npx electron-builder --mac --arm64 --x64 \
-  -c.mac.notarize.teamId="$TEAM_ID"
+export APPLE_TEAM_ID="$TEAM_ID"
+npx electron-builder --mac --arm64 --x64 -c.mac.notarize=true
 
 echo
 echo "── 검증 ──"
