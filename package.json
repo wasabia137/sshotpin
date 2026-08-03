@@ -47,7 +47,13 @@
       ],
       "icon": "assets/icon-mac.png",
       "category": "public.app-category.education",
-      "artifactName": "SshotPin-${version}-mac-${arch}.${ext}"
+      "artifactName": "SshotPin-${version}-mac-${arch}.${ext}",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist",
+      "identity": "Developer ID Application: Yongsu Jung (T5YN2MB5DY)",
+      "notarize": false
     },
     "dmg": {
       "title": "스샷핀"
