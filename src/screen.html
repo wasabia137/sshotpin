@@ -5,7 +5,9 @@
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body { width: 100%; height: 100%; overflow: hidden; user-select: none; background: #000; cursor: crosshair; }
-  #canvas { width: 100vw; height: 100vh; display: block; }
+  /* 배경(스크린샷)과 판서를 나눠 그린다.
+     그리는 중에는 배경을 다시 그릴 필요가 없어 펜이 훨씬 가볍게 따라온다. */
+  #bg, #ink { position: absolute; left: 0; top: 0; width: 100vw; height: 100vh; display: block; }
   #tb {
     position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
     background: rgba(15, 23, 42, .93);
@@ -47,7 +49,8 @@
 </style>
 </head>
 <body>
-  <canvas id="canvas"></canvas>
+  <canvas id="bg"></canvas>
+  <canvas id="ink"></canvas>
   <div id="tb">
     <div class="row">
       <span class="sw" data-c="#ef4444" style="background:#ef4444" title="빨강 (R)"></span>
@@ -74,22 +77,27 @@
       <button class="tbtn" data-act="close" title="종료 (Esc)">✕</button>
       <span id="zoomLabel">100%</span>
     </div>
-    <div id="hint">드래그=펜 · Shift=직선 · Ctrl=사각형 · Ctrl+Shift=화살표 · Tab+드래그=원 · Alt+클릭=①번호 · 휠=확대/축소</div>
+    <div id="hint">드래그=펜 · Shift=직선 · Ctrl=사각형 · Ctrl+Shift=화살표 · Tab+드래그=원 · Alt+클릭=①번호 · 휠=확대/축소 · Esc=끝내기</div>
     <div id="hint2" style="display:none; color:#93c5fd">🔲 모자이크 켜짐 — 가릴 부분을 드래그하세요 (버튼을 다시 누르면 끄기)</div>
   </div>
-  <div id="zhint">휠·↑↓ = 배율 &nbsp;·&nbsp; 드래그 = 그리기 &nbsp;·&nbsp; 우클릭·Esc = 닫기</div>
+  <div id="zhint">휠·↑↓ = 배율 &nbsp;·&nbsp; 드래그 = 그리기 &nbsp;·&nbsp; Esc·우클릭 = 끝내기</div>
 
 <script>
-  const canvas = document.getElementById('canvas');
-  const ctx = canvas.getContext('2d');
+  const bgCanvas = document.getElementById('bg');
+  const inkCanvas = document.getElementById('ink');
+  // 배경은 늘 전체를 덮어 칠하므로 알파가 필요 없다 — 알파를 빼면 합성이 더 싸다
+  const bg = bgCanvas.getContext('2d', { alpha: false });
+  const ink = inkCanvas.getContext('2d');
   const zoomLabel = document.getElementById('zoomLabel');
   const penVal = document.getElementById('penVal');
   const toolbar = document.getElementById('tb');
+  const zoomHint = document.getElementById('zhint');
   // 원본 스크린샷을 담는 오프스크린 캔버스 (원시 비트맵을 그려 넣는다)
   const img = document.createElement('canvas');
 
-  let z = 1;                 // 확대 배율 (1~8)
+  let IW = 0, IH = 0;        // 스크린샷(=캔버스) 픽셀 크기
   let mode = 'draw';
+  let isZoomMode = false;
   let color = '#ef4444';     // 기본 빨강 펜 (판서용)
   let penScreen = 5;         // 화면 기준 펜 굵기(px)
   let board = null;          // null | 'white' | 'black'
@@ -99,14 +107,25 @@
   let stepSeq = 0;           // 풀이 순서 번호 카운터
   let mosaicMode = false;    // 모자이크 도구 켜짐 여부
   let tabHeld = false;
-  let lastMouse = { x: 0, y: 0 };
   let frozenOrigin = null;   // 그리는 동안 팬 고정
 
   const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
-  const R = () => img.width / window.innerWidth; // 화면px → 이미지px 배율
+  const R = () => IW / window.innerWidth; // 화면px → 이미지px 배율
 
-  const zoomHint = document.getElementById('zhint');
-  let isZoomMode = false;
+  // ----- 배율·팬 상태 -----
+  // z / anchor 는 "지금 보이는 값", targetZ / aim 은 "가야 할 값".
+  // 매 프레임 시간에 비례해 목표로 다가가므로 60Hz든 120Hz든 같은 속도로 움직인다.
+  let z = 1, targetZ = 1;
+  let anchor = { x: 0, y: 0 };   // 화면좌표 기준 확대 중심 (지금)
+  let aim = { x: 0, y: 0 };      // 확대 중심 (목표 = 마우스 위치)
+  let smoothOn = true;           // 배경 보간 (배율이 확정될 때만 바꿔 깜박임을 막는다)
+  let closeWhenZoomedOut = false;
+
+  const TAU_IN = 0.075;   // 처음 1배 → 2배로 들어갈 때
+  const TAU_WHEEL = 0.055; // 휠·방향키 반응 (짧을수록 즉각적)
+  const TAU_OUT = 0.042;  // 축소하며 빠져나갈 때
+  const TAU_PAN = 0.035;  // 마우스 따라 화면이 미끄러지는 속도
+  let zoomTau = TAU_WHEEL;
 
   window.api.onOverlayInit(({ shot, mode: m, cursor }) => {
     // 창을 재사용하므로 지난 판서·상태를 모두 지운다
@@ -114,7 +133,10 @@
     current = null; drawing = false; stepSeq = 0;
     mosaicMode = false; board = null; tabHeld = false; frozenOrigin = null;
     penScreen = 5; color = '#ef4444';
-    targetZ = 1; closeWhenZoomedOut = false;
+    z = targetZ = 1; smoothOn = true; closeWhenZoomedOut = false;
+    zoomTau = TAU_WHEEL;
+    // 창은 닫히지 않고 숨겨졌다 재사용된다 — 다시 보낼 수 있게 잠금을 푼다
+    finished = false;
     toolbar.style.display = '';
     document.body.style.cursor = 'crosshair';
     zoomHint.style.opacity = '0';
@@ -122,7 +144,12 @@
     mode = m;
     isZoomMode = mode === 'zoom';
     // 확대를 시작한 순간의 마우스 위치를 중심으로 (ZoomIt과 동일)
-    if (cursor) lastMouse = { x: cursor.x, y: cursor.y };
+    const start = cursor
+      ? { x: cursor.x, y: cursor.y }
+      : { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+    anchor = { x: start.x, y: start.y };
+    aim = { x: start.x, y: start.y };
+
     if (isZoomMode) {
       // ZoomIt처럼: 도구모음 없는 깨끗한 화면, 보통 커서, 부드럽게 확대
       toolbar.style.display = 'none';
@@ -133,63 +160,138 @@
     // 원시 비트맵(BGRA)을 그려 넣는다. PNG로 주고받으면 0.5초가 그냥 사라진다.
     const u = new Uint8ClampedArray(shot.bitmap.buffer || shot.bitmap);
     for (let i = 0; i < u.length; i += 4) { const b = u[i]; u[i] = u[i + 2]; u[i + 2] = b; }
-    img.width = shot.width; img.height = shot.height;
-    img.getContext('2d').putImageData(new ImageData(u, shot.width, shot.height), 0, 0);
-    canvas.width = img.width;
-    canvas.height = img.height;
-    z = 1;
-    render();
+    IW = shot.width; IH = shot.height;
+    img.width = IW; img.height = IH;
+    img.getContext('2d').putImageData(new ImageData(u, IW, IH), 0, 0);
+    bgCanvas.width = IW; bgCanvas.height = IH;
+    inkCanvas.width = IW; inkCanvas.height = IH;
+
+    drawBG();
+    drawInk();
+    updateToolbar();
     // 그리기가 끝났으니 바로 알린다 (숨겨진 창에서는 rAF가 돌지 않는다).
-    // 창이 뜬 뒤 1배 → 2배로 미끄러지듯 확대해야 시작이 매끄럽다.
     window.api.overlayPainted();
-    if (isZoomMode) setTimeout(() => setTargetZ(2), 16);
+
+    // 창이 실제로 화면에 뜬 뒤에 1배 → 2배 애니메이션을 시작해야
+    // 미끄러지듯 커지는 첫 장면이 눈에 보인다. 신호가 안 와도 곧 시작한다.
+    pendingZoomIn = isZoomMode;
+    setTimeout(startZoomIn, 220);
   });
 
-  // ----- 부드러운 배율 애니메이션 (ZoomIt 느낌) -----
+  let pendingZoomIn = false;
+  function startZoomIn() {
+    if (!pendingZoomIn) return;
+    pendingZoomIn = false;
+    zoomTau = TAU_IN;
+    setTargetZ(2);
+  }
+  if (window.api.onOverlayShown) window.api.onOverlayShown(startZoomIn);
 
-  let targetZ = 1;
-  let zAnimating = false;
-  let closeWhenZoomedOut = false;
+  // ----- 부드러운 배율·팬 애니메이션 (ZoomIt 느낌) -----
 
   function setTargetZ(t, thenClose) {
     targetZ = clamp(t, 1, 8);
-    if (thenClose) closeWhenZoomedOut = true;
-    if (!zAnimating) { zAnimating = true; requestAnimationFrame(zTick); }
+    // 배율이 확정된 시점에 한 번만 정한다 — 애니메이션 도중에 바뀌면 화면이 튄다
+    smoothOn = targetZ < 2.5;
+    if (thenClose) { closeWhenZoomedOut = true; zoomTau = TAU_OUT; }
+    kick();
   }
 
-  function zTick() {
-    const diff = targetZ - z;
-    if (Math.abs(diff) < 0.01) {
-      z = targetZ;
-      if (z < 1.05) z = targetZ = 1;
-      zAnimating = false;
-      render();
-      if (closeWhenZoomedOut && targetZ === 1) finish('close');
-      return;
+  let running = false, prevT = 0;
+  let needBG = false, needInk = false;
+
+  // 배경까지 다시 그려야 하면 bg=true
+  function refresh(bgToo) {
+    if (bgToo) needBG = true;
+    needInk = true;
+    kick();
+  }
+
+  function kick() {
+    if (running) return;
+    running = true; prevT = 0;
+    requestAnimationFrame(tick);
+  }
+
+  function tick(t) {
+    const dt = prevT ? Math.min(0.05, (t - prevT) / 1000) : 1 / 60;
+    prevT = t;
+    let moving = false;
+
+    // 배율
+    const dz = targetZ - z;
+    if (Math.abs(dz) > 0.004) {
+      z += dz * (1 - Math.exp(-dt / zoomTau));
+      moving = true; needBG = needInk = true;
+    } else if (z !== targetZ) {
+      z = targetZ; needBG = needInk = true;
     }
-    z += diff * 0.28;
-    render();          // 애니메이션 프레임 안이므로 바로 그린다
-    requestAnimationFrame(zTick);
+
+    // 팬 (확대 상태에서만 의미가 있다. 그리는 중에는 화면을 고정)
+    if (frozenOrigin || (z <= 1.001 && targetZ <= 1.001)) {
+      anchor.x = aim.x; anchor.y = aim.y;
+    } else {
+      const dx = aim.x - anchor.x, dy = aim.y - anchor.y;
+      if (Math.abs(dx) > 0.15 || Math.abs(dy) > 0.15) {
+        const k = 1 - Math.exp(-dt / TAU_PAN);
+        anchor.x += dx * k; anchor.y += dy * k;
+        moving = true; needBG = needInk = true;
+      } else if (anchor.x !== aim.x || anchor.y !== aim.y) {
+        anchor.x = aim.x; anchor.y = aim.y;
+        needBG = needInk = true;
+      }
+    }
+
+    if (needBG) drawBG();
+    if (needInk) drawInk();
+    if (needBG || needInk) updateToolbar();
+    needBG = needInk = false;
+
+    if (moving) { requestAnimationFrame(tick); return; }
+    running = false;
+    zoomTau = closeWhenZoomedOut ? TAU_OUT : TAU_WHEEL;
+    if (closeWhenZoomedOut && targetZ === 1) finish('close');
   }
 
   // 현재 보이는 영역의 원점(이미지 좌표)
   function origin() {
     if (frozenOrigin) return frozenOrigin;
-    const fx = clamp(lastMouse.x / window.innerWidth, 0, 1);
-    const fy = clamp(lastMouse.y / window.innerHeight, 0, 1);
-    return {
-      x: (canvas.width - canvas.width / z) * fx,
-      y: (canvas.height - canvas.height / z) * fy,
-    };
+    const fx = clamp(anchor.x / window.innerWidth, 0, 1);
+    const fy = clamp(anchor.y / window.innerHeight, 0, 1);
+    return { x: (IW - IW / z) * fx, y: (IH - IH / z) * fy };
   }
 
   // 화면 좌표 → 이미지 좌표
   function toImage(cx, cy) {
     const o = origin();
     return {
-      x: o.x + (cx / window.innerWidth) * (canvas.width / z),
-      y: o.y + (cy / window.innerHeight) * (canvas.height / z),
+      x: o.x + (cx / window.innerWidth) * (IW / z),
+      y: o.y + (cy / window.innerHeight) * (IH / z),
     };
+  }
+
+  // ----- 그리기 -----
+
+  // 펜 획을 부드러운 곡선으로 (점을 그대로 이으면 각져 보인다)
+  function penPath(c, pts) {
+    if (pts.length === 1) {
+      c.beginPath();
+      c.arc(pts[0].x, pts[0].y, c.lineWidth / 2, 0, Math.PI * 2);
+      c.fill();
+      return;
+    }
+    c.beginPath();
+    c.moveTo(pts[0].x, pts[0].y);
+    if (pts.length === 2) c.lineTo(pts[1].x, pts[1].y);
+    else {
+      for (let i = 1; i < pts.length - 1; i++) {
+        c.quadraticCurveTo(pts[i].x, pts[i].y,
+          (pts[i].x + pts[i + 1].x) / 2, (pts[i].y + pts[i + 1].y) / 2);
+      }
+      const last = pts[pts.length - 1];
+      c.lineTo(last.x, last.y);
+    }
+    c.stroke();
   }
 
   function drawStroke(c, s) {
@@ -199,16 +301,7 @@
     c.lineCap = 'round';
     c.lineJoin = 'round';
     if (s.type === 'pen') {
-      if (s.points.length < 2) {
-        c.beginPath();
-        c.arc(s.points[0].x, s.points[0].y, s.width / 2, 0, Math.PI * 2);
-        c.fill();
-        return;
-      }
-      c.beginPath();
-      c.moveTo(s.points[0].x, s.points[0].y);
-      for (const p of s.points) c.lineTo(p.x, p.y);
-      c.stroke();
+      penPath(c, s.points);
     } else if (s.type === 'line') {
       c.beginPath();
       c.moveTo(s.x1, s.y1); c.lineTo(s.x2, s.y2);
@@ -272,49 +365,79 @@
     }
   }
 
-  function paintScene(c) {
-    // 배경 (칠판 모드 또는 스크린샷)
-    if (board === 'white') { c.fillStyle = '#f8fafc'; c.fillRect(0, 0, canvas.width, canvas.height); }
-    else if (board === 'black') { c.fillStyle = '#0f172a'; c.fillRect(0, 0, canvas.width, canvas.height); }
-    else c.drawImage(img, 0, 0);
-  }
-
-  // 마우스 이벤트마다 그리면 한 프레임에 여러 번 그려 버벅인다 — 프레임당 한 번으로 묶는다
-  let renderQueued = false;
-  function requestRender() {
-    if (renderQueued) return;
-    renderQueued = true;
-    requestAnimationFrame(() => { renderQueued = false; render(); });
-  }
-
-  function render() {
-    if (!img.width) return;
+  // 배경: 전체 이미지를 변환하지 않고 "보이는 부분만" 잘라서 확대한다.
+  // 3456x2234 전체를 매 프레임 변환하면 확대 중에 눈에 띄게 끊긴다.
+  function drawBG() {
+    if (!IW) return;
+    bg.setTransform(1, 0, 0, 1, 0, 0);
+    if (board === 'white') { bg.fillStyle = '#f8fafc'; bg.fillRect(0, 0, IW, IH); return; }
+    if (board === 'black') { bg.fillStyle = '#0f172a'; bg.fillRect(0, 0, IW, IH); return; }
     const o = origin();
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    // 배경: 전체 이미지를 변환하지 않고 "보이는 부분만" 잘라서 확대한다.
-    // 3456x2234 전체를 매 프레임 변환하면 확대 중에 눈에 띄게 끊긴다.
-    if (board === 'white') { ctx.fillStyle = '#f8fafc'; ctx.fillRect(0, 0, canvas.width, canvas.height); }
-    else if (board === 'black') { ctx.fillStyle = '#0f172a'; ctx.fillRect(0, 0, canvas.width, canvas.height); }
-    else {
-      ctx.imageSmoothingEnabled = z < 2.5;   // 많이 확대하면 픽셀을 또렷하게
-      ctx.drawImage(img, o.x, o.y, canvas.width / z, canvas.height / z,
-                    0, 0, canvas.width, canvas.height);
+    bg.imageSmoothingEnabled = smoothOn;  // 많이 확대하면 픽셀을 또렷하게
+    bg.drawImage(img, o.x, o.y, IW / z, IH / z, 0, 0, IW, IH);
+  }
+
+  function inkTransform() {
+    const o = origin();
+    ink.setTransform(z, 0, 0, z, -o.x * z, -o.y * z);
+  }
+
+  function drawInk() {
+    if (!IW) return;
+    ink.setTransform(1, 0, 0, 1, 0, 0);
+    ink.clearRect(0, 0, IW, IH);
+    if (!strokes.length && !current) return;
+    inkTransform();
+    for (const s of strokes) drawStroke(ink, s);
+    if (current) drawStroke(ink, current);
+  }
+
+  // 펜은 방금 늘어난 꼬리만 덧그린다 — 지우고 전부 다시 그리지 않으므로
+  // 획이 길어져도 손을 그대로 따라온다.
+  function drawPenTail(s) {
+    const pts = s.points;
+    if (pts.length < 2) return;
+    inkTransform();
+    ink.strokeStyle = s.color;
+    ink.lineWidth = s.width;
+    ink.lineCap = 'round';
+    ink.lineJoin = 'round';
+    ink.beginPath();
+    if (pts.length === 2) {
+      ink.moveTo(pts[0].x, pts[0].y);
+      ink.lineTo(pts[1].x, pts[1].y);
+    } else {
+      const a = pts[pts.length - 3], b = pts[pts.length - 2], d = pts[pts.length - 1];
+      ink.moveTo((a.x + b.x) / 2, (a.y + b.y) / 2);
+      ink.quadraticCurveTo(b.x, b.y, (b.x + d.x) / 2, (b.y + d.y) / 2);
     }
-    ctx.setTransform(z, 0, 0, z, -o.x * z, -o.y * z);
-    for (const s of strokes) drawStroke(ctx, s);
-    if (current) drawStroke(ctx, current);
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    // 도구모음 상태 갱신
-    zoomLabel.textContent = `${Math.round(z * 100)}%`;
-    penVal.textContent = `${penScreen}px`;
-    for (const sw of document.querySelectorAll('.sw')) {
-      sw.classList.toggle('on', sw.dataset.c === color);
+    ink.stroke();
+  }
+
+  // 도구모음은 값이 바뀔 때만 손댄다 (매 프레임 DOM을 건드리면 그만큼 느려진다)
+  let uiZ = -1, uiPen = -1, uiColor = '', uiBoard = '_', uiMosaic = null;
+  function updateToolbar() {
+    if (isZoomMode) return;
+    const pz = Math.round(z * 100);
+    if (pz !== uiZ) { zoomLabel.textContent = `${pz}%`; uiZ = pz; }
+    if (penScreen !== uiPen) { penVal.textContent = `${penScreen}px`; uiPen = penScreen; }
+    if (color !== uiColor) {
+      uiColor = color;
+      for (const sw of document.querySelectorAll('.sw')) {
+        sw.classList.toggle('on', sw.dataset.c === color);
+      }
     }
-    document.getElementById('btnWhite').classList.toggle('on', board === 'white');
-    document.getElementById('btnBlack').classList.toggle('on', board === 'black');
-    document.getElementById('btnMosaic').classList.toggle('on', mosaicMode);
-    document.getElementById('hint').style.display = mosaicMode ? 'none' : '';
-    document.getElementById('hint2').style.display = mosaicMode ? '' : 'none';
+    if (board !== uiBoard) {
+      uiBoard = board;
+      document.getElementById('btnWhite').classList.toggle('on', board === 'white');
+      document.getElementById('btnBlack').classList.toggle('on', board === 'black');
+    }
+    if (mosaicMode !== uiMosaic) {
+      uiMosaic = mosaicMode;
+      document.getElementById('btnMosaic').classList.toggle('on', mosaicMode);
+      document.getElementById('hint').style.display = mosaicMode ? 'none' : '';
+      document.getElementById('hint2').style.display = mosaicMode ? '' : 'none';
+    }
   }
 
   // ----- 마우스 -----
@@ -328,11 +451,13 @@
       const p = toImage(e.clientX, e.clientY);
       const r = (Math.max(14, penScreen * 2.6) * R()) / z;
       strokes.push({ type: 'step', x: p.x, y: p.y, r, n: ++stepSeq, color });
-      render();
+      refresh(false);
       return;
     }
     drawing = true;
-    frozenOrigin = origin(); // 그리는 동안 화면 고정
+    // 그리는 동안 화면 고정 — 손이 흔들려도 배경이 따라 움직이지 않는다.
+    // 지금 눈에 보이는 위치(anchor) 그대로 얼려야 누른 지점이 밀리지 않는다.
+    frozenOrigin = origin();
     const p = toImage(e.clientX, e.clientY);
     const width = (penScreen * R()) / z;
     if (mosaicMode) current = { type: 'mosaic', color, width, x1: p.x, y1: p.y, x2: p.x, y2: p.y };
@@ -341,20 +466,30 @@
     else if (e.shiftKey) current = { type: 'line', color, width, x1: p.x, y1: p.y, x2: p.x, y2: p.y };
     else if (e.ctrlKey) current = { type: 'rect', color, width, x1: p.x, y1: p.y, x2: p.x, y2: p.y };
     else current = { type: 'pen', color, width, points: [p] };
-    render();
+    refresh(false);
   });
 
   window.addEventListener('mousemove', (e) => {
-    // 도구모음 위에서는 화면 이동(팬)을 멈춰 조작이 편하게
-    if (!(e.target.closest && e.target.closest('#tb'))) {
-      lastMouse = { x: e.clientX, y: e.clientY };
-    }
     if (drawing && current) {
       const p = toImage(e.clientX, e.clientY);
-      if (current.type === 'pen') current.points.push(p);
-      else { current.x2 = p.x; current.y2 = p.y; }
+      if (current.type === 'pen') {
+        const pts = current.points;
+        const last = pts[pts.length - 1];
+        // 손 떨림 수준의 점은 버린다 (곡선이 매끈해지고 그릴 양도 준다)
+        const minStep = Math.max(0.8, current.width * 0.25);
+        if (Math.abs(p.x - last.x) + Math.abs(p.y - last.y) < minStep) return;
+        pts.push(p);
+        drawPenTail(current);   // 꼬리만 덧그리기 — 전체 다시 그리기 없음
+      } else {
+        current.x2 = p.x; current.y2 = p.y;
+        refresh(false);
+      }
+      return;
     }
-    requestRender();
+    // 도구모음 위에서는 화면 이동(팬)을 멈춰 조작이 편하게
+    if (e.target.closest && e.target.closest('#tb')) return;
+    aim = { x: e.clientX, y: e.clientY };
+    if (z > 1.001 || targetZ > 1.001) kick();
   });
 
   window.addEventListener('mouseup', (e) => {
@@ -363,23 +498,30 @@
     if (current) strokes.push(current);
     current = null;
     frozenOrigin = null;
-    render();
+    refresh(true);
   });
 
   window.addEventListener('wheel', (e) => {
     e.preventDefault();
-    if (e.ctrlKey) {
+    if (e.ctrlKey || e.metaKey) {
       penScreen = clamp(penScreen + (e.deltaY < 0 ? 1 : -1), 2, 30);
-      render();
-    } else if (!drawing) {
-      setTargetZ(targetZ * (e.deltaY < 0 ? 1.35 : 1 / 1.35));
+      refresh(false);
+      return;
     }
+    if (drawing) return;
+    // 휠 한 칸과 트랙패드 스크롤은 값의 단위가 전혀 다르다.
+    // 그대로 "한 번에 1.35배"로 처리하면 트랙패드에서 한 번 밀 때
+    // 이벤트가 수십 개 날아와 순식간에 최대 배율까지 튄다.
+    const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? window.innerHeight : 1;
+    const dy = clamp(e.deltaY * unit, -140, 140);
+    zoomTau = TAU_WHEEL;
+    setTargetZ(targetZ * Math.exp(-dy * 0.0024));
   }, { passive: false });
 
   function undo() {
     const s = strokes.pop();
     if (s && s.type === 'step') stepSeq = Math.max(0, stepSeq - 1);
-    render();
+    refresh(true);
   }
 
   // 우클릭: 확대 모드에서는 ZoomIt처럼 부드럽게 축소하며 종료,
@@ -395,14 +537,14 @@
 
   function exportVisible() {
     const o = origin();
-    const w = Math.round(canvas.width / z), h = Math.round(canvas.height / z);
+    const w = Math.round(IW / z), h = Math.round(IH / z);
     const c = document.createElement('canvas');
     c.width = w; c.height = h;
     const cc = c.getContext('2d');
     cc.translate(-o.x, -o.y);
     // 배경
-    if (board === 'white') { cc.fillStyle = '#f8fafc'; cc.fillRect(0, 0, canvas.width, canvas.height); }
-    else if (board === 'black') { cc.fillStyle = '#0f172a'; cc.fillRect(0, 0, canvas.width, canvas.height); }
+    if (board === 'white') { cc.fillStyle = '#f8fafc'; cc.fillRect(0, 0, IW, IH); }
+    else if (board === 'black') { cc.fillStyle = '#0f172a'; cc.fillRect(0, 0, IW, IH); }
     else cc.drawImage(img, 0, 0);
     // 획 (내보내기용 임시 컨텍스트에 다시 그림)
     for (const s of strokes) drawStroke(cc, s);
@@ -411,32 +553,37 @@
 
   // ----- 공통 동작 -----
 
+  // 복사는 창을 열어둔 채로 진행되므로 잠그지 않는다.
+  // 나머지(닫기·핀·저장)는 창이 사라지므로 연타로 두 번 보내지 않게 막는다.
+  let finished = false;
   function finish(action) {
+    if (finished) return;
+    if (action !== 'copy') finished = true;
     if (action === 'close') { window.api.overlayFinish({ action: 'close' }); return; }
     const { dataURL, w, h } = exportVisible();
     window.api.overlayFinish({ action, dataURL, w, h });
   }
 
-  function clearAll() { strokes.length = 0; stepSeq = 0; render(); }
-  function toggleBoard(kind) { board = board === kind ? null : kind; render(); }
+  function clearAll() { strokes.length = 0; stepSeq = 0; current = null; refresh(true); }
+  function toggleBoard(kind) { board = board === kind ? null : kind; refresh(true); }
 
   // ----- 도구모음 (마우스 조작) -----
 
   for (const sw of document.querySelectorAll('.sw')) {
-    sw.addEventListener('click', () => { color = sw.dataset.c; render(); });
+    sw.addEventListener('click', () => { color = sw.dataset.c; updateToolbar(); });
   }
   document.getElementById('penMinus').addEventListener('click', () => {
-    penScreen = clamp(penScreen - 1, 2, 30); render();
+    penScreen = clamp(penScreen - 1, 2, 30); updateToolbar();
   });
   document.getElementById('penPlus').addEventListener('click', () => {
-    penScreen = clamp(penScreen + 1, 2, 30); render();
+    penScreen = clamp(penScreen + 1, 2, 30); updateToolbar();
   });
   for (const btn of document.querySelectorAll('.tbtn[data-act]')) {
     btn.addEventListener('click', () => {
       const act = btn.dataset.act;
       if (act === 'undo') undo();
       else if (act === 'clear') clearAll();
-      else if (act === 'mosaic') { mosaicMode = !mosaicMode; render(); }
+      else if (act === 'mosaic') { mosaicMode = !mosaicMode; updateToolbar(); }
       else if (act === 'white') toggleBoard('white');
       else if (act === 'black') toggleBoard('black');
       else finish(act); // pin / copy / save / close
@@ -450,22 +597,38 @@
     o: '#f97316', y: '#eab308', p: '#ec4899',
   };
 
+  function zoomStep(inward) {
+    if (drawing) return;
+    zoomTau = TAU_WHEEL;
+    setTargetZ(inward ? targetZ * 1.3 : targetZ / 1.3);
+  }
+
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Tab') { e.preventDefault(); tabHeld = true; return; }
-    if (e.key === 'Escape') { finish('close'); return; }
-    // ZoomIt처럼 방향키로도 배율 조절
-    if (e.key === 'ArrowUp') { e.preventDefault(); if (!drawing) setTargetZ(targetZ * 1.35); return; }
-    if (e.key === 'ArrowDown') { e.preventDefault(); if (!drawing) setTargetZ(targetZ / 1.35); return; }
+    // Esc = 모드 취소. 그리던 획이 있으면 그것부터 물리고, 없으면 바로 빠져나간다.
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      if (drawing) {
+        drawing = false; current = null; frozenOrigin = null;
+        refresh(true);
+        return;
+      }
+      finish('close');
+      return;
+    }
+    // ZoomIt처럼 방향키·+·−로도 배율 조절
+    if (e.key === 'ArrowUp' || e.key === '+' || e.key === '=') { e.preventDefault(); zoomStep(true); return; }
+    if (e.key === 'ArrowDown' || e.key === '-' || e.key === '_') { e.preventDefault(); zoomStep(false); return; }
     if (e.key === 'Enter') { finish('pin'); return; }
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { undo(); return; }
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c') { finish('copy'); return; }
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); finish('save'); return; }
     const k = e.key.toLowerCase();
     if (k === 'e') { clearAll(); return; }
-    if (k === 'm') { mosaicMode = !mosaicMode; render(); return; }
+    if (k === 'm') { mosaicMode = !mosaicMode; updateToolbar(); return; }
     if (k === 'w') { toggleBoard('white'); return; }
     if (k === 'k') { toggleBoard('black'); return; }
-    if (COLOR_KEYS[k] && !e.ctrlKey && !e.metaKey) { color = COLOR_KEYS[k]; render(); return; }
+    if (COLOR_KEYS[k] && !e.ctrlKey && !e.metaKey) { color = COLOR_KEYS[k]; updateToolbar(); return; }
   });
 
   window.addEventListener('keyup', (e) => {

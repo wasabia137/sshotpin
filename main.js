@@ -252,8 +252,13 @@ function showOverlayWhenReady(win, channel, payload) {
   const reveal = () => {
     if (shown || !win || win.isDestroyed()) return;
     shown = true;
+    // 단축키는 다른 앱을 쓰는 중에 눌린다. 맥에서는 앱 자체가 앞으로 나오지 않으면
+    // 창을 띄워도 키 입력을 못 받아 Esc·R·G·B·방향키가 전부 먹통이 된다.
+    if (isMac) { try { app.focus({ steal: true }); } catch (e) { /* 무시 */ } }
     win.show();
     win.focus();
+    // 창이 실제로 뜬 뒤에 알려야 확대 애니메이션이 1배부터 눈에 보인다
+    try { win.webContents.send('overlay-shown'); } catch (e) { /* 무시 */ }
   };
   overlayRevealers.set(win.webContents.id, reveal);
   const send = () => {
@@ -347,9 +352,37 @@ function hideOverlay(win) {
   if (win && !win.isDestroyed()) win.hide();
 }
 
+// ---------- Esc = 모드 취소 (확대·판서) ----------
+// 오버레이가 열려 있는 동안만 Esc를 가로챈다. 맥에서 앱이 키 포커스를 못 받는
+// 상황이 남아 있어도 Esc 한 번이면 반드시 빠져나올 수 있어야 한다.
+let escGrabbed = false;
+
+function grabEscape(on) {
+  if (on === escGrabbed) return;
+  try {
+    if (on) {
+      escGrabbed = globalShortcut.register('Escape', () => {
+        if (overlayWin) closeOverlayWin();
+        else grabEscape(false);
+      });
+    } else {
+      globalShortcut.unregister('Escape');
+      escGrabbed = false;
+    }
+  } catch (e) {
+    log('Esc 가로채기 실패', e.message);
+    escGrabbed = false;
+  }
+}
+
 // 화면에서 내리고 변수를 비운다
 function closeCaptureOverlay() { hideOverlay(captureWin); captureWin = null; reshowQuickbar(); }
-function closeOverlayWin() { hideOverlay(overlayWin); overlayWin = null; reshowQuickbar(); }
+function closeOverlayWin() {
+  grabEscape(false);
+  hideOverlay(overlayWin);
+  overlayWin = null;
+  reshowQuickbar();
+}
 
 // ---------- 캡처 히스토리 ----------
 
@@ -827,6 +860,7 @@ async function toggleOverlay(mode) { // 'zoom' | 'draw'
       shot, mode,
       cursor: { x: cur.x - display.bounds.x, y: cur.y - display.bounds.y },
     });
+    grabEscape(true);
     overlayWin.once('show', () => {
       const ms = Date.now() - tStart2;
       if (ms > 400) log(`overlay(${mode}): 화면에 뜨기까지 ${ms}ms (느림)`);
@@ -841,6 +875,7 @@ ipcMain.on('overlay-finish', (e, payload) => {
   // 보낸 창 자신을 닫는다 — 변수가 다른 창을 가리켜도 Esc가 항상 통하게
   const sender = BrowserWindow.fromWebContents(e.sender);
   const closeSender = () => {
+    grabEscape(false);
     hideOverlay(sender);
     if (overlayWin && overlayWin !== sender) hideOverlay(overlayWin);
     overlayWin = null;
@@ -913,6 +948,8 @@ function isValidAccelerator(accel) {
 
 function registerHotkeys() {
   globalShortcut.unregisterAll();
+  escGrabbed = false;               // unregisterAll이 Esc까지 풀어버린다
+  if (overlayWin) grabEscape(true); // 오버레이가 떠 있으면 즉시 되돌린다
   hotkeyFailures = [];
   for (const [key, accel] of Object.entries(settings.hotkeys)) {
     if (!accel || !HOTKEY_ACTIONS[key]) continue; // 빈 값이면 사용 안 함

@@ -55,6 +55,8 @@ contextBridge.exposeInMainWorld('api', {
 
   // 확대·판서 오버레이
   onOverlayInit: (cb) => ipcRenderer.on('overlay-init', (e, d) => cb(d)),
+  // 창이 실제로 화면에 뜬 순간 (확대 애니메이션 시작 신호)
+  onOverlayShown: (cb) => ipcRenderer.on('overlay-shown', () => cb()),
   overlayFinish: (payload) => ipcRenderer.send('overlay-finish', payload),
 
   // 정답 가리개
