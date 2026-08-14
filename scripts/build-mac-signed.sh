@@ -99,6 +99,41 @@ for ARCH in arm64 x64; do
   xcrun stapler staple "$DMG" >/dev/null 2>&1 && echo "  티켓 부착" || echo "  티켓 부착 실패"
 done
 
+# electron-builder는 DMG를 만든 직후 latest-mac.yml에 해시·크기를 적는다.
+# 그런데 위에서 서명·공증 티켓을 붙이면서 DMG 내용이 바뀌므로 그 값이 어긋난다.
+# 자동 업데이트는 내려받은 파일의 sha512를 대조하므로, 어긋나면 설치가 거부된다.
+# 최종 파일 기준으로 다시 적어준다.
+echo
+echo "── latest-mac.yml 해시 재계산 (서명·공증 후 파일 기준) ──"
+python3 - "$VER" <<'PY'
+import base64, hashlib, os, sys, datetime
+ver = sys.argv[1]
+def digest(p):
+    h = hashlib.sha512()
+    with open(p, 'rb') as f:
+        for chunk in iter(lambda: f.read(1 << 20), b''):
+            h.update(chunk)
+    return base64.b64encode(h.digest()).decode()
+
+entries = []
+for arch in ('x64', 'arm64'):                      # electron-builder와 같은 순서
+    p = f'dist/SshotPin-{ver}-mac-{arch}.dmg'
+    if os.path.exists(p):
+        entries.append((os.path.basename(p), digest(p), os.path.getsize(p)))
+if not entries:
+    sys.exit('dmg를 찾지 못했습니다')
+
+lines = [f'version: {ver}', 'files:']
+for name, sha, size in entries:
+    lines += [f'  - url: {name}', f'    sha512: {sha}', f'    size: {size}']
+stamp = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
+lines += [f'path: {entries[0][0]}', f'sha512: {entries[0][1]}',
+          f"releaseDate: '{stamp}'"]
+open('dist/latest-mac.yml', 'w').write('\n'.join(lines) + '\n')
+for name, sha, size in entries:
+    print(f'  {name}  {size}바이트')
+PY
+
 echo
 echo "── 검증 ──"
 FAIL=0

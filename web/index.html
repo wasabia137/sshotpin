@@ -432,8 +432,9 @@
   </section>
 
   <div class="counts" id="counts" hidden>
-    <span class="count"><span class="clab">Windows</span><span class="cnum" id="cWin">0</span></span>
-    <span class="count"><span class="clab">Mac</span><span class="cnum" id="cMac">0</span></span>
+    <span class="count" id="cVisitBox" hidden><span class="clab">방문자</span><span class="cnum" id="cVisit">0</span></span>
+    <span class="count"><span class="clab">Windows 내려받기</span><span class="cnum" id="cWin">0</span></span>
+    <span class="count"><span class="clab">Mac 내려받기</span><span class="cnum" id="cMac">0</span></span>
   </div>
 
   <footer>
@@ -519,6 +520,49 @@
     .then((r) => r.ok ? r.json() : Promise.reject())
     .then((d) => paint(d.fields.win.integerValue, d.fields.mac.integerValue))
     .catch(() => { /* 못 읽으면 아예 표시하지 않는다 */ });
+
+  // 방문자 수 — 같은 브라우저는 하루에 한 번만 센다 (새로고침으로 부풀지 않게)
+  const FS_VISITS = 'projects/sshot-pin/databases/(default)/documents/stats/visits';
+  const visitBox = document.getElementById('cVisitBox');
+  const visitEl = document.getElementById('cVisit');
+
+  function isFirstVisitToday() {
+    try {
+      const today = new Date().toLocaleDateString('sv-SE');   // 현지 기준 YYYY-MM-DD
+      if (localStorage.getItem('visit_day') === today) return false;
+      localStorage.setItem('visit_day', today);
+    } catch (e) { /* 저장이 막혀 있으면 그냥 센다 */ }
+    return true;
+  }
+
+  const firstToday = isFirstVisitToday();
+
+  fetch(FS + '/stats/visits?key=' + FS_KEY, { cache: 'no-store' })
+    .then((r) => r.ok ? r.json() : Promise.reject())
+    .then((d) => {
+      // 내 방문은 서버 반영을 기다리지 않고 화면에서 바로 더해 보여준다
+      const n = Number(d.fields.total.integerValue) + (firstToday ? 1 : 0);
+      visitEl.textContent = n.toLocaleString('ko-KR');
+      visitBox.hidden = false;
+      countsBox.hidden = false;
+    })
+    .catch(() => { /* 못 읽으면 아예 표시하지 않는다 */ });
+
+  if (firstToday) {
+    fetch(FS + ':commit?key=' + FS_KEY, {
+      method: 'POST',
+      keepalive: true,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        writes: [{
+          transform: {
+            document: FS_VISITS,
+            fieldTransforms: [{ fieldPath: 'total', increment: { integerValue: '1' } }],
+          },
+        }],
+      }),
+    }).catch(() => { /* 실패해도 페이지에는 영향 없다 */ });
+  }
 
   // 같은 브라우저에서 10분 안에 다시 누른 것은 중복으로 보고 세지 않는다
   function tooSoon(platform) {

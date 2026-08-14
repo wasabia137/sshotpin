@@ -22,6 +22,25 @@ service cloud.firestore {
       allow create, delete: if false;
     }
 
+    // 방문자 수 (stats/visits: total)
+    // 누구나 읽을 수 있고, 쓰기는 total을 정확히 1 올리는 것만 허용한다.
+    // 문서가 아직 없을 때 첫 방문자가 만들 수 있도록 create를 열어두되,
+    // 값은 0 또는 1만 허용한다. delete는 막혀 있으므로 한 번만 만들어진다.
+    match /stats/visits {
+      allow read: if true;
+
+      allow create: if request.resource.data.keys().hasOnly(['total'])
+        && request.resource.data.total is int
+        && request.resource.data.total >= 0
+        && request.resource.data.total <= 1;
+
+      allow update: if request.resource.data.keys().hasOnly(['total'])
+        && request.resource.data.total is int
+        && request.resource.data.total == resource.data.total + 1;
+
+      allow delete: if false;
+    }
+
     // 그 밖은 전부 차단
     match /{document=**} {
       allow read, write: if false;
