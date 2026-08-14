@@ -6,7 +6,7 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "dist": "electron-builder --win nsis"
+    "dist": "electron-builder --win --x64"
   },
   "author": "SshotPin (sshot-pin.web.app)",
   "license": "MIT",
@@ -32,7 +32,14 @@
       "assets/**"
     ],
     "win": {
-      "target": "nsis",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
       "icon": "assets/icon.ico",
       "executableName": "스샷핀"
     },
