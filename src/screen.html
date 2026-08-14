@@ -605,14 +605,11 @@
 
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Tab') { e.preventDefault(); tabHeld = true; return; }
-    // Esc = 모드 취소. 그리던 획이 있으면 그것부터 물리고, 없으면 바로 빠져나간다.
+    // Esc = 모드 취소. 그리던 중이든 아니든 언제나 바로 빠져나간다.
+    // (메인 프로세스도 Esc를 가로채 같은 동작을 하므로 둘이 어긋나면 안 된다)
     if (e.key === 'Escape') {
       e.preventDefault();
-      if (drawing) {
-        drawing = false; current = null; frozenOrigin = null;
-        refresh(true);
-        return;
-      }
+      drawing = false; current = null; frozenOrigin = null;
       finish('close');
       return;
     }
