@@ -105,9 +105,13 @@ done
 # 최종 파일 기준으로 다시 적어준다.
 echo
 echo "── latest-mac.yml 해시 재계산 (서명·공증 후 파일 기준) ──"
-python3 - "$VER" <<'PY'
-import base64, hashlib, os, sys, datetime
-ver = sys.argv[1]
+python3 <<'PY'
+import base64, hashlib, os, re, sys
+
+YML = 'dist/latest-mac.yml'
+if not os.path.exists(YML):
+    sys.exit('latest-mac.yml이 없습니다')
+
 def digest(p):
     h = hashlib.sha512()
     with open(p, 'rb') as f:
@@ -115,23 +119,42 @@ def digest(p):
             h.update(chunk)
     return base64.b64encode(h.digest()).decode()
 
-entries = []
-for arch in ('x64', 'arm64'):                      # electron-builder와 같은 순서
-    p = f'dist/SshotPin-{ver}-mac-{arch}.dmg'
-    if os.path.exists(p):
-        entries.append((os.path.basename(p), digest(p), os.path.getsize(p)))
-if not entries:
-    sys.exit('dmg를 찾지 못했습니다')
+# electron-builder가 쓴 파일을 그대로 두고 sha512·size 값만 실제 파일 기준으로 바꾼다.
+# (목록·순서·그 밖의 필드를 건드리지 않아야 zip·dmg가 늘어나도 그대로 따라간다)
+lines = open(YML).read().splitlines()
+cache, cur, changed = {}, None, 0
+for i, line in enumerate(lines):
+    m = re.match(r'^(\s*)-?\s*url:\s*(\S+)\s*$', line)
+    if m:
+        cur = m.group(2)
+        p = os.path.join('dist', cur)
+        cache[cur] = (digest(p), os.path.getsize(p)) if os.path.exists(p) else None
+        if cache[cur] is None:
+            print(f'  ! {cur} 파일을 찾지 못해 건너뜀')
+        continue
+    if cur and cache.get(cur):
+        sha, size = cache[cur]
+        m2 = re.match(r'^(\s*)sha512:\s*(\S+)\s*$', line)
+        if m2:
+            if m2.group(2) != sha: changed += 1
+            lines[i] = f'{m2.group(1)}sha512: {sha}'
+            continue
+        m3 = re.match(r'^(\s*)size:\s*(\d+)\s*$', line)
+        if m3:
+            lines[i] = f'{m3.group(1)}size: {size}'
+            continue
 
-lines = [f'version: {ver}', 'files:']
-for name, sha, size in entries:
-    lines += [f'  - url: {name}', f'    sha512: {sha}', f'    size: {size}']
-stamp = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
-lines += [f'path: {entries[0][0]}', f'sha512: {entries[0][1]}',
-          f"releaseDate: '{stamp}'"]
-open('dist/latest-mac.yml', 'w').write('\n'.join(lines) + '\n')
-for name, sha, size in entries:
-    print(f'  {name}  {size}바이트')
+# 맨 아래 path/sha512는 files 목록과 별개로 한 번 더 적혀 있다
+path = next((l.split(':', 1)[1].strip() for l in lines if l.startswith('path:')), None)
+if path and cache.get(path):
+    for i, line in enumerate(lines):
+        if line.startswith('sha512:'):
+            lines[i] = f'sha512: {cache[path][0]}'
+
+open(YML, 'w').write('\n'.join(lines) + '\n')
+for name, v in cache.items():
+    if v: print(f'  {name}  {v[1]}바이트')
+print(f'  → 해시 {changed}개 바로잡음')
 PY
 
 echo
