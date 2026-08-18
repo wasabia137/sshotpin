@@ -36,9 +36,36 @@ const out = {
   macX64: base + macName('x64'),
 };
 
-const target = join(root, 'web', 'version.json');
-writeFileSync(target, JSON.stringify(out, null, 2) + '\n');
-
+writeFileSync(join(root, 'web', 'version.json'), JSON.stringify(out, null, 2) + '\n');
 console.log(`web/version.json 갱신 — v${version}`);
 for (const k of ['win', 'macArm', 'macX64']) console.log(`  ${k}: ${out[k].slice(base.length)}`);
+
+// HTML에 박혀 있는 값도 같이 맞춘다.
+// 다운로드 링크는 version.json을 못 읽었을 때 쓰는 예비값이고, JSON-LD의
+// softwareVersion·downloadUrl은 검색엔진이 읽는다. 손으로 고치면 9개 언어 중
+// 하나는 반드시 빠지므로 여기서 함께 처리한다.
+const LANGS = ['', 'en', 'ja', 'zh', 'es', 'fr', 'de', 'pt', 'ru'];
+let touched = 0;
+for (const lang of LANGS) {
+  const file = join(root, 'web', lang, 'index.html');
+  const before = readFileSync(file, 'utf8');
+  let after = before
+    .replace(/"softwareVersion": "[^"]*"/, `"softwareVersion": "${version}"`)
+    .replace(/"downloadUrl": "[^"]*"/, `"downloadUrl": "${out.win}"`)
+    .replace(/(id="dlBtn" href=")[^"]*/, `$1${out.win}`)
+    .replace(/(id="dlMacArm" href=")[^"]*/, `$1${out.macArm}`)
+    .replace(/(id="dlMacX64" href=")[^"]*/, `$1${out.macX64}`)
+    .replace(/(<span id="ver">)[^<]*/, `$1v${version}`);
+  if (after !== before) { writeFileSync(file, after); touched++; }
+}
+console.log(`\n웹 페이지 ${touched}/${LANGS.length}개의 예비 링크·버전 표기 갱신`);
+
+// 고쳐야 할 곳이 남아 있으면 알린다 (조용히 지나가면 그 언어만 옛 버전이 된다)
+for (const lang of LANGS) {
+  const file = join(root, 'web', lang, 'index.html');
+  const stale = readFileSync(file, 'utf8').match(/\d+\.\d+\.\d+/g) || [];
+  const other = [...new Set(stale)].filter((v) => v !== version);
+  if (other.length) console.log(`  ! /${lang || ''} 에 다른 버전 문자열: ${other.join(', ')}`);
+}
+
 console.log('\n이 이름의 자산이 깃허브 릴리스에 올라가 있는지 확인한 뒤 웹을 배포하세요.');
