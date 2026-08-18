@@ -23,6 +23,28 @@ ipcMain.on('open-support', () => {
   shell.openExternal(`https://sshot-pin.web.app/${seg}#support`);
 });
 
+// productName을 바꾸면(스샷핀 → Sshot-Pin) Electron의 userData 경로도 함께
+// 바뀐다. 그대로 두면 업데이트한 기존 사용자에게 설정·단축키·저장 폴더·최근
+// 캡처가 통째로 사라진 것처럼 보인다. 새 폴더가 아직 없고 예전 폴더가 있을
+// 때 한 번만 복사해 온다. (지우지 않고 복사만 한다 — 되돌아갈 여지를 남긴다)
+(function migrateUserDataFromOldName() {
+  try {
+    const dir = app.getPath('userData');
+    const old = path.join(path.dirname(dir), '스샷핀');
+    if (!fs.existsSync(old) || fs.existsSync(path.join(dir, 'settings.json'))) return;
+
+    // 폴더째 복사하지 않는다. userData에는 Chromium 캐시와 소켓·잠금 파일이
+    // 섞여 있어 도중에 실패하면 절반만 옮겨진다. 실제로 필요한 둘만 옮긴다.
+    fs.mkdirSync(dir, { recursive: true });
+    const cfg = path.join(old, 'settings.json');
+    if (fs.existsSync(cfg)) fs.copyFileSync(cfg, path.join(dir, 'settings.json'));
+    const hist = path.join(old, 'history');
+    if (fs.existsSync(hist)) fs.cpSync(hist, path.join(dir, 'history'), { recursive: true });
+  } catch (e) {
+    // 옮기지 못해도 앱은 떠야 한다. 기본 설정으로 시작한다.
+  }
+})();
+
 const isMac = process.platform === 'darwin';
 
 // macOS 26에서 화면 캡처 목록을 관리하는 스레드가 스스로 죽는 일이 있었다
@@ -166,7 +188,7 @@ const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 
 function notify(body) {
   if (Notification.isSupported()) {
-    new Notification({ title: '스샷핀', body, silent: true }).show();
+    new Notification({ title: 'Sshot-Pin', body, silent: true }).show();
   }
 }
 
@@ -187,7 +209,7 @@ function currentSaveDir() {
 
 async function saveImageDialog(dataURL, parentWin) {
   const img = nativeImage.createFromDataURL(dataURL);
-  const fileName = `스샷핀_${timestamp()}.png`;
+  const fileName = `Sshot-Pin_${timestamp()}.png`;
 
   // 빠른 저장: 대화상자 없이 지정 폴더에 바로 저장
   if (settings.quickSave) {
@@ -239,7 +261,7 @@ async function grabDisplay(display) {
   const sources = await Promise.race([
     job,
     new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('화면을 읽는 데 너무 오래 걸립니다')), 8000)),
+      setTimeout(() => reject(new Error(tr('화면을 읽는 데 너무 오래 걸립니다'))), 8000)),
   ]);
   const tSources = Date.now() - t0;
   const source =
@@ -724,7 +746,7 @@ async function ensureInApplicationsFolder() {
 
   const { response } = await dialog.showMessageBox({
     type: 'question',
-    title: '스샷핀',
+    title: 'Sshot-Pin',
     message: tr('스샷핀을 응용 프로그램 폴더로 옮길까요?'),
     detail: tr('지금 위치에서 실행하면 맥이 앱을 임시 폴더로 옮겨 화면 기록 권한이 매번 초기화됩니다.\n옮겨두면 권한을 한 번만 허용하면 계속 유지됩니다.'),
     buttons: [tr('옮기기 (추천)'), tr('나중에')],
@@ -976,6 +998,7 @@ function applyLanguage() {
   lang = I18N.resolve(settings.language || app.getLocale());
   tr = I18N.translator(lang);
   rebuildTrayMenu();
+  updateTrayTooltip();
   // 예열해 둔 오버레이는 이전 언어로 그려져 있으니 버리고 새로 준비한다
   for (const kind of ['capture', 'overlay']) {
     if (warm[kind] && !warm[kind].isDestroyed()) warm[kind].destroy();
@@ -1334,7 +1357,7 @@ function popupPinMenu(id) {
       label: tr('클릭 통과 (트레이에서 해제)'),
       click: () => pinSetClickThrough(id, true),
     },
-    { label: p.collapsed ? '펼치기' : '접기 (더블클릭)', click: () => pinToggleCollapse(id) },
+    { label: tr(p.collapsed ? '펼치기' : '접기 (더블클릭)'), click: () => pinToggleCollapse(id) },
     { label: tr('원래 크기·투명도 (0)'), click: () => pinReset(id) },
     { type: 'separator' },
     { label: tr('닫기'), accelerator: 'Esc', click: () => p.win.close() },
@@ -1553,7 +1576,7 @@ function rebuildTrayMenu() {
     { label: tr('🙈 가리개'), accelerator: hk.cover || undefined, click: () => startCapture('cover') },
     { label: tr('🕘 최근 캡처 ({n})', { n: history.length }), click: openHistory, enabled: history.length > 0 },
     { type: 'separator' },
-    { label: pinsHidden ? '핀 모두 보이기' : '핀 모두 숨기기', click: toggleAllPinsVisible, enabled: pins.size > 0 || pinsHidden },
+    { label: tr(pinsHidden ? '핀 모두 보이기' : '핀 모두 숨기기'), click: toggleAllPinsVisible, enabled: pins.size > 0 || pinsHidden },
     { label: tr('핀 모두 닫기'), click: closeAllPins, enabled: pins.size > 0 },
     { label: tr('가리개 모두 닫기'), click: closeAllCovers, enabled: covers.size > 0 },
     { label: tr('클릭 통과 모두 해제'), click: releaseAllClickThrough, enabled: anyClickThrough },
@@ -1574,16 +1597,21 @@ function rebuildTrayMenu() {
     },
     { type: 'separator' },
     { label: tr('업데이트 확인'), click: checkUpdatesManually },
-    { label: `스샷핀 v${app.getVersion()}`, enabled: false },
+    { label: `Sshot-Pin v${app.getVersion()}`, enabled: false },
     { label: tr('종료'), click: () => app.quit() },
   ]);
   tray.setContextMenu(menu);
 }
 
+function updateTrayTooltip() {
+  if (!tray || tray.isDestroyed()) return;
+  tray.setToolTip(`Sshot-Pin — ${tr('아이콘을 우클릭하면 모든 기능과 설정을 볼 수 있어요')}`);
+}
+
 function createTray() {
   const icon = nativeImage.createFromPath(path.join(__dirname, 'assets', 'tray.png'));
   tray = new Tray(icon);
-  tray.setToolTip('스샷핀 — 아이콘을 우클릭하면 모든 기능과 설정을 볼 수 있어요');
+  updateTrayTooltip();
   rebuildTrayMenu();
   tray.on('double-click', () => startCapture('capture'));
 }
@@ -1661,7 +1689,7 @@ async function firstRunFlow() {
 
   const { response } = await dialog.showMessageBox({
     type: 'question',
-    title: '스샷핀',
+    title: 'Sshot-Pin',
     message: tr('컴퓨터를 켤 때 스샷핀을 자동으로 실행할까요?'),
     detail: tr('자동 실행을 켜두면 부팅 후 바로 {c}(캡처), {p}(핀)을 쓸 수 있습니다.\n트레이 메뉴에서 언제든 바꿀 수 있습니다.', { c: settings.hotkeys.capture, p: settings.hotkeys.pin }),
     buttons: [tr('자동 실행 켜기 (추천)'), tr('나중에')],
