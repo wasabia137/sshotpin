@@ -81,44 +81,72 @@
   :root {
     --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --muted: #64748b;
     --line: #e2e8f0; --blue: #2563eb; --blue-dark: #1d4ed8; --chip: #f1f5f9;
+    --g1: #3b82f6; --g2: #8b5cf6;
+    --key-top: #ffffff; --key-bot: #eef2f7; --key-line: #cbd5e1;
+    --glow: .35;
   }
   @media (prefers-color-scheme: dark) {
     :root {
       --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --muted: #94a3b8;
       --line: #334155; --blue: #3b82f6; --blue-dark: #2563eb; --chip: #334155;
+      --key-top: #3b4a61; --key-bot: #27354a; --key-line: #475569;
+      --glow: .22;
     }
   }
   body {
     font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', -apple-system, sans-serif;
     background: var(--bg); color: var(--text);
     line-height: 1.7; -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
   }
-  .wrap { max-width: 880px; margin: 0 auto; padding: 0 20px; }
+  .wrap { max-width: 940px; margin: 0 auto; padding: 0 20px; }
 
-  /* 히어로 */
-  header { padding: 64px 0 48px; text-align: center; }
-  .logo { width: 108px; height: 108px; margin-bottom: 18px; }
-  h1 { font-size: 40px; letter-spacing: -1px; margin-bottom: 10px; }
-  .tagline { font-size: 19px; color: var(--muted); margin-bottom: 6px; }
-  .sub { font-size: 14px; color: var(--muted); margin-bottom: 30px; }
+  /* ---------- 히어로 ---------- */
+  header { position: relative; padding: 72px 0 56px; text-align: center; }
+  /* 은은한 색 번짐 — 첫 화면이 밋밋하지 않게 */
+  header::before {
+    content: ''; position: absolute; inset: -140px -300px auto;
+    height: 560px; pointer-events: none; z-index: -1;
+    background:
+      radial-gradient(420px 300px at 32% 20%, rgba(59, 130, 246, var(--glow)), transparent 70%),
+      radial-gradient(420px 300px at 68% 12%, rgba(139, 92, 246, calc(var(--glow) * .8)), transparent 70%);
+    filter: blur(10px);
+  }
+  .logo { width: 96px; height: 96px; margin-bottom: 16px; filter: drop-shadow(0 10px 24px rgba(59,130,246,.35)); }
+  .badge {
+    display: inline-block; margin-bottom: 14px;
+    font-size: 13px; font-weight: 700; color: var(--blue);
+    background: color-mix(in srgb, var(--blue) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--blue) 30%, transparent);
+    padding: 5px 14px; border-radius: 999px;
+  }
+  h1 { font-size: 46px; letter-spacing: -1.5px; margin-bottom: 10px; }
+  .tagline { font-size: 20px; color: var(--text); margin-bottom: 8px; }
+  .tagline b {
+    background: linear-gradient(90deg, var(--g1), var(--g2));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .sub { font-size: 15px; color: var(--muted); margin-bottom: 26px; }
+  .chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 30px; }
+  .chip {
+    font-size: 13.5px; color: var(--muted);
+    background: var(--card); border: 1px solid var(--line);
+    padding: 6px 13px; border-radius: 999px; white-space: nowrap;
+  }
   .dl {
     display: inline-flex; align-items: center; gap: 10px;
-    background: var(--blue); color: #fff; text-decoration: none;
+    background: linear-gradient(135deg, var(--g1), var(--blue-dark));
+    color: #fff; text-decoration: none;
     font-size: 18px; font-weight: 700;
-    padding: 16px 36px; border-radius: 12px;
-    box-shadow: 0 6px 20px rgba(37, 99, 235, .3);
-    transition: transform .15s, background .15s;
+    padding: 16px 36px; border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(37, 99, 235, .35);
+    transition: transform .15s, box-shadow .15s, filter .15s;
   }
-  .dl:hover { background: var(--blue-dark); transform: translateY(-2px); }
-  .dl-row {
-    display: flex; gap: 12px; justify-content: center;
-    flex-wrap: wrap; align-items: stretch;
-  }
-  .dl-mac {
-    background: #334155; box-shadow: 0 6px 20px rgba(15, 23, 42, .25);
-    border: 0; cursor: pointer; font-family: inherit;
-  }
-  .dl-mac:hover { background: #1e293b; }
+  .dl:hover { filter: brightness(1.08); transform: translateY(-2px); box-shadow: 0 12px 30px rgba(37, 99, 235, .45); }
+  .dl-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; align-items: stretch; }
+  .dl-mac { background: var(--card); color: var(--text); border: 1px solid var(--line);
+    box-shadow: 0 4px 14px rgba(15, 23, 42, .12); cursor: pointer; font-family: inherit; }
+  .dl-mac:hover { filter: none; background: var(--chip); }
   .dl-mac-wrap { position: relative; }
   .dl-menu {
     display: none; position: absolute; top: calc(100% + 8px); left: 0; right: 0;
@@ -127,110 +155,154 @@
     overflow: hidden; z-index: 10;
   }
   .dl-menu.open { display: block; }
-  .dl-menu a {
-    display: block; padding: 12px 16px;
-    color: var(--text); text-decoration: none; font-size: 15px; font-weight: 600;
-    text-align: left;
-  }
+  .dl-menu a { display: block; padding: 12px 16px; color: var(--text); text-decoration: none;
+    font-size: 15px; font-weight: 600; text-align: left; }
   .dl-menu a small { color: var(--muted); font-weight: 400; margin-left: 6px; }
   .dl-menu a + a { border-top: 1px solid var(--line); }
   .dl-menu a:hover { background: var(--chip); }
   .meta { font-size: 13px; color: var(--muted); margin-top: 14px; }
-  .mac-links { margin-top: 8px; }
-  .mac-links a { color: var(--muted); text-decoration: underline; }
-  .mac-links a:hover { color: var(--blue); }
   footer a { color: var(--muted); }
 
-  /* 섹션 */
-  section { padding: 40px 0; border-top: 1px solid var(--line); }
-  h2 { font-size: 22px; margin-bottom: 8px; }
-  .lead { color: var(--muted); font-size: 15px; margin-bottom: 24px; }
-
-  /* 기능 데모 */
-  .demos { display: grid; gap: 18px; margin-bottom: 8px; }
-  .demo {
-    margin: 0;
-    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
-    padding: 10px 12px 14px;
+  /* ---------- 섹션 공통 ---------- */
+  section { padding: 56px 0 8px; }
+  .eyebrow {
+    font-size: 13px; font-weight: 700; letter-spacing: .12em;
+    color: var(--blue); margin-bottom: 6px;
   }
-  .demo video {
+  h2 { font-size: 27px; letter-spacing: -.5px; margin-bottom: 8px; }
+  .lead { color: var(--muted); font-size: 15.5px; margin-bottom: 30px; }
+
+  /* ---------- 핵심 기능 3가지 — 크게, 좌우 교차 ---------- */
+  .feats { display: grid; gap: 44px; margin-bottom: 48px; }
+  .feat { display: grid; grid-template-columns: 7fr 5fr; gap: 30px; align-items: center; }
+  .feat:nth-child(even) .fmedia { order: 2; }
+  .fmedia { margin: 0; }
+  .feat video, .demo video {
     width: 100%; display: block;
-    aspect-ratio: 8 / 5;   /* 로드 전에도 자리를 잡아 레이아웃이 안 흔들린다 */
-    border-radius: 8px;
+    aspect-ratio: 8 / 5;
     background: var(--chip);
   }
-  .demo figcaption { margin-top: 12px; padding: 0 2px; }
+  .feat video {
+    border-radius: 16px; border: 1px solid var(--line);
+    box-shadow: 0 16px 40px rgba(15, 23, 42, .16);
+  }
+  .ftext h3 { font-size: 22px; letter-spacing: -.4px; margin-bottom: 8px; }
+  .ftext p { font-size: 15px; color: var(--muted); }
+  .hk {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 12.5px; font-weight: 400; color: var(--muted);
+    background: var(--chip); border: 1px solid var(--line);
+    padding: 3px 10px; border-radius: 999px; white-space: nowrap;
+    vertical-align: 3px; margin-left: 8px;
+  }
+  .hk kbd { font-size: 11px; padding: 0 5px; min-width: 0; border-bottom-width: 2px; }
+
+  /* ---------- 나머지 기능 — 카드 그리드 ---------- */
+  .demos { display: grid; gap: 18px; margin-bottom: 8px; }
+  .demo {
+    margin: 0; overflow: hidden;
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .demo:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(15, 23, 42, .14); }
+  .demo figcaption { padding: 12px 16px 15px; }
   .demo figcaption b {
     display: flex; align-items: center; justify-content: space-between;
-    gap: 10px; font-size: 15px; color: var(--text); margin-bottom: 2px;
+    gap: 10px; font-size: 15px; color: var(--text); margin-bottom: 3px;
   }
-  .demo .hk {
-    font-weight: 400; font-size: 12px; color: var(--muted);
-    white-space: nowrap; flex-shrink: 0;
-  }
-  .demo .hk kbd { font-size: 11.5px; padding: 1px 6px; }
-  .demo figcaption span { font-size: 13.5px; color: var(--muted); }
-  @media (min-width: 700px) {
-    .demos { grid-template-columns: repeat(2, 1fr); gap: 24px 20px; }
-  }
-  @media (min-width: 1000px) {
-    .demos { grid-template-columns: repeat(3, 1fr); }
-    .demo figcaption b { font-size: 14.5px; }
-    .demo figcaption span { font-size: 13px; }
-  }
+  .demo .hk { margin-left: 0; vertical-align: 0; flex-shrink: 0; }
+  .demo figcaption span.d { font-size: 13.5px; color: var(--muted); display: block; }
+  @media (min-width: 700px) { .demos { grid-template-columns: repeat(2, 1fr); gap: 20px; } }
+  @media (min-width: 1000px) { .demos { grid-template-columns: repeat(3, 1fr); } }
 
-  /* 단축키 표 */
-  .table-scroll { overflow-x: auto; }
-  table {
-    width: 100%; border-collapse: collapse; font-size: 14px;
-    background: var(--card); border-radius: 12px; overflow: hidden;
-    border: 1px solid var(--line);
-  }
-  th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--line); }
-  tr:last-child th, tr:last-child td { border-bottom: 0; }
-  th { width: 190px; color: var(--muted); font-weight: 600; background: var(--chip); }
+  /* ---------- 키보드 키 — 실제 키캡처럼 ---------- */
   kbd {
-    display: inline-block; background: var(--text); color: var(--bg);
-    border-radius: 5px; padding: 2px 8px; font-size: 12.5px; font-family: inherit;
+    display: inline-block; min-width: 26px; text-align: center;
+    background: linear-gradient(180deg, var(--key-top), var(--key-bot));
+    border: 1px solid var(--key-line); border-bottom-width: 3px;
+    border-radius: 7px; padding: 2px 8px;
+    color: var(--text); font-size: 12.5px; font-weight: 700; font-family: inherit;
     margin: 0 1px;
   }
 
-  /* 설치 안내 */
-  ol { padding-left: 22px; }
-  ol li { margin-bottom: 10px; font-size: 15px; }
-  ol li.hl b { color: var(--blue); }
-  .why { font-size: 13px; color: var(--muted); margin-top: 4px; }
-  .faq { display: grid; gap: 12px; }
-  .qa {
-    background: var(--card); border: 1px solid var(--line);
-    border-radius: 12px; padding: 16px 20px;
+  /* ---------- 단축키 카드 ---------- */
+  .hotkeys { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+  .hkcard {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 16px 18px 14px;
   }
+  .hkcard .keys { display: flex; align-items: center; gap: 5px; margin-bottom: 9px; }
+  .hkcard .keys kbd { font-size: 13.5px; padding: 4px 10px; }
+  .hkcard .keys .plus { color: var(--muted); font-size: 13px; }
+  .hkcard b { display: block; font-size: 15.5px; margin-bottom: 2px; }
+  .hkcard .desc { font-size: 13.5px; color: var(--muted); }
+  .fine { font-size: 13.5px; color: var(--muted); margin-top: 16px; }
+
+  /* ---------- 그 밖에 ---------- */
+  .extras { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+  .extra {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 15px 18px;
+  }
+  .extra b { display: block; font-size: 14.5px; margin-bottom: 3px; }
+  .extra p { font-size: 13.5px; color: var(--muted); }
+
+  /* ---------- 설치 안내 ---------- */
+  ol.steps { list-style: none; counter-reset: step; }
+  ol.steps li {
+    counter-increment: step; position: relative;
+    padding-left: 46px; margin-bottom: 16px; font-size: 15px;
+  }
+  ol.steps li::before {
+    content: counter(step);
+    position: absolute; left: 0; top: 1px;
+    width: 30px; height: 30px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--g1), var(--g2));
+    color: #fff; font-weight: 700; font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  ol.steps li.hl b { color: var(--blue); }
+  .why { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+  /* ---------- FAQ ---------- */
+  .faq { display: grid; gap: 12px; }
+  .qa { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px 20px; }
   .qa h3 { font-size: 15.5px; margin-bottom: 6px; }
   .qa p { font-size: 14px; color: var(--muted); }
-  .fine { font-size: 13.5px; color: var(--muted); margin-top: 16px; }
-  /* 다운로드 횟수 */
+
+  /* ---------- 방문·다운로드 수 ---------- */
   .counts {
-    display: flex; justify-content: center; align-items: baseline;
-    gap: 32px; padding: 32px 0; border-top: 1px solid var(--line);
+    display: flex; justify-content: center; align-items: stretch;
+    gap: 12px; padding: 40px 0 8px; flex-wrap: wrap;
   }
   .counts[hidden] { display: none; }
-  .count { white-space: nowrap; }
-  .clab { font-size: 15px; color: var(--muted); }
+  .count {
+    min-width: 150px; text-align: center;
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 14px 22px 12px;
+  }
+  .clab { display: block; font-size: 13px; color: var(--muted); margin-bottom: 2px; }
   .cnum {
-    margin-left: 8px;
-    font-size: 18px; font-weight: 700; color: var(--text);
+    font-size: 24px; font-weight: 700; letter-spacing: -.5px;
     font-variant-numeric: tabular-nums;
+    background: linear-gradient(90deg, var(--g1), var(--g2));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
   }
 
   footer {
-    text-align: center; padding: 40px 0 60px;
+    text-align: center; padding: 44px 0 60px; margin-top: 40px;
     color: var(--muted); font-size: 13px;
     border-top: 1px solid var(--line);
   }
-  @media (max-width: 600px) {
-    h1 { font-size: 30px; }
-    .tagline { font-size: 16px; }
-    th { width: auto; }
+
+  @media (max-width: 720px) {
+    header { padding: 52px 0 40px; }
+    h1 { font-size: 34px; }
+    .tagline { font-size: 17px; }
+    .feat { grid-template-columns: 1fr; gap: 14px; }
+    .feat:nth-child(even) .fmedia { order: 0; }
+    .feats { gap: 36px; }
+    h2 { font-size: 23px; }
   }
 </style>
 </head>
@@ -239,8 +311,18 @@
 
   <header>
     <img class="logo" src="icon.png" alt="스샷핀 아이콘">
+    <div><span class="badge">무료 · 회원가입 없음 · 윈도우/맥</span></div>
     <h1>스샷핀</h1>
-    <p class="tagline">스샷을 콕! 화면에 붙여두는 도구</p>
+    <p class="tagline">스샷을 콕! <b>화면에 붙여두는</b> 캡처 도구</p>
+    <p class="sub">캡처한 화면을 맨 위에 고정하고, 확대하고, 그 위에 바로 그립니다.</p>
+    <div class="chips">
+      <span class="chip">📌 캡처 고정</span>
+      <span class="chip">🔍 화면 확대</span>
+      <span class="chip">✏️ 판서</span>
+      <span class="chip">🙈 정답 가리개</span>
+      <span class="chip">🔲 모자이크</span>
+      <span class="chip">⏱️ 타이머</span>
+    </div>
     <div class="dl-row">
       <a class="dl" id="dlBtn" href="https://github.com/wasabia137/sshotpin/releases/latest/download/SshotPin-Setup-0.7.2.exe">
         ⬇ 윈도우용 다운로드
@@ -257,75 +339,133 @@
   </header>
 
   <section>
-    <h2>기능</h2>
-    <p class="lead">화면을 캡처해 고정하고, 확대하고, 그 위에 그립니다.</p>
+    <div class="eyebrow">핵심 기능</div>
+    <h2>캡처하고, 붙이고, 그 위에 그립니다</h2>
+    <p class="lead">발표·수업·원격 지원 — 화면을 두고 설명하는 모든 자리에서.</p>
+
+    <div class="feats">
+      <div class="feat">
+        <figure class="fmedia demo" style="background:none;border:0">
+          <video data-src="demo-pin.mp4?v=5" autoplay loop muted playsinline preload="none"
+                 data-poster="demo-pin-poster.jpg?v=5" aria-label="캡처해서 화면에 붙이기 동작 화면"></video>
+        </figure>
+        <div class="ftext">
+          <h3>캡처해서 화면에 붙이기<span class="hk"><kbd>Ctrl</kbd>+<kbd>F1</kbd></span></h3>
+          <p>필요한 부분만 드래그해서 찍고 <b>화면 맨 위에 고정</b>합니다. 다른 창을 열어도 위에 남아, 참고 자료를 띄워두고 작업할 수 있습니다. 찍은 자리에서 화살표·형광펜도 바로 얹습니다.</p>
+        </div>
+      </div>
+      <div class="feat">
+        <figure class="fmedia demo" style="background:none;border:0">
+          <video data-src="demo-zoom.mp4?v=5" autoplay loop muted playsinline preload="none"
+                 data-poster="demo-zoom-poster.jpg?v=5" aria-label="화면 확대 동작 화면"></video>
+        </figure>
+        <div class="ftext">
+          <h3>화면 확대<span class="hk"><kbd>Ctrl</kbd>+<kbd>1</kbd></span></h3>
+          <p>마우스 주변을 <b>미끄러지듯 크게</b> 봅니다. 휠로 배율을 조절하고, 마우스를 움직이면 화면이 부드럽게 따라옵니다. 작은 글씨를 보여줄 때 그만입니다.</p>
+        </div>
+      </div>
+      <div class="feat">
+        <figure class="fmedia demo" style="background:none;border:0">
+          <video data-src="demo-draw.mp4?v=5" autoplay loop muted playsinline preload="none"
+                 data-poster="demo-draw-poster.jpg?v=5" aria-label="화면에 그리기 동작 화면"></video>
+        </figure>
+        <div class="ftext">
+          <h3>화면에 그리기<span class="hk"><kbd>Ctrl</kbd>+<kbd>2</kbd></span></h3>
+          <p>화면 위에 바로 <b>밑줄·동그라미·화살표</b>를 긋습니다. 색과 굵기를 바꾸고, 빈 칠판으로 전환할 수도 있습니다. 그린 화면은 핀·복사·저장으로 남깁니다.</p>
+        </div>
+      </div>
+    </div>
 
     <div class="demos">
       <figure class="demo">
-        <video data-src="demo-pin.mp4?v=5" autoplay loop muted playsinline preload="none"
-               data-poster="demo-pin-poster.jpg?v=5" aria-label="캡처해서 화면에 붙이기 동작 화면"></video>
-        <figcaption><b>캡처해서 화면에 붙이기<span class="hk"><kbd>Ctrl</kbd>+<kbd>F1</kbd></span></b><span>필요한 부분만 드래그해서 찍고 화면 맨 위에 고정합니다. 다른 창을 열어도 위에 남습니다. 찍은 자리에서 화살표·형광펜을 바로 얹을 수도 있습니다.</span></figcaption>
-      </figure>
-      <figure class="demo">
-        <video data-src="demo-zoom.mp4?v=5" autoplay loop muted playsinline preload="none"
-               data-poster="demo-zoom-poster.jpg?v=5" aria-label="화면 확대 동작 화면"></video>
-        <figcaption><b>화면 확대<span class="hk"><kbd>Ctrl</kbd>+<kbd>1</kbd></span></b><span>마우스 주변을 크게 봅니다. 휠로 배율을 조절하고, 마우스를 움직이면 화면이 따라옵니다.</span></figcaption>
-      </figure>
-      <figure class="demo">
-        <video data-src="demo-draw.mp4?v=5" autoplay loop muted playsinline preload="none"
-               data-poster="demo-draw-poster.jpg?v=5" aria-label="화면에 그리기 동작 화면"></video>
-        <figcaption><b>화면에 그리기<span class="hk"><kbd>Ctrl</kbd>+<kbd>2</kbd></span></b><span>화면 위에 바로 밑줄·동그라미·화살표를 긋습니다. 색과 굵기를 바꾸고, 빈 칠판으로 전환할 수도 있습니다.</span></figcaption>
-      </figure>
-      <figure class="demo">
         <video data-src="demo-cover.mp4?v=5" autoplay loop muted playsinline preload="none"
                data-poster="demo-cover-poster.jpg?v=5" aria-label="가리개 동작 화면"></video>
-        <figcaption><b>가리개<span class="hk"><kbd>Ctrl</kbd>+<kbd>F3</kbd></span></b><span>보여주지 않을 부분을 덮어두고, 필요한 때 클릭해서 공개합니다. 다시 클릭하면 가려집니다.</span></figcaption>
+        <figcaption><b>가리개<span class="hk"><kbd>Ctrl</kbd>+<kbd>F3</kbd></span></b><span class="d">보여주지 않을 부분을 덮어두고, 필요한 때 클릭해서 공개합니다.</span></figcaption>
       </figure>
       <figure class="demo">
         <video data-src="demo-mosaic.mp4?v=5" autoplay loop muted playsinline preload="none"
                data-poster="demo-mosaic-poster.jpg?v=5" aria-label="모자이크 동작 화면"></video>
-        <figcaption><b>모자이크<span class="hk">그리기 중 <kbd>M</kbd></span></b><span>이름·연락처처럼 가려야 할 정보를 드래그로 덮습니다. 화면을 공유하거나 캡처를 남길 때 씁니다.</span></figcaption>
+        <figcaption><b>모자이크<span class="hk">그리기 중 <kbd>M</kbd></span></b><span class="d">이름·연락처처럼 가려야 할 정보를 드래그로 덮습니다.</span></figcaption>
       </figure>
       <figure class="demo">
         <video data-src="demo-history.mp4?v=5" autoplay loop muted playsinline preload="none"
                data-poster="demo-history-poster.jpg?v=5" aria-label="최근 캡처 다시 꺼내기 동작 화면"></video>
-        <figcaption><b>최근 캡처 다시 꺼내기<span class="hk">퀵바 🕘</span></b><span>최근 24개를 보관합니다. 앞에서 쓴 캡처를 다시 찍지 않고 클릭 한 번으로 붙입니다.</span></figcaption>
+        <figcaption><b>최근 캡처<span class="hk">퀵바 🕘</span></b><span class="d">최근 24개를 보관합니다. 다시 찍지 않고 클릭 한 번으로 붙입니다.</span></figcaption>
       </figure>
       <figure class="demo">
         <video data-src="demo-pinops.mp4?v=5" autoplay loop muted playsinline preload="none"
                data-poster="demo-pinops-poster.jpg?v=5" aria-label="붙여둔 그림 다루기 동작 화면"></video>
-        <figcaption><b>붙여둔 그림 다루기<span class="hk">모퉁이 드래그 · 휠</span></b><span>모퉁이를 끌면 비율을 지키며 크기가 바뀝니다. 휠로도 조절되고, Ctrl+휠은 투명도입니다. 더블클릭하면 작게 접히고, 우클릭하면 테두리·회전·클릭 통과를 고를 수 있습니다.</span></figcaption>
+        <figcaption><b>붙여둔 그림 다루기<span class="hk">모퉁이 드래그</span></b><span class="d">모퉁이로 크기, 휠로 배율, Ctrl+휠로 투명도. 더블클릭하면 접힙니다.</span></figcaption>
       </figure>
       <figure class="demo">
         <video data-src="demo-timer.mp4?v=5" autoplay loop muted playsinline preload="none"
                data-poster="demo-timer-poster.jpg?v=5" aria-label="타이머 동작 화면"></video>
-        <figcaption><b>타이머<span class="hk"><kbd>Ctrl</kbd>+<kbd>3</kbd></span></b><span>남은 시간을 화면에 띄웁니다. 시간을 클릭해 직접 입력하고, 끝나면 소리로 알려줍니다.</span></figcaption>
+        <figcaption><b>타이머<span class="hk"><kbd>Ctrl</kbd>+<kbd>3</kbd></span></b><span class="d">남은 시간을 화면에 띄우고, 끝나면 소리로 알립니다.</span></figcaption>
       </figure>
       <figure class="demo">
         <video data-src="demo-quickbar.mp4?v=5" autoplay loop muted playsinline preload="none"
                data-poster="demo-quickbar-poster.jpg?v=5" aria-label="퀵 실행바 동작 화면"></video>
-        <figcaption><b>퀵 실행바</b><span>화면 위에 떠 있는 버튼바에서 모든 기능을 실행합니다. 원하는 자리로 옮기면 위치를 기억하고, 캡처할 때는 저절로 숨습니다.</span></figcaption>
+        <figcaption><b>퀵 실행바</b><span class="d">떠 있는 버튼바에서 모든 기능을 클릭으로 실행합니다. 캡처할 땐 저절로 숨습니다.</span></figcaption>
       </figure>
     </div>
   </section>
 
   <section>
-    <h2>그 밖에</h2>
-    <div class="table-scroll">
-      <table>
-        <tr><th>단축키 바꾸기</th><td>기본 단축키가 다른 프로그램과 겹치면 원하는 키로 바꾸거나 비워둡니다. 비워둬도 퀵 실행바로 실행합니다.</td></tr>
-        <tr><th>저장 방식 선택</th><td>저장 폴더를 지정해두고, 위치를 묻지 않고 바로 저장하게 할 수 있습니다.</td></tr>
-        <tr><th>클릭 통과</th><td>붙여둔 그림을 깔아둔 채로 그 아래 프로그램을 그대로 조작합니다.</td></tr>
-        <tr><th>시작 시 자동 실행</th><td>컴퓨터를 켜면 트레이에 올라와 바로 쓸 수 있습니다.</td></tr>
-        <tr><th>자동 업데이트</th><td>새 버전이 나오면 알아서 받아둡니다. 직접 확인할 수도 있습니다.</td></tr>
-        <tr><th>오류 기록</th><td>문제가 생기면 기록이 남습니다. 문의할 때 그 파일만 첨부하면 됩니다.</td></tr>
-      </table>
+    <div class="eyebrow">단축키</div>
+    <h2>단축키 한눈에</h2>
+    <p class="lead">외울 건 여섯 개뿐입니다. 겹치면 트레이 → ⚙️ 설정에서 바꾸세요.</p>
+    <div class="hotkeys">
+      <div class="hkcard">
+        <div class="keys"><kbd>Ctrl</kbd><span class="plus">+</span><kbd>F1</kbd></div>
+        <b>영역 캡처</b>
+        <span class="desc">드래그로 찍고 <kbd>Enter</kbd> 하면 화면에 핀</span>
+      </div>
+      <div class="hkcard">
+        <div class="keys"><kbd>Ctrl</kbd><span class="plus">+</span><kbd>F2</kbd></div>
+        <b>클립보드 핀</b>
+        <span class="desc">복사해둔 이미지를 그대로 화면에 핀</span>
+      </div>
+      <div class="hkcard">
+        <div class="keys"><kbd>Ctrl</kbd><span class="plus">+</span><kbd>1</kbd></div>
+        <b>화면 확대·축소</b>
+        <span class="desc">휠·<kbd>↑</kbd><kbd>↓</kbd>로 배율 · <kbd>Esc</kbd>로 종료</span>
+      </div>
+      <div class="hkcard">
+        <div class="keys"><kbd>Ctrl</kbd><span class="plus">+</span><kbd>2</kbd></div>
+        <b>판서</b>
+        <span class="desc"><kbd>Shift</kbd> 직선 · <kbd>Ctrl</kbd> 사각형 · <kbd>Alt</kbd>+클릭 ①②③</span>
+      </div>
+      <div class="hkcard">
+        <div class="keys"><kbd>Ctrl</kbd><span class="plus">+</span><kbd>3</kbd></div>
+        <b>타이머</b>
+        <span class="desc">남은 시간 표시 · 클릭해서 직접 입력</span>
+      </div>
+      <div class="hkcard">
+        <div class="keys"><kbd>Ctrl</kbd><span class="plus">+</span><kbd>F3</kbd></div>
+        <b>가리개</b>
+        <span class="desc">덮어뒀다가 클릭하면 공개, 다시 클릭하면 가림</span>
+      </div>
+    </div>
+    <p class="fine">맥은 <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>1</kbd>·<kbd>2</kbd>·<kbd>3</kbd>을 씁니다.</p>
+  </section>
+
+  <section>
+    <div class="eyebrow">그 밖에</div>
+    <h2>세세한 것도 챙겼습니다</h2>
+    <div class="extras">
+      <div class="extra"><b>단축키 바꾸기</b><p>다른 프로그램과 겹치면 원하는 키로 바꾸거나 비워둡니다. 비워둬도 퀵 실행바로 실행합니다.</p></div>
+      <div class="extra"><b>저장 방식 선택</b><p>저장 폴더를 지정해두고, 위치를 묻지 않고 바로 저장하게 할 수 있습니다.</p></div>
+      <div class="extra"><b>클릭 통과</b><p>붙여둔 그림을 깔아둔 채로 그 아래 프로그램을 그대로 조작합니다.</p></div>
+      <div class="extra"><b>시작 시 자동 실행</b><p>컴퓨터를 켜면 트레이에 올라와 바로 쓸 수 있습니다.</p></div>
+      <div class="extra"><b>자동 업데이트</b><p>새 버전이 나오면 알아서 받아둡니다. 직접 확인할 수도 있습니다.</p></div>
+      <div class="extra"><b>오류 기록</b><p>문제가 생기면 기록이 남습니다. 문의할 때 그 파일만 첨부하면 됩니다.</p></div>
     </div>
   </section>
 
   <section>
+    <div class="eyebrow">시작하기</div>
     <h2>설치 방법</h2>
-    <ol>
+    <ol class="steps">
       <li>위 <b>다운로드</b> 버튼을 눌러 설치파일을 받습니다.</li>
       <li class="hl">받은 <b>SshotPin-Setup.exe</b>를 <b>우클릭 → 속성</b> → 맨 아래 <b>"차단 해제"에 체크</b> → <b>확인</b>
         <div class="why">이걸 하면 윈도우 경고창이 뜨지 않습니다. 건너뛰어도 설치는 됩니다.</div>
@@ -341,26 +481,8 @@
   </section>
 
   <section>
-    <h2>단축키 한눈에</h2>
-    <div class="table-scroll">
-      <table>
-        <tr><th><kbd>Ctrl</kbd>+<kbd>F1</kbd></th><td>영역 캡처 — 드래그 후 <kbd>Enter</kbd>로 화면에 핀</td></tr>
-        <tr><th><kbd>Ctrl</kbd>+<kbd>F2</kbd></th><td>복사해둔 이미지를 화면에 핀</td></tr>
-        <tr><th><kbd>Ctrl</kbd>+<kbd>1</kbd></th><td>화면 확대·축소</td></tr>
-        <tr><th><kbd>Ctrl</kbd>+<kbd>2</kbd></th><td>판서 — <kbd>Shift</kbd>=직선, <kbd>Ctrl</kbd>=사각형, <kbd>Alt</kbd>+클릭=①②③</td></tr>
-        <tr><th><kbd>Ctrl</kbd>+<kbd>3</kbd></th><td>타이머</td></tr>
-        <tr><th><kbd>Ctrl</kbd>+<kbd>F3</kbd></th><td>가리개 — 덮어뒀다가 클릭하면 공개</td></tr>
-      </table>
-    </div>
-    <p class="fine">
-      겹치는 키는 <b>트레이 우클릭 → 설정</b>에서 바꿉니다.
-      맥은 <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>1</kbd>·<kbd>2</kbd>·<kbd>3</kbd>을 씁니다.
-    </p>
-  </section>
-
-  <section>
+    <div class="eyebrow">FAQ</div>
     <h2>자주 묻는 질문</h2>
-    <p class="lead"></p>
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -535,7 +657,9 @@
     return true;
   }
 
-  const firstToday = isFirstVisitToday();
+  // 로컬 미리보기·개발 중 접속은 방문자로 세지 않는다
+  const isLiveSite = location.hostname === 'sshot-pin.web.app';
+  const firstToday = isLiveSite && isFirstVisitToday();
 
   fetch(FS + '/stats/visits?key=' + FS_KEY, { cache: 'no-store' })
     .then((r) => r.ok ? r.json() : Promise.reject())
