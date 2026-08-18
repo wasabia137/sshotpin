@@ -65,6 +65,7 @@
       <button class="tbtn" id="penPlus" title="펜 굵게 (Ctrl+휠 위)">＋</button>
       <div class="sep"></div>
       <button class="tbtn" id="btnMosaic" data-act="mosaic" title="모자이크 — 켜고 드래그하면 그 부분을 가립니다 (M)">🔲</button>
+      <button class="tbtn" id="btnLaser" data-act="laser" title="레이저 포인터 — 그으면 잠시 뒤 사라집니다 (L)">🔴</button>
       <div class="sep"></div>
       <button class="tbtn" data-act="undo" title="한 획 취소 (우클릭 / Ctrl+Z)">↩</button>
       <button class="tbtn" data-act="clear" title="모두 지우기 (E)">🗑</button>
@@ -77,10 +78,10 @@
       <button class="tbtn" data-act="close" title="종료 (Esc)">✕</button>
       <span id="zoomLabel">100%</span>
     </div>
-    <div id="hint">드래그=펜 · Shift=직선 · Ctrl=사각형 · Ctrl+Shift=화살표 · Tab+드래그=원 · Alt+클릭=①번호 · 휠=확대/축소 · Esc=끝내기</div>
+    <div id="hint">드래그=펜 · Shift=직선 · Ctrl=사각형 · Ctrl+Shift=화살표 · Alt+클릭=①번호 · L=레이저 · F5=화면 갱신 · Esc=끝내기</div>
     <div id="hint2" style="display:none; color:#93c5fd">🔲 모자이크 켜짐 — 가릴 부분을 드래그하세요 (버튼을 다시 누르면 끄기)</div>
   </div>
-  <div id="zhint">휠·↑↓ = 배율 &nbsp;·&nbsp; 드래그 = 그리기 &nbsp;·&nbsp; Esc·우클릭 = 끝내기</div>
+  <div id="zhint">휠·↑↓ = 배율 &nbsp;·&nbsp; 드래그 = 그리기 &nbsp;·&nbsp; F5 = 화면 갱신 &nbsp;·&nbsp; Esc·우클릭 = 끝내기</div>
 
 <script>
   const bgCanvas = document.getElementById('bg');
@@ -106,6 +107,9 @@
   let drawing = false;
   let stepSeq = 0;           // 풀이 순서 번호 카운터
   let mosaicMode = false;    // 모자이크 도구 켜짐 여부
+  let laserMode = false;     // 레이저 포인터 — 그으면 잠시 뒤 사라진다
+  const laserStrokes = [];   // {color, width, points, doneAt}
+  const LASER_FADE = 1300;   // 손을 뗀 뒤 사라지기까지 (ms)
   let tabHeld = false;
   let frozenOrigin = null;   // 그리는 동안 팬 고정
 
@@ -132,6 +136,7 @@
     strokes.length = 0;
     current = null; drawing = false; stepSeq = 0;
     mosaicMode = false; board = null; tabHeld = false; frozenOrigin = null;
+    laserMode = false; laserStrokes.length = 0;
     penScreen = 5; color = '#ef4444';
     z = targetZ = 1; smoothOn = true; closeWhenZoomedOut = false;
     zoomTau = TAU_WHEEL;
@@ -157,14 +162,7 @@
       zoomHint.style.opacity = '1';
       setTimeout(() => { zoomHint.style.opacity = '0'; }, 2600);
     }
-    // 원시 비트맵(BGRA)을 그려 넣는다. PNG로 주고받으면 0.5초가 그냥 사라진다.
-    const u = new Uint8ClampedArray(shot.bitmap.buffer || shot.bitmap);
-    for (let i = 0; i < u.length; i += 4) { const b = u[i]; u[i] = u[i + 2]; u[i + 2] = b; }
-    IW = shot.width; IH = shot.height;
-    img.width = IW; img.height = IH;
-    img.getContext('2d').putImageData(new ImageData(u, IW, IH), 0, 0);
-    bgCanvas.width = IW; bgCanvas.height = IH;
-    inkCanvas.width = IW; inkCanvas.height = IH;
+    applyShot(shot);
 
     drawBG();
     drawInk();
@@ -177,6 +175,25 @@
     pendingZoomIn = isZoomMode;
     setTimeout(startZoomIn, 220);
   });
+
+  // 원시 비트맵(BGRA)을 그려 넣는다. PNG로 주고받으면 0.5초가 그냥 사라진다.
+  function applyShot(shot) {
+    const u = new Uint8ClampedArray(shot.bitmap.buffer || shot.bitmap);
+    for (let i = 0; i < u.length; i += 4) { const b = u[i]; u[i] = u[i + 2]; u[i + 2] = b; }
+    IW = shot.width; IH = shot.height;
+    img.width = IW; img.height = IH;
+    img.getContext('2d').putImageData(new ImageData(u, IW, IH), 0, 0);
+    bgCanvas.width = IW; bgCanvas.height = IH;
+    inkCanvas.width = IW; inkCanvas.height = IH;
+  }
+
+  // F5: 오버레이를 잠깐 내리고 화면을 새로 찍어, 배율·판서를 유지한 채 배경만 바꾼다
+  if (window.api.onOverlayRefresh) {
+    window.api.onOverlayRefresh(({ shot }) => {
+      applyShot(shot);
+      refresh(true);
+    });
+  }
 
   let pendingZoomIn = false;
   function startZoomIn() {
@@ -386,10 +403,46 @@
     if (!IW) return;
     ink.setTransform(1, 0, 0, 1, 0, 0);
     ink.clearRect(0, 0, IW, IH);
-    if (!strokes.length && !current) return;
+    if (!strokes.length && !current && !laserStrokes.length) return;
     inkTransform();
     for (const s of strokes) drawStroke(ink, s);
-    if (current) drawStroke(ink, current);
+    if (current && current.type !== 'laser') drawStroke(ink, current);
+    // 레이저: 굵고 옅은 밑칠 + 진한 심 — 손을 뗀 뒤 서서히 사라진다
+    const now = performance.now();
+    for (const s of laserStrokes) drawLaser(s, 1 - (now - s.doneAt) / LASER_FADE);
+    if (current && current.type === 'laser') drawLaser(current, 1);
+  }
+
+  function drawLaser(s, alpha) {
+    if (alpha <= 0) return;
+    ink.save();
+    ink.strokeStyle = s.color;
+    ink.fillStyle = s.color;
+    ink.lineCap = 'round';
+    ink.lineJoin = 'round';
+    ink.globalAlpha = alpha * 0.25;
+    ink.lineWidth = s.width * 2.6;
+    penPath(ink, s.points);
+    ink.globalAlpha = alpha;
+    ink.lineWidth = s.width;
+    penPath(ink, s.points);
+    ink.restore();
+  }
+
+  // 사라지는 동안만 도는 페이드 루프
+  let laserAnim = false;
+  function kickLaser() {
+    if (laserAnim) return;
+    laserAnim = true;
+    requestAnimationFrame(function fade() {
+      const now = performance.now();
+      for (let i = laserStrokes.length - 1; i >= 0; i--) {
+        if (now - laserStrokes[i].doneAt > LASER_FADE) laserStrokes.splice(i, 1);
+      }
+      drawInk();
+      if (laserStrokes.length) requestAnimationFrame(fade);
+      else laserAnim = false;
+    });
   }
 
   // 펜은 방금 늘어난 꼬리만 덧그린다 — 지우고 전부 다시 그리지 않으므로
@@ -415,7 +468,7 @@
   }
 
   // 도구모음은 값이 바뀔 때만 손댄다 (매 프레임 DOM을 건드리면 그만큼 느려진다)
-  let uiZ = -1, uiPen = -1, uiColor = '', uiBoard = '_', uiMosaic = null;
+  let uiZ = -1, uiPen = -1, uiColor = '', uiBoard = '_', uiMosaic = null, uiLaser = null;
   function updateToolbar() {
     if (isZoomMode) return;
     const pz = Math.round(z * 100);
@@ -438,7 +491,15 @@
       document.getElementById('hint').style.display = mosaicMode ? 'none' : '';
       document.getElementById('hint2').style.display = mosaicMode ? '' : 'none';
     }
+    if (laserMode !== uiLaser) {
+      uiLaser = laserMode;
+      document.getElementById('btnLaser').classList.toggle('on', laserMode);
+    }
   }
+
+  // 모자이크와 레이저는 동시에 켤 수 없다
+  function toggleMosaic() { mosaicMode = !mosaicMode; if (mosaicMode) laserMode = false; updateToolbar(); }
+  function toggleLaser() { laserMode = !laserMode; if (laserMode) mosaicMode = false; updateToolbar(); }
 
   // ----- 마우스 -----
 
@@ -460,7 +521,8 @@
     frozenOrigin = origin();
     const p = toImage(e.clientX, e.clientY);
     const width = (penScreen * R()) / z;
-    if (mosaicMode) current = { type: 'mosaic', color, width, x1: p.x, y1: p.y, x2: p.x, y2: p.y };
+    if (laserMode) current = { type: 'laser', color, width: (Math.max(penScreen, 6) * R()) / z, points: [p] };
+    else if (mosaicMode) current = { type: 'mosaic', color, width, x1: p.x, y1: p.y, x2: p.x, y2: p.y };
     else if (tabHeld) current = { type: 'ellipse', color, width, x1: p.x, y1: p.y, x2: p.x, y2: p.y };
     else if (e.ctrlKey && e.shiftKey) current = { type: 'arrow', color, width, x1: p.x, y1: p.y, x2: p.x, y2: p.y };
     else if (e.shiftKey) current = { type: 'line', color, width, x1: p.x, y1: p.y, x2: p.x, y2: p.y };
@@ -472,14 +534,16 @@
   window.addEventListener('mousemove', (e) => {
     if (drawing && current) {
       const p = toImage(e.clientX, e.clientY);
-      if (current.type === 'pen') {
+      if (current.type === 'pen' || current.type === 'laser') {
         const pts = current.points;
         const last = pts[pts.length - 1];
         // 손 떨림 수준의 점은 버린다 (곡선이 매끈해지고 그릴 양도 준다)
         const minStep = Math.max(0.8, current.width * 0.25);
         if (Math.abs(p.x - last.x) + Math.abs(p.y - last.y) < minStep) return;
         pts.push(p);
-        drawPenTail(current);   // 꼬리만 덧그리기 — 전체 다시 그리기 없음
+        // 레이저는 밑칠이 겹치면 얼룩져서 매번 전체를 다시 그린다 (짧아서 싸다)
+        if (current.type === 'laser') refresh(false);
+        else drawPenTail(current);   // 꼬리만 덧그리기 — 전체 다시 그리기 없음
       } else {
         current.x2 = p.x; current.y2 = p.y;
         refresh(false);
@@ -495,7 +559,14 @@
   window.addEventListener('mouseup', (e) => {
     if (e.button !== 0 || !drawing) return;
     drawing = false;
-    if (current) strokes.push(current);
+    if (current && current.type === 'laser') {
+      // 레이저는 획으로 남기지 않고 잠시 뒤 사라진다 (내보내기·undo에서도 제외)
+      current.doneAt = performance.now();
+      laserStrokes.push(current);
+      kickLaser();
+    } else if (current) {
+      strokes.push(current);
+    }
     current = null;
     frozenOrigin = null;
     refresh(true);
@@ -583,7 +654,8 @@
       const act = btn.dataset.act;
       if (act === 'undo') undo();
       else if (act === 'clear') clearAll();
-      else if (act === 'mosaic') { mosaicMode = !mosaicMode; updateToolbar(); }
+      else if (act === 'mosaic') toggleMosaic();
+      else if (act === 'laser') toggleLaser();
       else if (act === 'white') toggleBoard('white');
       else if (act === 'black') toggleBoard('black');
       else finish(act); // pin / copy / save / close
@@ -616,13 +688,15 @@
     // ZoomIt처럼 방향키·+·−로도 배율 조절
     if (e.key === 'ArrowUp' || e.key === '+' || e.key === '=') { e.preventDefault(); zoomStep(true); return; }
     if (e.key === 'ArrowDown' || e.key === '-' || e.key === '_') { e.preventDefault(); zoomStep(false); return; }
+    if (e.key === 'F5') { e.preventDefault(); if (!drawing) window.api.overlayRefresh(); return; }
     if (e.key === 'Enter') { finish('pin'); return; }
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { undo(); return; }
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c') { finish('copy'); return; }
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); finish('save'); return; }
     const k = e.key.toLowerCase();
     if (k === 'e') { clearAll(); return; }
-    if (k === 'm') { mosaicMode = !mosaicMode; updateToolbar(); return; }
+    if (k === 'm') { toggleMosaic(); return; }
+    if (k === 'l') { toggleLaser(); return; }
     if (k === 'w') { toggleBoard('white'); return; }
     if (k === 'k') { toggleBoard('black'); return; }
     if (COLOR_KEYS[k] && !e.ctrlKey && !e.metaKey) { color = COLOR_KEYS[k]; updateToolbar(); return; }

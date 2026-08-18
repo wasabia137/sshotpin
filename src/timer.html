@@ -45,6 +45,10 @@
   #controls {
     display: flex; gap: 6px; padding: 0 12px 12px;
   }
+  /* 자주 쓰는 시간 원클릭 — 누르면 바로 시작 */
+  #presets { display: flex; gap: 6px; padding: 0 12px 8px; }
+  #presets button { padding: 6px 0; font-size: 12.5px; color: #cbd5e1; }
+  #presets button:hover { background: #2563eb; color: #fff; }
   button {
     flex: 1;
     border: 0; border-radius: 8px;
@@ -64,6 +68,13 @@
   </div>
   <div id="time" title="클릭해서 직접 입력">05:00</div>
   <input id="timeInput" placeholder="5:00" title="분:초 또는 분만 입력 (예: 5:30 / 10)">
+  <div id="presets">
+    <button data-min="1">1분</button>
+    <button data-min="3">3분</button>
+    <button data-min="5">5분</button>
+    <button data-min="10">10분</button>
+    <button data-min="15">15분</button>
+  </div>
   <div id="controls">
     <button id="minusBtn">-30초</button>
     <button id="startBtn">▶ 시작</button>
@@ -107,7 +118,7 @@
 
   function setRunning(on) {
     running = on;
-    startBtn.textContent = on ? '⏸ 일시정지' : '▶ 시작';
+    startBtn.textContent = on ? '⏸ 멈춤' : '▶ 시작';
     clearInterval(tick);
     if (on) {
       tick = setInterval(() => {
@@ -135,6 +146,17 @@
     if (!running) remain = total;
     else remain = Math.max(1, remain + sec);
     renderTime();
+  }
+
+  // 프리셋: 시간을 맞추고 곧바로 시작한다
+  for (const btn of document.querySelectorAll('#presets button')) {
+    btn.addEventListener('click', () => {
+      clearAlarm();
+      total = Number(btn.dataset.min) * 60;
+      remain = total;
+      renderTime();
+      setRunning(true);
+    });
   }
 
   document.getElementById('minusBtn').addEventListener('click', () => adjust(-30));

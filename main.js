@@ -873,6 +873,32 @@ async function toggleOverlay(mode) { // 'zoom' | 'draw'
   }
 }
 
+// F5: 오버레이를 잠깐 내리고 화면을 새로 찍어 보낸다 (배율·판서는 렌더러가 유지)
+let overlayRefreshBusy = false;
+ipcMain.on('overlay-refresh', async (e) => {
+  const win = BrowserWindow.fromWebContents(e.sender);
+  if (!win || win !== overlayWin || overlayRefreshBusy) return;
+  overlayRefreshBusy = true;
+  try {
+    const display = screen.getDisplayMatching(overlayDisplay || win.getBounds());
+    win.hide();
+    await hideQuickbarForGrab();
+    // 창이 화면에서 실제로 사라진 뒤에 찍어야 오버레이 자신이 찍히지 않는다
+    await new Promise((r) => setTimeout(r, 150));
+    let shot = null;
+    try { shot = await grabDisplay(display); } catch (err) { log('화면 갱신 실패', err.message); }
+    if (!win.isDestroyed()) {
+      if (shot) win.webContents.send('overlay-refresh-data', { shot });
+      if (isMac) { try { app.focus({ steal: true }); } catch (err) { /* 무시 */ } }
+      win.show();
+      win.focus();
+    }
+    if (!shot) notify('화면을 다시 읽지 못했습니다.');
+  } finally {
+    overlayRefreshBusy = false;
+  }
+});
+
 ipcMain.on('overlay-finish', (e, payload) => {
   const disp = overlayDisplay;
   // 보낸 창 자신을 닫는다 — 변수가 다른 창을 가리켜도 Esc가 항상 통하게
@@ -912,7 +938,7 @@ function toggleTimer() {
   timerWin = new BrowserWindow({
     x: display.bounds.x + display.bounds.width - 300,
     y: display.bounds.y + 60,
-    width: 264, height: 156,
+    width: 264, height: 192,   // 프리셋 버튼 줄만큼 키움
     useContentSize: true,
     frame: false,
     transparent: true,

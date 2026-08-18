@@ -57,6 +57,9 @@ contextBridge.exposeInMainWorld('api', {
   onOverlayInit: (cb) => ipcRenderer.on('overlay-init', (e, d) => cb(d)),
   // 창이 실제로 화면에 뜬 순간 (확대 애니메이션 시작 신호)
   onOverlayShown: (cb) => ipcRenderer.on('overlay-shown', () => cb()),
+  // F5: 화면을 새로 찍어 배경만 갈아끼우기
+  overlayRefresh: () => ipcRenderer.send('overlay-refresh'),
+  onOverlayRefresh: (cb) => ipcRenderer.on('overlay-refresh-data', (e, d) => cb(d)),
   overlayFinish: (payload) => ipcRenderer.send('overlay-finish', payload),
 
   // 정답 가리개
