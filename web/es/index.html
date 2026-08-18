@@ -107,7 +107,7 @@
   .wrap { max-width: 940px; margin: 0 auto; padding: 0 20px; }
 
   /* ---------- 히어로 ---------- */
-  header { position: relative; padding: 72px 0 56px; text-align: center; }
+  header { position: relative; padding: 56px 0 48px; }
   /* 은은한 색 번짐 — 첫 화면이 밋밋하지 않게 */
   header::before {
     content: ''; position: absolute; inset: -140px -300px auto;
@@ -167,6 +167,89 @@
   .dl-menu a:hover { background: var(--chip); }
   .meta { font-size: 13px; color: var(--muted); margin-top: 14px; }
   footer a { color: var(--muted); }
+
+
+  /* ---------- 히어로 (2단: 왼쪽 문구 · 오른쪽 데모) ---------- */
+  .hero-grid {
+    display: grid; grid-template-columns: 1fr; gap: 40px; align-items: center;
+    text-align: left;
+  }
+  .hero-left { display: flex; flex-direction: column; align-items: flex-start; }
+  .hero-left .logo-row { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+  .hero-left .logo { width: 56px; height: 56px; margin: 0; }
+  .hero-left .wordmark { font-size: 30px; font-weight: 800; letter-spacing: -1px; }
+  .hero-left h1 {
+    font-size: 46px; line-height: 1.2; letter-spacing: -1.6px; margin-bottom: 16px;
+    text-wrap: balance;
+  }
+  /* 각 구절은 통째로 줄바꿈되게 — "붙여두/고"처럼 끊기지 않는다 */
+  .hero-left h1 .l { display: inline-block; }
+  .hero-left h1 .grad, .hero-left h1 .l.grad {
+    background: linear-gradient(100deg, var(--g1), var(--g2));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .hero-left .sub { font-size: 16.5px; line-height: 1.65; margin-bottom: 24px; max-width: 44ch; }
+  .hero-left .chips { justify-content: flex-start; margin-bottom: 28px; }
+  .hero-left .dl-row { justify-content: flex-start; flex-wrap: nowrap; }
+  .hero-left .dl { font-size: 16.5px; padding: 15px 28px; white-space: nowrap; }
+  @media (max-width: 420px) { .hero-left .dl-row { flex-wrap: wrap; } }
+  .hero-left .meta { text-align: left; }
+
+  /* 제품 화면을 감싸는 창 목업 — 첫 화면에서 바로 "이런 도구구나"가 보이게 */
+  .shot {
+    position: relative; border-radius: 16px; overflow: hidden;
+    background: var(--card); border: 1px solid var(--line);
+    box-shadow: 0 24px 60px rgba(15, 23, 42, .28), 0 2px 8px rgba(15, 23, 42, .12);
+  }
+  .shot-bar {
+    display: flex; align-items: center; gap: 7px;
+    padding: 10px 14px; background: var(--chip); border-bottom: 1px solid var(--line);
+  }
+  .shot-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .shot .demo-svg { width: 100%; display: block; aspect-ratio: 8 / 5; background: var(--chip); }
+  .shot-cap {
+    position: absolute; left: 14px; bottom: 14px; z-index: 2;
+    display: flex; align-items: center; gap: 7px;
+    background: rgba(15, 23, 42, .82); color: #fff;
+    font-size: 12.5px; font-weight: 600;
+    padding: 7px 13px; border-radius: 999px; backdrop-filter: blur(6px);
+  }
+  .shot-cap kbd {
+    background: rgba(255,255,255,.16); border: 0; color: #fff;
+    font-size: 11px; padding: 1px 6px; border-bottom-width: 1px;
+  }
+  /* 데모를 순서대로 돌려 보여준다 */
+  .shot .slide { display: none; }
+  .shot .slide.on { display: block; }
+  .shot-tabs { display: flex; gap: 6px; justify-content: center; margin-top: 14px; flex-wrap: wrap; }
+  .shot-tab {
+    font-size: 12.5px; color: var(--muted); cursor: pointer;
+    background: transparent; border: 1px solid var(--line); border-radius: 999px;
+    padding: 5px 13px; font-family: inherit; transition: all .15s;
+  }
+  .shot-tab.on { color: #fff; background: var(--blue); border-color: var(--blue); }
+  .shot-tab:hover:not(.on) { background: var(--chip); }
+
+  /* 신뢰 배지 — 숫자 대신 사실로 */
+  .trust {
+    display: flex; flex-wrap: wrap; gap: 18px 26px; margin-top: 30px;
+    padding-top: 24px; border-top: 1px solid var(--line);
+  }
+  .trust-item { display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--muted); }
+  .trust-item b { color: var(--text); font-weight: 700; }
+
+  @media (min-width: 900px) {
+    .hero-grid { grid-template-columns: 1fr 1.1fr; gap: 50px; }
+    .hero-left h1 { font-size: 52px; }
+  }
+  @media (max-width: 899px) {
+    .hero-grid { text-align: center; }
+    .hero-left { align-items: center; }
+    .hero-left .sub { text-align: center; }
+    .hero-left .chips, .hero-left .dl-row { justify-content: center; }
+    .hero-left .meta { text-align: center; }
+    .trust { justify-content: center; }
+  }
 
   /* ---------- 섹션 공통 ---------- */
   section { padding: 56px 0 8px; }
@@ -374,11 +457,15 @@
 <div class="wrap">
 
   <header>
-    <img class="logo" src="../icon.png" alt="Icono de SshotPin">
-    <div><span class="badge">Gratis · Sin registro · Windows/Mac</span></div>
-    <h1>SshotPin</h1>
-    <p class="tagline">Fija capturas <b>encima de tu pantalla</b></p>
-    <p class="sub">Captura tu pantalla, mantenla siempre visible, haz zoom y dibuja justo encima.</p>
+    <div class="hero-grid">
+      <div class="hero-left">
+        <div class="logo-row">
+          <img class="logo" src="../icon.png" alt="Icono de SshotPin">
+          <span class="wordmark">SshotPin</span>
+        </div>
+        <div><span class="badge">Gratis · Sin registro · Windows/Mac</span></div>
+        <h1><span class="l">Captura,</span> <span class="l grad">fija encima,</span> <span class="l">dibuja sobre ello</span></h1>
+        <p class="sub">Mantén cualquier captura <b>fijada como una nota adhesiva</b> sobre todas las ventanas. Sigue visible mientras trabajas, amplía para señalar y dibuja justo encima.</p>
     <div class="chips">
       <span class="chip">📌 Fijar encima</span>
       <span class="chip">🔍 Zoom de pantalla</span>
@@ -399,7 +486,168 @@
         </div>
       </div>
     </div>
-    <p class="meta">Windows 10/11 · macOS · Gratis · <span id="ver">v0.8.1</span></p>
+        <p class="meta">Windows 10/11 · macOS · Gratis · <span id="ver">v0.8.1</span></p>
+      </div>
+
+      <div class="hero-right">
+        <div class="shot" id="heroShot">
+          <div class="shot-bar">
+            <span class="shot-dot" style="background:#ff5f57"></span>
+            <span class="shot-dot" style="background:#febc2e"></span>
+            <span class="shot-dot" style="background:#28c840"></span>
+          </div>
+          <div class="slide on" data-i="0">
+            <svg viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg" class="demo-svg" role="img">
+  <rect width="800" height="500" fill="var(--chip)"/>
+  <g opacity=".55">
+    <rect x="60" y="60" width="680" height="380" rx="10" fill="var(--card)" stroke="var(--line)"/>
+    <circle cx="86" cy="86" r="5" fill="#ff5f57"/><circle cx="104" cy="86" r="5" fill="#febc2e"/><circle cx="122" cy="86" r="5" fill="#28c840"/>
+    <rect x="90" y="130" width="420" height="12" rx="6" fill="var(--line)"/>
+    <rect x="90" y="160" width="560" height="12" rx="6" fill="var(--line)"/>
+    <rect x="90" y="190" width="330" height="12" rx="6" fill="var(--line)"/>
+    <rect x="90" y="300" width="500" height="12" rx="6" fill="var(--line)"/>
+    <rect x="90" y="330" width="380" height="12" rx="6" fill="var(--line)"/>
+  </g>
+  <!-- 선택 영역 → 핀으로 떠오름 -->
+  <g>
+    <rect x="150" y="215" width="300" height="70" rx="8" fill="none" stroke="var(--blue)" stroke-width="3" stroke-dasharray="7 5">
+      <animate attributeName="opacity" values="0;1;1;0;0" dur="5s" repeatCount="indefinite" keyTimes="0;.12;.34;.42;1"/>
+    </rect>
+  </g>
+  <g>
+    <animateTransform attributeName="transform" type="translate"
+      values="0 0; 0 0; 205 -110; 205 -110; 205 -110" dur="5s" repeatCount="indefinite" keyTimes="0;.34;.52;.92;1"/>
+    <rect x="150" y="215" width="300" height="70" rx="8" fill="var(--card)" stroke="var(--blue)" stroke-width="2.5">
+      <animate attributeName="opacity" values="0;0;1;1;1" dur="5s" repeatCount="indefinite" keyTimes="0;.34;.52;.92;1"/>
+    </rect>
+    <rect x="168" y="234" width="180" height="10" rx="5" fill="var(--muted)" opacity=".5">
+      <animate attributeName="opacity" values="0;0;.5;.5;.5" dur="5s" repeatCount="indefinite" keyTimes="0;.34;.52;.92;1"/>
+    </rect>
+    <rect x="168" y="256" width="120" height="10" rx="5" fill="var(--muted)" opacity=".5">
+      <animate attributeName="opacity" values="0;0;.5;.5;.5" dur="5s" repeatCount="indefinite" keyTimes="0;.34;.52;.92;1"/>
+    </rect>
+    <circle cx="450" cy="215" r="11" fill="#ef4444">
+      <animate attributeName="opacity" values="0;0;1;1;1" dur="5s" repeatCount="indefinite" keyTimes="0;.34;.56;.92;1"/>
+    </circle>
+  </g>
+</svg>
+            <div class="shot-cap">Captura y fija encima <kbd>Ctrl</kbd>+<kbd>F1</kbd></div>
+          </div>
+          <div class="slide" data-i="1">
+            <svg viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg" class="demo-svg" role="img">
+  <rect width="800" height="500" fill="var(--chip)"/>
+  <defs>
+    <clipPath id="zclip"><circle cx="400" cy="250" r="120"/></clipPath>
+  </defs>
+  <g opacity=".5">
+    <rect x="80" y="70" width="640" height="360" rx="10" fill="var(--card)" stroke="var(--line)"/>
+    <rect x="110" y="120" width="300" height="9" rx="4.5" fill="var(--line)"/>
+    <rect x="110" y="145" width="420" height="9" rx="4.5" fill="var(--line)"/>
+    <rect x="110" y="170" width="240" height="9" rx="4.5" fill="var(--line)"/>
+    <rect x="110" y="300" width="380" height="9" rx="4.5" fill="var(--line)"/>
+    <rect x="110" y="325" width="300" height="9" rx="4.5" fill="var(--line)"/>
+    <path d="M470 200 L560 340 L380 340 Z" fill="none" stroke="var(--blue)" stroke-width="2.5"/>
+  </g>
+  <!-- 돋보기: 안쪽이 확대되어 보인다 -->
+  <g>
+    <animateTransform attributeName="transform" type="translate"
+      values="-120 -40; 60 30; -40 60; -120 -40" dur="8s" repeatCount="indefinite"/>
+    <g clip-path="url(#zclip)">
+      <rect x="280" y="130" width="240" height="240" fill="var(--card)"/>
+      <g transform="translate(400 250) scale(2.6) translate(-400 -250)" opacity=".95">
+        <rect x="330" y="215" width="140" height="9" rx="4.5" fill="var(--muted)"/>
+        <rect x="330" y="238" width="100" height="9" rx="4.5" fill="var(--muted)"/>
+        <rect x="330" y="261" width="120" height="9" rx="4.5" fill="var(--muted)"/>
+      </g>
+    </g>
+    <circle cx="400" cy="250" r="120" fill="none" stroke="var(--blue)" stroke-width="5"/>
+    <circle cx="400" cy="250" r="120" fill="none" stroke="#fff" stroke-width="1.5" opacity=".5"/>
+  </g>
+</svg>
+            <div class="shot-cap">Zoom suavísimo <kbd>Ctrl</kbd>+<kbd>1</kbd></div>
+          </div>
+          <div class="slide" data-i="2">
+            <svg viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg" class="demo-svg" role="img">
+  <rect width="800" height="500" fill="var(--chip)"/>
+  <g opacity=".5">
+    <rect x="70" y="60" width="660" height="380" rx="10" fill="var(--card)" stroke="var(--line)"/>
+    <rect x="105" y="115" width="340" height="10" rx="5" fill="var(--line)"/>
+    <rect x="105" y="145" width="460" height="10" rx="5" fill="var(--line)"/>
+    <rect x="105" y="255" width="300" height="10" rx="5" fill="var(--line)"/>
+    <rect x="105" y="285" width="420" height="10" rx="5" fill="var(--line)"/>
+    <rect x="105" y="345" width="250" height="10" rx="5" fill="var(--line)"/>
+  </g>
+  <!-- 밑줄 -->
+  <path d="M105 168 L470 168" stroke="#ef4444" stroke-width="5" stroke-linecap="round" fill="none"
+        stroke-dasharray="380" stroke-dashoffset="380">
+    <animate attributeName="stroke-dashoffset" values="380;0;0;380" dur="6s" repeatCount="indefinite" keyTimes="0;.25;.85;1"/>
+  </path>
+  <!-- 동그라미 -->
+  <ellipse cx="300" cy="290" rx="170" ry="42" fill="none" stroke="#22c55e" stroke-width="5"
+           stroke-dasharray="680" stroke-dashoffset="680" transform="rotate(-2 300 290)">
+    <animate attributeName="stroke-dashoffset" values="680;680;0;0;680" dur="6s" repeatCount="indefinite" keyTimes="0;.3;.55;.85;1"/>
+  </ellipse>
+  <!-- 화살표 -->
+  <g stroke="#3b82f6" stroke-width="5" fill="none" stroke-linecap="round">
+    <path d="M610 150 L500 260" stroke-dasharray="160" stroke-dashoffset="160">
+      <animate attributeName="stroke-dashoffset" values="160;160;0;0;160" dur="6s" repeatCount="indefinite" keyTimes="0;.58;.72;.85;1"/>
+    </path>
+    <path d="M500 260 L534 254 M500 260 L506 226" stroke-dasharray="80" stroke-dashoffset="80">
+      <animate attributeName="stroke-dashoffset" values="80;80;0;0;80" dur="6s" repeatCount="indefinite" keyTimes="0;.7;.78;.85;1"/>
+    </path>
+  </g>
+  <!-- 펜 색 팔레트 -->
+  <g transform="translate(300 400)">
+    <rect x="-4" y="-4" width="208" height="42" rx="21" fill="var(--card)" stroke="var(--line)"/>
+    <circle cx="24" cy="17" r="12" fill="#ef4444"/><circle cx="60" cy="17" r="12" fill="#f97316"/>
+    <circle cx="96" cy="17" r="12" fill="#eab308"/><circle cx="132" cy="17" r="12" fill="#22c55e"/>
+    <circle cx="168" cy="17" r="12" fill="#3b82f6"/>
+  </g>
+</svg>
+            <div class="shot-cap">Dibuja en la pantalla <kbd>Ctrl</kbd>+<kbd>2</kbd></div>
+          </div>
+          <div class="slide" data-i="3">
+            <svg viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg" class="demo-svg" role="img">
+  <rect width="800" height="500" fill="var(--chip)"/>
+  <g opacity=".55">
+    <rect x="90" y="70" width="620" height="360" rx="10" fill="var(--card)" stroke="var(--line)"/>
+    <rect x="130" y="125" width="320" height="11" rx="5.5" fill="var(--line)"/>
+    <rect x="130" y="155" width="440" height="11" rx="5.5" fill="var(--line)"/>
+  </g>
+  <!-- 가려진 정답 영역 -->
+  <g>
+    <rect x="130" y="230" width="420" height="120" rx="10" fill="var(--card)" stroke="var(--line)"/>
+    <rect x="160" y="262" width="200" height="12" rx="6" fill="#22c55e" opacity=".75"/>
+    <rect x="160" y="296" width="300" height="12" rx="6" fill="var(--muted)" opacity=".5"/>
+  </g>
+  <!-- 덮개가 열렸다 닫힘 -->
+  <g>
+    <rect x="130" y="230" width="420" height="120" rx="10" fill="#14532d">
+      <animate attributeName="height" values="120;120;0;0;120;120" dur="6s" repeatCount="indefinite" keyTimes="0;.28;.45;.72;.88;1"/>
+    </rect>
+  </g>
+  <circle cx="560" cy="290" r="9" fill="var(--blue)">
+    <animate attributeName="opacity" values=".2;1;.2;.2;1;.2" dur="6s" repeatCount="indefinite" keyTimes="0;.26;.35;.7;.86;1"/>
+  </circle>
+</svg>
+            <div class="shot-cap">Cubre la respuesta <kbd>Ctrl</kbd>+<kbd>F3</kbd></div>
+          </div>
+        </div>
+        <div class="shot-tabs" id="shotTabs">
+        <button class="shot-tab on" data-i="0" type="button">📌 Fijar</button>
+        <button class="shot-tab" data-i="1" type="button">🔍 Zoom</button>
+        <button class="shot-tab" data-i="2" type="button">✏️ Dibujar</button>
+        <button class="shot-tab" data-i="3" type="button">🙈 Cubrir</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="trust">
+        <div class="trust-item"><span>🌍</span><span><b>9 idiomas</b></span></div>
+        <div class="trust-item"><span>🆓</span><span>Totalmente <b>gratis</b> · sin anuncios</span></div>
+        <div class="trust-item"><span>🔓</span><span><b>Código abierto</b></span></div>
+        <div class="trust-item"><span>🔄</span><span><b>Actualización automática</b></span></div>
+    </div>
   </header>
 
   <section>
@@ -953,6 +1201,48 @@
         .finally(() => { gbSend.disabled = false; });
     });
   }
+
+  // ----- 히어로 데모 슬라이드 -----
+  // 첫 화면에서 제품이 실제로 움직이는 걸 보여준다. 4개를 순서대로 돌리되,
+  // 탭을 누르면 그 데모로 가고 자동 전환은 멈춘다(사용자 의도 우선).
+  (function () {
+    const shot = document.getElementById('heroShot');
+    const tabs = document.getElementById('shotTabs');
+    if (!shot || !tabs) return;
+    const slides = [...shot.querySelectorAll('.slide')];
+    const btns = [...tabs.querySelectorAll('.shot-tab')];
+    if (!slides.length) return;
+    let cur = 0, timer = null, auto = true;
+
+    function show(i) {
+      cur = i;
+      slides.forEach((s, n) => s.classList.toggle('on', n === i));
+      btns.forEach((b, n) => b.classList.toggle('on', n === i));
+    }
+
+    function tick() { if (auto) show((cur + 1) % slides.length); }
+
+    btns.forEach((b) => b.addEventListener('click', () => {
+      auto = false; clearInterval(timer);
+      show(Number(b.dataset.i));
+    }));
+
+    // 화면에 보일 때만 돌린다 (스크롤로 지나가면 정지)
+    show(0);
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver((es) => {
+        for (const e of es) {
+          if (e.isIntersecting) {
+            if (auto && !timer) timer = setInterval(tick, 4600);
+          } else {
+            clearInterval(timer); timer = null;
+          }
+        }
+      }, { threshold: 0.2 }).observe(shot);
+    } else if (auto) {
+      timer = setInterval(tick, 4600);
+    }
+  })();
 </script>
 </body>
 </html>
