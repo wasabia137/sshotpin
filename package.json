@@ -1,7 +1,7 @@
 {
   "name": "sshotpin",
   "productName": "스샷핀",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "스샷핀 (SshotPin)",
   "main": "main.js",
   "scripts": {
