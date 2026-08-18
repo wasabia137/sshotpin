@@ -1,0 +1,10 @@
+{
+  "_note": "후원해주신 분들. 여기에 한 줄 추가하면 9개 언어 페이지에 바로 나타납니다. 비어 있으면 섹션 자체가 숨겨집니다.",
+  "_fields": {
+    "name": "표시할 이름 (필수)",
+    "url": "이름에 걸 링크 (선택, https만)",
+    "note": "이름 옆에 붙일 짧은 말 (선택)"
+  },
+  "_example": { "name": "Jane Doe", "url": "https://github.com/janedoe", "note": "☕" },
+  "sponsors": []
+}

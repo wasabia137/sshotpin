@@ -285,6 +285,16 @@
   }
   .hk kbd { font-size: 11px; padding: 0 5px; min-width: 0; border-bottom-width: 2px; }
 
+  /* ---------- 후원해주신 분들 ---------- */
+  .sp-list { display: flex; flex-wrap: wrap; gap: 10px; }
+  .sp-item {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: var(--card); border: 1px solid var(--line); border-radius: 999px;
+    padding: 8px 16px; font-size: 14.5px; color: var(--text); text-decoration: none;
+  }
+  a.sp-item:hover { border-color: var(--blue); color: var(--blue); }
+  .sp-item .sp-note { color: var(--muted); font-size: 13px; }
+
   /* ---------- 나머지 기능 — 카드 그리드 ---------- */
   .demos { display: grid; gap: 18px; margin-bottom: 8px; }
   .demo {
@@ -1290,6 +1300,13 @@
     <a class="dl" style="font-size:15px;padding:12px 24px" href="https://github.com/sponsors/wasabia137" rel="noopener" target="_blank">☕ Поддержать на GitHub</a>
   </section>
 
+  <section id="sponsors" hidden>
+    <div class="eyebrow">СПОНСОРЫ</div>
+    <h2>Спонсоры</h2>
+    <p class="lead">Те, кто помогает Sshot-Pin оставаться бесплатным и без рекламы. Спасибо.</p>
+    <div class="sp-list" id="spList"></div>
+  </section>
+
   <section id="guestbook">
     <div class="eyebrow">ГОСТЕВАЯ КНИГА</div>
     <h2>Написать разработчику</h2>
@@ -1654,6 +1671,32 @@
     } else {
       queue();
     }
+  })();
+
+  // 후원해주신 분들 — sponsors.json에 이름을 적으면 9개 언어에 함께 나타난다.
+  // 한 명도 없으면 섹션을 통째로 감춘다(빈 제목만 남는 것보다 낫다).
+  (function () {
+    const sec = document.getElementById('sponsors');
+    const box = document.getElementById('spList');
+    if (!sec || !box) return;
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    fetch('/sponsors.json', { cache: 'no-store' })
+      .then((r) => r.ok ? r.json() : Promise.reject())
+      .then((d) => {
+        const list = (d.sponsors || []).filter((s) => s && s.name);
+        if (!list.length) return;
+        box.innerHTML = list.map((s) => {
+          const note = s.note ? `<span class="sp-note">${esc(s.note)}</span>` : '';
+          const body = `${esc(s.name)}${note}`;
+          // 링크는 https만 허용한다 (javascript: 같은 것이 섞이지 않게)
+          return /^https:\/\//.test(s.url || '')
+            ? `<a class="sp-item" href="${esc(s.url)}" rel="noopener nofollow" target="_blank">${body}</a>`
+            : `<span class="sp-item">${body}</span>`;
+        }).join('');
+        sec.hidden = false;
+      })
+      .catch(() => { /* 없으면 그냥 숨긴 채로 둔다 */ });
   })();
 </script>
 </body>
