@@ -265,12 +265,12 @@
   .feat { display: grid; grid-template-columns: 7fr 5fr; gap: 30px; align-items: center; }
   .feat:nth-child(even) .fmedia { order: 2; }
   .fmedia { margin: 0; }
-  .feat video, .demo video {
+  .feat .fdemo, .demo .fdemo, .feat video, .demo video {
     width: 100%; display: block;
     aspect-ratio: 8 / 5;
     background: var(--chip);
   }
-  .feat video {
+  .feat .fdemo, .feat video {
     border-radius: 16px; border: 1px solid var(--line);
     box-shadow: 0 16px 40px rgba(15, 23, 42, .16);
   }
@@ -716,8 +716,58 @@
     <div class="feats">
       <div class="feat">
         <figure class="fmedia demo" style="background:none;border:0">
-          <video data-src="../demo-pin.mp4?v=5" autoplay loop muted playsinline preload="none"
-                 data-poster="../demo-pin-poster.jpg?v=5" aria-label="Demo: Aufnehmen und Anheften"></video>
+          <svg class="fdemo" viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Demo: Aufnehmen und Anheften">
+  <defs>
+    <filter id="pinShadowF" x="-30%" y="-30%" width="170%" height="180%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#0f172a" flood-opacity=".38"/>
+    </filter>
+  </defs>
+  <rect width="800" height="500" fill="var(--chip)"/>
+
+  <!-- 바탕 문서 -->
+  <g opacity=".5">
+    <rect x="60" y="55" width="680" height="390" rx="10" fill="var(--card)" stroke="var(--line)"/>
+    <circle cx="86" cy="81" r="5" fill="#ff5f57"/><circle cx="104" cy="81" r="5" fill="#febc2e"/><circle cx="122" cy="81" r="5" fill="#28c840"/>
+    <rect x="92" y="125" width="420" height="12" rx="6" fill="var(--line)"/>
+    <rect x="92" y="155" width="560" height="12" rx="6" fill="var(--line)"/>
+    <rect x="92" y="185" width="330" height="12" rx="6" fill="var(--line)"/>
+    <rect x="92" y="305" width="500" height="12" rx="6" fill="var(--line)"/>
+    <rect x="92" y="335" width="380" height="12" rx="6" fill="var(--line)"/>
+    <rect x="92" y="365" width="440" height="12" rx="6" fill="var(--line)"/>
+  </g>
+
+  <!-- 캡처할 영역 -->
+  <rect x="150" y="215" width="300" height="72" rx="8" fill="none" stroke="var(--blue)" stroke-width="3" stroke-dasharray="7 5" opacity="0">
+    <animate attributeName="opacity" values="0;1;1;0;0" dur="7s" repeatCount="indefinite" keyTimes="0;.06;.18;.24;1"/>
+  </rect>
+
+  <!-- 나중에 연 다른 창 -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0" dur="7s" repeatCount="indefinite" keyTimes="0;.4;.46;.92;1"/>
+    <animateTransform attributeName="transform" type="translate"
+      values="0 470;0 470;0 0;0 0;0 470" dur="7s" repeatCount="indefinite" keyTimes="0;.4;.54;.92;1"
+      calcMode="spline" keySplines="0 0 1 1;.16 .8 .3 1;0 0 1 1;.4 0 .8 .4"/>
+    <rect x="150" y="150" width="600" height="330" rx="10" fill="var(--card)" stroke="var(--line)" filter="url(#pinShadowF)"/>
+    <rect x="150" y="150" width="600" height="42" rx="10" fill="var(--chip)"/>
+    <rect x="185" y="240" width="360" height="12" rx="6" fill="var(--line)"/>
+    <rect x="185" y="273" width="470" height="12" rx="6" fill="var(--line)"/>
+    <rect x="185" y="335" width="300" height="12" rx="6" fill="var(--line)"/>
+    <rect x="185" y="368" width="420" height="12" rx="6" fill="var(--line)"/>
+  </g>
+
+  <!-- 핀 — 마지막에 그려서 언제나 맨 위 -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0" dur="7s" repeatCount="indefinite" keyTimes="0;.18;.26;.94;1"/>
+    <animateTransform attributeName="transform" type="translate"
+      values="0 0;0 0;262 -46;262 -46" dur="7s" repeatCount="indefinite" keyTimes="0;.19;.34;1"
+      calcMode="spline" keySplines="0 0 1 1;.16 .8 .3 1;0 0 1 1"/>
+    <rect x="150" y="215" width="300" height="72" rx="8" fill="var(--card)" stroke="var(--blue)" stroke-width="2.5" filter="url(#pinShadowF)"/>
+    <rect x="170" y="236" width="180" height="10" rx="5" fill="var(--muted)" opacity=".55"/>
+    <rect x="170" y="258" width="120" height="10" rx="5" fill="var(--muted)" opacity=".55"/>
+    <circle cx="450" cy="215" r="11" fill="#ef4444"/>
+    <circle cx="450" cy="215" r="4" fill="#fff" opacity=".6"/>
+  </g>
+</svg>
         </figure>
         <div class="ftext">
           <h3>Aufnehmen & vorn anheften<span class="hk"><kbd>Strg</kbd><span class="plus">+</span><kbd>F1</kbd></span></h3>
@@ -726,8 +776,46 @@
       </div>
       <div class="feat">
         <figure class="fmedia demo" style="background:none;border:0">
-          <video data-src="../demo-zoom.mp4?v=5" autoplay loop muted playsinline preload="none"
-                 data-poster="../demo-zoom-poster.jpg?v=5" aria-label="Demo: Bildschirm-Zoom"></video>
+          <svg class="fdemo" viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Demo: Bildschirm-Zoom">
+  <defs>
+    <clipPath id="zscreenF"><rect x="80" y="60" width="640" height="380" rx="10"/></clipPath>
+  </defs>
+  <rect width="800" height="500" fill="var(--chip)"/>
+  <rect x="80" y="60" width="640" height="380" rx="10" fill="var(--card)" stroke="var(--line)"/>
+
+  <!-- 화면 내용 전체가 초점(455,205)을 중심으로 확대된다 -->
+  <g clip-path="url(#zscreenF)">
+    <g transform="translate(455 205)">
+      <g>
+        <animateTransform attributeName="transform" type="scale"
+          values="1;1;2.15;2.15;1;1" dur="6.5s" repeatCount="indefinite" keyTimes="0;.06;.34;.66;.94;1"
+          calcMode="spline" keySplines="0 0 1 1;.25 .1 .25 1;0 0 1 1;.25 .1 .25 1;0 0 1 1"/>
+        <g transform="translate(-455 -205)">
+          <rect x="120" y="108" width="300" height="11" rx="5.5" fill="var(--line)"/>
+          <rect x="120" y="137" width="430" height="11" rx="5.5" fill="var(--line)"/>
+          <rect x="120" y="166" width="360" height="11" rx="5.5" fill="var(--line)"/>
+          <rect x="120" y="199" width="230" height="11" rx="5.5" fill="var(--line)"/>
+          <rect x="120" y="229" width="180" height="11" rx="5.5" fill="var(--line)"/>
+          <rect x="380" y="198" width="150" height="13" rx="6.5" fill="var(--blue)"/>
+          <rect x="380" y="228" width="105" height="13" rx="6.5" fill="var(--muted)" opacity=".55"/>
+          <rect x="120" y="262" width="410" height="11" rx="5.5" fill="var(--line)"/>
+          <rect x="120" y="291" width="270" height="11" rx="5.5" fill="var(--line)"/>
+          <rect x="120" y="330" width="380" height="11" rx="5.5" fill="var(--line)"/>
+          <rect x="120" y="359" width="300" height="11" rx="5.5" fill="var(--line)"/>
+          <rect x="120" y="388" width="420" height="11" rx="5.5" fill="var(--line)"/>
+        </g>
+      </g>
+    </g>
+  </g>
+
+  <!-- 마우스가 가리킨 곳이 확대의 중심 -->
+  <g transform="translate(455 205)">
+    <circle r="26" fill="var(--blue)" opacity="0">
+      <animate attributeName="opacity" values="0;.22;0;0" dur="6.5s" repeatCount="indefinite" keyTimes="0;.1;.28;1"/>
+    </circle>
+    <path d="M0 0 L0 26 L7 19 L12 30 L18 27 L13 17 L22 16 Z" fill="var(--text)" stroke="var(--card)" stroke-width="1.6" stroke-linejoin="round"/>
+  </g>
+</svg>
         </figure>
         <div class="ftext">
           <h3>Bildschirm-Zoom<span class="hk"><kbd>Strg</kbd><span class="plus">+</span><kbd>1</kbd></span></h3>
@@ -736,8 +824,73 @@
       </div>
       <div class="feat">
         <figure class="fmedia demo" style="background:none;border:0">
-          <video data-src="../demo-draw.mp4?v=5" autoplay loop muted playsinline preload="none"
-                 data-poster="../demo-draw-poster.jpg?v=5" aria-label="Demo: Zeichnen am Bildschirm"></video>
+          <svg class="fdemo" viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Demo: Zeichnen am Bildschirm">
+  <rect width="800" height="500" fill="var(--chip)"/>
+  <g opacity=".5">
+    <rect x="70" y="60" width="660" height="380" rx="10" fill="var(--card)" stroke="var(--line)"/>
+    <rect x="105" y="115" width="340" height="10" rx="5" fill="var(--line)"/>
+    <rect x="105" y="145" width="460" height="10" rx="5" fill="var(--line)"/>
+    <rect x="105" y="255" width="300" height="10" rx="5" fill="var(--line)"/>
+    <rect x="105" y="285" width="420" height="10" rx="5" fill="var(--line)"/>
+    <rect x="105" y="345" width="250" height="10" rx="5" fill="var(--line)"/>
+    <rect x="105" y="375" width="360" height="10" rx="5" fill="var(--line)"/>
+  </g>
+
+  <!-- 밑줄 -->
+  <path d="M105 172 L470 172" stroke="#ef4444" stroke-width="5" stroke-linecap="round" fill="none"
+        stroke-dasharray="365" stroke-dashoffset="365" opacity="0">
+    <animate attributeName="stroke-dashoffset" values="365;0;0;0" dur="6.5s" repeatCount="indefinite" keyTimes="0;.22;.88;1"/>
+    <animate attributeName="opacity" values="0;1;1;0;0" dur="6.5s" repeatCount="indefinite" keyTimes="0;.02;.88;.95;1"/>
+  </path>
+  <!-- 동그라미 — 펜이 따라갈 수 있도록 ellipse 대신 path로 그린다 -->
+  <path id="dCircleF" d="M470 300 A170 42 0 0 1 130 300 A170 42 0 0 1 470 300"
+        transform="rotate(-2 300 300)" fill="none" stroke="#22c55e" stroke-width="5" stroke-linecap="round"
+        stroke-dasharray="730" stroke-dashoffset="730" opacity="0">
+    <animate attributeName="stroke-dashoffset" values="730;730;0;0" dur="6.5s" repeatCount="indefinite" keyTimes="0;.28;.52;1"/>
+    <animate attributeName="opacity" values="0;0;1;1;0;0" dur="6.5s" repeatCount="indefinite" keyTimes="0;.28;.30;.88;.95;1"/>
+  </path>
+  <!-- 화살표 -->
+  <g stroke="#3b82f6" stroke-width="5" fill="none" stroke-linecap="round">
+    <path d="M640 140 L520 252" stroke-dasharray="164" stroke-dashoffset="164" opacity="0">
+      <animate attributeName="stroke-dashoffset" values="164;164;0;0" dur="6.5s" repeatCount="indefinite" keyTimes="0;.56;.70;1"/>
+      <animate attributeName="opacity" values="0;0;1;1;0;0" dur="6.5s" repeatCount="indefinite" keyTimes="0;.56;.58;.88;.95;1"/>
+    </path>
+    <path d="M520 252 L555 247 M520 252 L525 217" stroke-dasharray="80" stroke-dashoffset="80" opacity="0">
+      <animate attributeName="stroke-dashoffset" values="80;80;0;0" dur="6.5s" repeatCount="indefinite" keyTimes="0;.69;.76;1"/>
+      <animate attributeName="opacity" values="0;0;1;1;0;0" dur="6.5s" repeatCount="indefinite" keyTimes="0;.69;.70;.88;.95;1"/>
+    </path>
+  </g>
+
+  <!-- 획을 긋는 동안에만 펜이 보인다 (획 사이 순간이동이 보이지 않게) -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;1;1;0;0" dur="6.5s" repeatCount="indefinite" keyTimes="0;.02;.22;.25;1"/>
+    <animateMotion dur="6.5s" repeatCount="indefinite" path="M105 172 L470 172"
+      calcMode="linear" keyPoints="0;1;1" keyTimes="0;.22;1"/>
+    <g transform="rotate(-32)">
+      <rect x="-6.5" y="-50" width="13" height="42" rx="6" fill="var(--text)"/>
+      <path d="M-6.5 -9 L6.5 -9 L0 3 Z" fill="#ef4444"/>
+    </g>
+  </g>
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" dur="6.5s" repeatCount="indefinite" keyTimes="0;.27;.29;.52;.55;1"/>
+    <animateMotion dur="6.5s" repeatCount="indefinite" calcMode="linear" keyPoints="0;0;1;1" keyTimes="0;.28;.52;1">
+      <mpath href="#dCircleF"/>
+    </animateMotion>
+    <g transform="rotate(-32)">
+      <rect x="-6.5" y="-50" width="13" height="42" rx="6" fill="var(--text)"/>
+      <path d="M-6.5 -9 L6.5 -9 L0 3 Z" fill="#22c55e"/>
+    </g>
+  </g>
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" dur="6.5s" repeatCount="indefinite" keyTimes="0;.55;.57;.70;.73;1"/>
+    <animateMotion dur="6.5s" repeatCount="indefinite" path="M640 140 L520 252"
+      calcMode="linear" keyPoints="0;0;1;1" keyTimes="0;.56;.70;1"/>
+    <g transform="rotate(-32)">
+      <rect x="-6.5" y="-50" width="13" height="42" rx="6" fill="var(--text)"/>
+      <path d="M-6.5 -9 L6.5 -9 L0 3 Z" fill="#3b82f6"/>
+    </g>
+  </g>
+</svg>
         </figure>
         <div class="ftext">
           <h3>Am Bildschirm zeichnen<span class="hk"><kbd>Strg</kbd><span class="plus">+</span><kbd>2</kbd></span></h3>
@@ -748,33 +901,216 @@
 
     <div class="demos">
       <figure class="demo">
-        <video data-src="../demo-cover.mp4?v=5" autoplay loop muted playsinline preload="none"
-               data-poster="../demo-cover-poster.jpg?v=5" aria-label="Demo: Abdeckung"></video>
+        <svg class="fdemo" viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Demo: Abdeckung">
+  <rect width="800" height="500" fill="var(--chip)"/>
+  <rect x="90" y="60" width="620" height="380" rx="10" fill="var(--card)" stroke="var(--line)"/>
+  <g opacity=".5">
+    <rect x="130" y="112" width="330" height="12" rx="6" fill="var(--line)"/>
+    <rect x="130" y="144" width="450" height="12" rx="6" fill="var(--line)"/>
+  </g>
+
+  <!-- 정답 -->
+  <g>
+    <rect x="130" y="215" width="440" height="130" rx="10" fill="var(--chip)" stroke="var(--line)"/>
+    <rect x="162" y="252" width="230" height="14" rx="7" fill="#22c55e"/>
+    <rect x="162" y="288" width="330" height="14" rx="7" fill="var(--muted)" opacity=".5"/>
+  </g>
+
+  <!-- 가리개가 오른쪽부터 걷힌다 -->
+  <rect x="130" y="215" width="440" height="130" rx="10" fill="#14532d">
+    <animate attributeName="width" values="440;440;0;0;440;440" dur="6.5s" repeatCount="indefinite"
+      keyTimes="0;.28;.42;.72;.86;1" calcMode="spline"
+      keySplines="0 0 1 1;.3 0 .2 1;0 0 1 1;.3 0 .2 1;0 0 1 1"/>
+  </rect>
+
+  <!-- 클릭 -->
+  <g transform="translate(350 275)">
+    <circle r="0" fill="var(--blue)">
+      <animate attributeName="r" values="0;0;36;0;0;36;0" dur="6.5s" repeatCount="indefinite" keyTimes="0;.24;.34;.35;.8;.9;1"/>
+      <animate attributeName="opacity" values="0;.45;0;0;.45;0;0" dur="6.5s" repeatCount="indefinite" keyTimes="0;.24;.34;.8;.81;.9;1"/>
+    </circle>
+    <path d="M0 0 L0 26 L7 19 L12 30 L18 27 L13 17 L22 16 Z" fill="var(--text)" stroke="var(--card)" stroke-width="1.6" stroke-linejoin="round"/>
+  </g>
+</svg>
         <figcaption><b>Abdeckung<span class="hk"><kbd>Strg</kbd><span class="plus">+</span><kbd>F3</kbd></span></b><span class="d">Antwort verdecken und im richtigen Moment per Klick aufdecken.</span></figcaption>
       </figure>
       <figure class="demo">
-        <video data-src="../demo-mosaic.mp4?v=5" autoplay loop muted playsinline preload="none"
-               data-poster="../demo-mosaic-poster.jpg?v=5" aria-label="Demo: Mosaik"></video>
+        <svg class="fdemo" viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Demo: Mosaik">
+  <rect width="800" height="500" fill="var(--chip)"/>
+  <rect x="70" y="60" width="660" height="380" rx="12" fill="var(--card)" stroke="var(--line)"/>
+  <g opacity=".5">
+    <rect x="110" y="110" width="330" height="11" rx="5.5" fill="var(--line)"/>
+    <rect x="110" y="140" width="470" height="11" rx="5.5" fill="var(--line)"/>
+    <rect x="110" y="170" width="250" height="11" rx="5.5" fill="var(--line)"/>
+    <rect x="110" y="330" width="400" height="11" rx="5.5" fill="var(--line)"/>
+    <rect x="110" y="360" width="300" height="11" rx="5.5" fill="var(--line)"/>
+  </g>
+  <!-- 가려야 할 정보 -->
+  <g>
+    <rect x="110" y="218" width="210" height="15" rx="7.5" fill="var(--muted)"/>
+    <rect x="110" y="256" width="160" height="15" rx="7.5" fill="var(--muted)"/>
+    <animate attributeName="opacity" values="1;1;0;0;1" dur="6s" repeatCount="indefinite" keyTimes="0;.42;.46;.9;1"/>
+  </g>
+  <!-- 드래그 -->
+  <rect x="96" y="204" width="0" height="76" rx="4" fill="var(--blue)" fill-opacity=".12"
+        stroke="var(--blue)" stroke-width="2.5" stroke-dasharray="7 5" opacity="0">
+    <animate attributeName="width" values="0;0;300;300;0;0" dur="6s" repeatCount="indefinite" keyTimes="0;.1;.4;.46;.5;1"/>
+    <animate attributeName="opacity" values="0;1;1;0;0" dur="6s" repeatCount="indefinite" keyTimes="0;.12;.42;.48;1"/>
+  </rect>
+  <!-- 부서진 결과 -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0" dur="6s" repeatCount="indefinite" keyTimes="0;.44;.5;.9;1"/>
+    <rect x="96" y="204" width="24" height="24" fill="var(--muted)" opacity="0.55"/><rect x="121" y="204" width="24" height="24" fill="var(--muted)" opacity="0.3"/><rect x="146" y="204" width="24" height="24" fill="var(--muted)" opacity="0.75"/><rect x="171" y="204" width="24" height="24" fill="var(--muted)" opacity="0.42"/><rect x="196" y="204" width="24" height="24" fill="var(--muted)" opacity="0.62"/><rect x="221" y="204" width="24" height="24" fill="var(--muted)" opacity="0.35"/><rect x="246" y="204" width="24" height="24" fill="var(--muted)" opacity="0.5"/><rect x="271" y="204" width="24" height="24" fill="var(--muted)" opacity="0.7"/><rect x="296" y="204" width="24" height="24" fill="var(--muted)" opacity="0.28"/><rect x="321" y="204" width="24" height="24" fill="var(--muted)" opacity="0.58"/><rect x="346" y="204" width="24" height="24" fill="var(--muted)" opacity="0.38"/><rect x="371" y="204" width="24" height="24" fill="var(--muted)" opacity="0.66"/><rect x="96" y="229" width="24" height="24" fill="var(--muted)" opacity="0.55"/><rect x="121" y="229" width="24" height="24" fill="var(--muted)" opacity="0.3"/><rect x="146" y="229" width="24" height="24" fill="var(--muted)" opacity="0.75"/><rect x="171" y="229" width="24" height="24" fill="var(--muted)" opacity="0.42"/><rect x="196" y="229" width="24" height="24" fill="var(--muted)" opacity="0.62"/><rect x="221" y="229" width="24" height="24" fill="var(--muted)" opacity="0.35"/><rect x="246" y="229" width="24" height="24" fill="var(--muted)" opacity="0.5"/><rect x="271" y="229" width="24" height="24" fill="var(--muted)" opacity="0.7"/><rect x="296" y="229" width="24" height="24" fill="var(--muted)" opacity="0.28"/><rect x="321" y="229" width="24" height="24" fill="var(--muted)" opacity="0.58"/><rect x="346" y="229" width="24" height="24" fill="var(--muted)" opacity="0.38"/><rect x="371" y="229" width="24" height="24" fill="var(--muted)" opacity="0.66"/><rect x="96" y="254" width="24" height="24" fill="var(--muted)" opacity="0.55"/><rect x="121" y="254" width="24" height="24" fill="var(--muted)" opacity="0.3"/><rect x="146" y="254" width="24" height="24" fill="var(--muted)" opacity="0.75"/><rect x="171" y="254" width="24" height="24" fill="var(--muted)" opacity="0.42"/><rect x="196" y="254" width="24" height="24" fill="var(--muted)" opacity="0.62"/><rect x="221" y="254" width="24" height="24" fill="var(--muted)" opacity="0.35"/><rect x="246" y="254" width="24" height="24" fill="var(--muted)" opacity="0.5"/><rect x="271" y="254" width="24" height="24" fill="var(--muted)" opacity="0.7"/><rect x="296" y="254" width="24" height="24" fill="var(--muted)" opacity="0.28"/><rect x="321" y="254" width="24" height="24" fill="var(--muted)" opacity="0.58"/><rect x="346" y="254" width="24" height="24" fill="var(--muted)" opacity="0.38"/><rect x="371" y="254" width="24" height="24" fill="var(--muted)" opacity="0.66"/>
+  </g>
+  <g>
+    <animateMotion dur="6s" repeatCount="indefinite" path="M96 242 L396 242"
+      calcMode="linear" keyPoints="0;0;1;1" keyTimes="0;.1;.4;1"/>
+    <path d="M0 0 L0 26 L7 19 L12 30 L18 27 L13 17 L22 16 Z" fill="var(--text)" stroke="var(--card)" stroke-width="1.6" stroke-linejoin="round"/>
+  </g>
+</svg>
         <figcaption><b>Mosaik<span class="hk"><kbd>M</kbd> beim Zeichnen</span></b><span class="d">Über Namen oder Kontaktdaten ziehen, die privat bleiben sollen.</span></figcaption>
       </figure>
       <figure class="demo">
-        <video data-src="../demo-history.mp4?v=5" autoplay loop muted playsinline preload="none"
-               data-poster="../demo-history-poster.jpg?v=5" aria-label="Demo: Verlauf"></video>
+        <svg class="fdemo" viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Demo: Verlauf">
+  <rect width="800" height="500" fill="var(--chip)"/>
+  <rect x="50" y="70" width="380" height="360" rx="12" fill="var(--card)" stroke="var(--line)"/>
+  <rect x="50" y="70" width="380" height="38" rx="12" fill="var(--chip)"/>
+  <circle cx="74" cy="89" r="5" fill="#ff5f57"/><circle cx="90" cy="89" r="5" fill="#febc2e"/><circle cx="106" cy="89" r="5" fill="#28c840"/>
+  <g><rect x="74" y="130" width="100" height="80" rx="8" fill="var(--chip)" stroke="var(--line)"/><rect x="86" y="146" width="64" height="8" rx="4" fill="var(--line)"/><rect x="86" y="162" width="44" height="8" rx="4" fill="var(--line)"/></g><g><rect x="190" y="130" width="100" height="80" rx="8" fill="var(--chip)" stroke="var(--line)"/><rect x="202" y="146" width="52" height="8" rx="4" fill="var(--line)"/><rect x="202" y="162" width="68" height="8" rx="4" fill="var(--line)"/></g><g><rect x="306" y="130" width="100" height="80" rx="8" fill="var(--chip)" stroke="var(--line)"/><rect x="318" y="146" width="72" height="8" rx="4" fill="var(--line)"/><rect x="318" y="162" width="50" height="8" rx="4" fill="var(--line)"/></g><g><rect x="74" y="230" width="100" height="80" rx="8" fill="var(--chip)" stroke="var(--line)"/><rect x="86" y="246" width="48" height="8" rx="4" fill="var(--line)"/><rect x="86" y="262" width="64" height="8" rx="4" fill="var(--line)"/></g><g><rect x="190" y="230" width="100" height="80" rx="8" fill="var(--chip)" stroke="var(--line)"/><rect x="202" y="246" width="60" height="8" rx="4" fill="var(--line)"/><rect x="202" y="262" width="42" height="8" rx="4" fill="var(--line)"/></g><g><rect x="306" y="230" width="100" height="80" rx="8" fill="var(--chip)" stroke="var(--line)"/><rect x="318" y="246" width="56" height="8" rx="4" fill="var(--line)"/><rect x="318" y="262" width="70" height="8" rx="4" fill="var(--line)"/></g>
+  <rect x="190" y="130" width="100" height="80" rx="8" fill="none" stroke="var(--blue)" stroke-width="3" opacity="0">
+    <animate attributeName="opacity" values="0;1;1;0;0" dur="6s" repeatCount="indefinite" keyTimes="0;.16;.4;.46;1"/>
+  </rect>
+  <!-- 고른 그림이 오른쪽에 크게 떠오른다. 확대는 제 중심을 기준으로 한다. -->
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0" dur="6s" repeatCount="indefinite" keyTimes="0;.3;.42;.9;1"/>
+    <animateTransform attributeName="transform" type="translate"
+      values="0 0;0 0;370 90;370 90" dur="6s" repeatCount="indefinite" keyTimes="0;.3;.5;1"
+      calcMode="spline" keySplines="0 0 1 1;.16 .8 .3 1;0 0 1 1"/>
+    <g transform="translate(240 170)">
+      <g>
+        <animateTransform attributeName="transform" type="scale"
+          values="1;1;1.75;1.75" dur="6s" repeatCount="indefinite" keyTimes="0;.3;.5;1"
+          calcMode="spline" keySplines="0 0 1 1;.16 .8 .3 1;0 0 1 1"/>
+        <g transform="translate(-240 -170)">
+          <rect x="190" y="130" width="100" height="80" rx="8" fill="var(--card)"
+                stroke="var(--blue)" stroke-width="2"/>
+          <rect x="202" y="148" width="72" height="8" rx="4" fill="var(--muted)" opacity=".55"/>
+          <rect x="202" y="165" width="50" height="8" rx="4" fill="var(--muted)" opacity=".55"/>
+          <circle cx="290" cy="130" r="7" fill="#ef4444"/>
+        </g>
+      </g>
+    </g>
+  </g>
+  <g>
+    <animateMotion dur="6s" repeatCount="indefinite" path="M240 300 L240 170"
+      calcMode="linear" keyPoints="0;1;1;1" keyTimes="0;.16;.3;1"/>
+    <path d="M0 0 L0 26 L7 19 L12 30 L18 27 L13 17 L22 16 Z" fill="var(--text)" stroke="var(--card)" stroke-width="1.6" stroke-linejoin="round"/>
+  </g>
+</svg>
         <figcaption><b>Letzte Aufnahmen<span class="hk">🕘 auf der Leiste</span></b><span class="d">Bewahrt die letzten 24. Mit einem Klick wieder anheften.</span></figcaption>
       </figure>
       <figure class="demo">
-        <video data-src="../demo-pinops.mp4?v=5" autoplay loop muted playsinline preload="none"
-               data-poster="../demo-pinops-poster.jpg?v=5" aria-label="Demo: Pin-Steuerung"></video>
+        <svg class="fdemo" viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Demo: Pin-Steuerung">
+  <rect width="800" height="500" fill="var(--chip)"/>
+  <g opacity=".4">
+    <rect x="70" y="90" width="420" height="11" rx="5.5" fill="var(--line)"/>
+    <rect x="70" y="120" width="560" height="11" rx="5.5" fill="var(--line)"/>
+    <rect x="70" y="150" width="330" height="11" rx="5.5" fill="var(--line)"/>
+    <rect x="70" y="350" width="500" height="11" rx="5.5" fill="var(--line)"/>
+    <rect x="70" y="380" width="380" height="11" rx="5.5" fill="var(--line)"/>
+  </g>
+  <g>
+    <!-- 크기 조절 → 접기 -->
+    <rect x="180" y="150" width="300" height="200" rx="10" fill="var(--card)" stroke="var(--blue)" stroke-width="2.5">
+      <animate attributeName="width" values="300;300;430;430;430;430" dur="7s" repeatCount="indefinite"
+        keyTimes="0;.14;.34;.56;.92;1" calcMode="spline" keySplines="0 0 1 1;.16 .8 .3 1;0 0 1 1;0 0 1 1;0 0 1 1"/>
+      <animate attributeName="height" values="200;200;286;286;40;40" dur="7s" repeatCount="indefinite"
+        keyTimes="0;.14;.34;.56;.66;1" calcMode="spline" keySplines="0 0 1 1;.16 .8 .3 1;0 0 1 1;.3 0 .2 1;0 0 1 1"/>
+    </rect>
+    <g>
+      <animate attributeName="opacity" values="1;1;0;0;1" dur="7s" repeatCount="indefinite" keyTimes="0;.58;.66;.94;1"/>
+      <rect x="206" y="186" width="210" height="12" rx="6.0" fill="var(--muted)"/>
+    <rect x="206" y="220" width="150" height="12" rx="6.0" fill="var(--muted)"/>
+    <rect x="206" y="254" width="240" height="12" rx="6.0" fill="var(--muted)"/>
+    </g>
+    <!-- 모퉁이 손잡이 -->
+    <circle cx="180" cy="150" r="7" fill="var(--card)" stroke="var(--blue)" stroke-width="2.5"/><circle cx="180" cy="350" r="7" fill="var(--card)" stroke="var(--blue)" stroke-width="2.5"/>
+    <circle cx="480" cy="150" r="7" fill="var(--card)" stroke="var(--blue)" stroke-width="2.5">
+      <animate attributeName="cx" values="480;480;610;610;610;610" dur="7s" repeatCount="indefinite"
+        keyTimes="0;.14;.34;.56;.92;1" calcMode="spline" keySplines="0 0 1 1;.16 .8 .3 1;0 0 1 1;0 0 1 1;0 0 1 1"/>
+    </circle>
+    <circle cx="480" cy="350" r="7" fill="var(--card)" stroke="var(--blue)" stroke-width="2.5">
+      <animate attributeName="cx" values="480;480;610;610;610;610" dur="7s" repeatCount="indefinite"
+        keyTimes="0;.14;.34;.56;.92;1" calcMode="spline" keySplines="0 0 1 1;.16 .8 .3 1;0 0 1 1;0 0 1 1;0 0 1 1"/>
+      <animate attributeName="cy" values="350;350;436;436;190;190" dur="7s" repeatCount="indefinite"
+        keyTimes="0;.14;.34;.56;.66;1" calcMode="spline" keySplines="0 0 1 1;.16 .8 .3 1;0 0 1 1;.3 0 .2 1;0 0 1 1"/>
+    </circle>
+  </g>
+  <g>
+    <animateMotion dur="7s" repeatCount="indefinite" path="M480 350 L610 436"
+      calcMode="linear" keyPoints="0;0;1;1" keyTimes="0;.14;.34;1"/>
+    <path d="M0 0 L0 26 L7 19 L12 30 L18 27 L13 17 L22 16 Z" fill="var(--text)" stroke="var(--card)" stroke-width="1.6" stroke-linejoin="round"/>
+  </g>
+</svg>
         <figcaption><b>Pin-Steuerung<span class="hk">Ecke ziehen</span></b><span class="d">Ecken für die Größe, Rad zum Zoomen, Strg+Rad für Deckkraft. Doppelklick klappt ein.</span></figcaption>
       </figure>
       <figure class="demo">
-        <video data-src="../demo-timer.mp4?v=5" autoplay loop muted playsinline preload="none"
-               data-poster="../demo-timer-poster.jpg?v=5" aria-label="Demo: Timer"></video>
+        <svg class="fdemo" viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Demo: Timer">
+  <rect width="800" height="500" fill="var(--chip)"/>
+  <g opacity=".35">
+    <rect x="70" y="80" width="400" height="11" rx="5.5" fill="var(--line)"/>
+    <rect x="70" y="110" width="540" height="11" rx="5.5" fill="var(--line)"/>
+    <rect x="70" y="140" width="300" height="11" rx="5.5" fill="var(--line)"/>
+    <rect x="70" y="380" width="460" height="11" rx="5.5" fill="var(--line)"/>
+    <rect x="70" y="410" width="340" height="11" rx="5.5" fill="var(--line)"/>
+  </g>
+  <g transform="translate(400 250)">
+    <rect x="-190" y="-84" width="380" height="168" rx="26" fill="var(--card)" stroke="var(--line)"/>
+    <circle r="58" cx="-108" cy="0" fill="none" stroke="var(--line)" stroke-width="10"/>
+    <circle r="58" cx="-108" cy="0" fill="none" stroke="var(--blue)" stroke-width="10" stroke-linecap="round"
+            stroke-dasharray="365" transform="rotate(-90 -108 0)">
+      <animate attributeName="stroke-dashoffset" values="0;365;365" dur="8s" repeatCount="indefinite" keyTimes="0;.9;1"/>
+    </circle>
+    <text x="52" y="18" text-anchor="middle" font-size="58" font-weight="700"
+          font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="var(--text)">
+      05:00
+      <animate attributeName="textLength" values="150;150" dur="8s" repeatCount="indefinite"/>
+    </text>
+    <g transform="translate(52 56)">
+      <rect x="-64" y="-13" width="40" height="26" rx="13" fill="var(--chip)"/>
+      <rect x="-18" y="-13" width="40" height="26" rx="13" fill="var(--chip)"/>
+      <rect x="28" y="-13" width="40" height="26" rx="13" fill="var(--blue)"/>
+    </g>
+  </g>
+</svg>
         <figcaption><b>Timer<span class="hk"><kbd>Strg</kbd><span class="plus">+</span><kbd>3</kbd></span></b><span class="d">Zeigt die Restzeit am Bildschirm und piept am Ende.</span></figcaption>
       </figure>
       <figure class="demo">
-        <video data-src="../demo-quickbar.mp4?v=5" autoplay loop muted playsinline preload="none"
-               data-poster="../demo-quickbar-poster.jpg?v=5" aria-label="Demo: Schnellleiste"></video>
+        <svg class="fdemo" viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Demo: Schnellleiste">
+  <rect width="800" height="500" fill="var(--chip)"/>
+  <g opacity=".35">
+    <rect x="70" y="70" width="420" height="11" rx="5.5" fill="var(--line)"/><rect x="70" y="100" width="560" height="11" rx="5.5" fill="var(--line)"/><rect x="70" y="130" width="330" height="11" rx="5.5" fill="var(--line)"/>
+    <rect x="70" y="360" width="480" height="11" rx="5.5" fill="var(--line)"/><rect x="70" y="390" width="360" height="11" rx="5.5" fill="var(--line)"/>
+  </g>
+  <g transform="translate(400 250)">
+    <rect x="-350" y="-52" width="700" height="104" rx="52" fill="var(--card)" stroke="var(--line)"/>
+    <g fill="var(--muted)" opacity=".6">
+      <circle cx="-322" cy="-10" r="3.8"/><circle cx="-310" cy="-10" r="3.8"/><circle cx="-322" cy="1" r="3.8"/><circle cx="-310" cy="1" r="3.8"/><circle cx="-322" cy="12" r="3.8"/><circle cx="-310" cy="12" r="3.8"/>
+    </g>
+    <!-- 하나씩 눌린다 -->
+    <circle r="33" cy="0" cx="-266" fill="var(--blue)" opacity=".2">
+      <animate attributeName="cx" calcMode="discrete" dur="7s" repeatCount="indefinite"
+        values="-266;-190;-114;-38;38;114;190;266"/>
+    </circle>
+    <text x="-266" y="14" text-anchor="middle" font-size="40">📸</text><text x="-190" y="14" text-anchor="middle" font-size="40">📌</text><text x="-114" y="14" text-anchor="middle" font-size="40">🔍</text><text x="-38" y="14" text-anchor="middle" font-size="40">✏️</text><text x="38" y="14" text-anchor="middle" font-size="40">⏱️</text><text x="114" y="14" text-anchor="middle" font-size="40">🕘</text><text x="190" y="14" text-anchor="middle" font-size="40">🙈</text><text x="266" y="14" text-anchor="middle" font-size="40">⚙️</text>
+  </g>
+  <g>
+    <animateTransform attributeName="transform" type="translate" calcMode="discrete"
+      dur="7s" repeatCount="indefinite"
+      values="138 262;214 262;290 262;366 262;442 262;518 262;594 262;670 262"/>
+    <path d="M0 0 L0 26 L7 19 L12 30 L18 27 L13 17 L22 16 Z" fill="var(--text)" stroke="var(--card)" stroke-width="1.6" stroke-linejoin="round"/>
+  </g>
+</svg>
         <figcaption><b>Schnellleiste</b><span class="d">Eine schwebende Leiste — alles per Klick. Versteckt sich beim Aufnehmen.</span></figcaption>
       </figure>
     </div>
@@ -950,8 +1286,8 @@
   <section id="support">
     <div class="eyebrow">UNTERSTÜTZUNG</div>
     <h2>☕ Entwickler unterstützen</h2>
-    <p class="lead">Wenn Sshot-Pin Ihnen hilft, spendieren Sie dem Entwickler einen Kaffee — so bleibt die App kostenlos und werbefrei.</p>
-    <a class="dl" style="font-size:15px;padding:12px 24px" href="https://github.com/sponsors/wasabia137" rel="noopener" target="_blank">☕ Kaffee spendieren</a>
+    <p class="lead">Wenn Sshot-Pin Ihnen hilft, können Sie den Entwickler auf GitHub unterstützen — so bleibt die App kostenlos und werbefrei.</p>
+    <a class="dl" style="font-size:15px;padding:12px 24px" href="https://github.com/sponsors/wasabia137" rel="noopener" target="_blank">☕ Auf GitHub unterstützen</a>
   </section>
 
   <section id="guestbook">
@@ -1022,36 +1358,18 @@
   });
   document.addEventListener('click', () => macMenu.classList.remove('open'));
 
-  // 데모 영상 지연 로딩 — 화면에 가까워질 때만 내려받고, 보일 때만 재생
-  const demos = document.querySelectorAll('.demo video');
-  if (demos.length) {
-    // 뷰포트 400px 앞에서 미리 파일을 붙인다 (스크롤 안 하면 안 받는다)
-    const loadIO = new IntersectionObserver((entries) => {
+  // 기능 데모는 인라인 SVG다. 화면에 보일 때만 돌리고, 지나가면 멈춘다.
+  // (영상이던 시절의 지연 로딩·재생 제어를 대신한다)
+  const fdemos = document.querySelectorAll('.fdemo');
+  if (fdemos.length && 'IntersectionObserver' in window) {
+    for (const s of fdemos) { try { s.pauseAnimations(); } catch (e) {} }
+    const io = new IntersectionObserver((entries) => {
       for (const e of entries) {
-        if (!e.isIntersecting) continue;
-        const v = e.target;
-        if (v.dataset.poster) { v.poster = v.dataset.poster; delete v.dataset.poster; }
-        if (v.dataset.src) { v.src = v.dataset.src; delete v.dataset.src; }
-        loadIO.unobserve(v);
+        const s = e.target;
+        try { e.isIntersecting ? s.unpauseAnimations() : s.pauseAnimations(); } catch (err) {}
       }
-    }, { rootMargin: '400px 0px' });
-
-    // 실제로 보일 때만 재생, 벗어나면 멈춤
-    const playIO = new IntersectionObserver((entries) => {
-      for (const e of entries) {
-        const v = e.target;
-        if (e.isIntersecting) {
-          if (v.src) {
-            const p = v.play();
-            if (p) p.catch(() => { /* 브라우저가 막으면 포스터 이미지가 남는다 */ });
-          }
-        } else {
-          v.pause();
-        }
-      }
-    }, { threshold: 0.25 });
-
-    for (const v of demos) { loadIO.observe(v); playIO.observe(v); }
+    }, { threshold: 0.15 });
+    for (const s of fdemos) io.observe(s);
   }
 
   // 다운로드 횟수 — 윈도우·맥 따로 센다
@@ -1203,15 +1521,23 @@
       }).join('');
     }
 
-    // 최신 30개 (Firestore REST는 orderBy 없이 최신순을 못 주므로 받아서 정렬)
-    fetch(GB + '?key=' + FS_KEY + '&pageSize=300', { cache: 'no-store' })
+    // 최신 30개만 서버에서 정렬해 받는다.
+    // 예전에는 pageSize=300으로 통째로 받아 브라우저에서 정렬했다. 그러면 글이
+    // 늘어나는 만큼 방문 한 번에 드는 Firestore 읽기도 늘어난다(글 100개면
+    // 방문당 100회). runQuery로 정렬·개수를 서버에 맡기면 글이 몇 개가 되든
+    // 30회로 고정된다. 규칙의 read 권한이 목록 조회까지 덮으므로 그대로 된다.
+    fetch(FS + ':runQuery?key=' + FS_KEY, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      cache: 'no-store',
+      body: JSON.stringify({ structuredQuery: {
+        from: [{ collectionId: 'guestbook' }],
+        orderBy: [{ field: { fieldPath: 'at' }, direction: 'DESCENDING' }],
+        limit: 30,
+      } }),
+    })
       .then((r) => r.ok ? r.json() : Promise.reject())
-      .then((d) => {
-        const docs = (d.documents || []).sort((a, b) =>
-          String((b.fields.at || {}).timestampValue || '').localeCompare(
-            String((a.fields.at || {}).timestampValue || ''))).slice(0, 30);
-        render(docs);
-      })
+      .then((rows) => render((rows || []).filter((x) => x.document).map((x) => x.document)))
       .catch(() => { gbList.innerHTML = `<div class="gb-empty">${esc(D.empty)}</div>`; });
 
     gbForm.addEventListener('submit', (e) => {
