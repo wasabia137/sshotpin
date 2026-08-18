@@ -275,6 +275,38 @@
   .qa h3 { font-size: 15.5px; margin-bottom: 6px; }
   .qa p { font-size: 14px; color: var(--muted); }
 
+
+  /* ---------- 방명록 ---------- */
+  .gb-form { display: grid; gap: 10px; margin-bottom: 26px; }
+  .gb-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .gb-form input, .gb-form textarea {
+    font-family: inherit; font-size: 14.5px; color: var(--text);
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 10px; padding: 11px 14px; width: 100%;
+  }
+  .gb-form input { max-width: 200px; }
+  .gb-form textarea { resize: vertical; min-height: 84px; line-height: 1.6; }
+  .gb-form input:focus, .gb-form textarea:focus { outline: 2px solid var(--blue); outline-offset: -1px; }
+  .gb-send {
+    justify-self: start; border: 0; cursor: pointer; font-family: inherit;
+    background: linear-gradient(135deg, var(--g1), var(--blue-dark)); color: #fff;
+    font-size: 14.5px; font-weight: 700; padding: 11px 26px; border-radius: 10px;
+    transition: filter .15s, transform .15s;
+  }
+  .gb-send:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-1px); }
+  .gb-send:disabled { opacity: .5; cursor: default; }
+  .gb-note { font-size: 12.5px; color: var(--muted); }
+  .gb-list { display: grid; gap: 12px; }
+  .gb-item {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 12px; padding: 14px 18px;
+  }
+  .gb-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 5px; }
+  .gb-name { font-weight: 700; font-size: 14.5px; }
+  .gb-date { font-size: 12px; color: var(--muted); }
+  .gb-text { font-size: 14.5px; color: var(--text); white-space: pre-wrap; word-break: break-word; }
+  .gb-empty { font-size: 14px; color: var(--muted); padding: 6px 2px; }
+
   /* ---------- 방문·다운로드 수 ---------- */
   .counts {
     display: flex; justify-content: center; align-items: stretch;
@@ -616,6 +648,24 @@
     <a class="dl" style="font-size:15px;padding:12px 24px" href="https://github.com/sponsors/wasabia137" rel="noopener" target="_blank">☕ Угостить кофе</a>
   </section>
 
+  <section id="guestbook">
+    <div class="eyebrow">ГОСТЕВАЯ КНИГА</div>
+    <h2>Написать разработчику</h2>
+    <p class="lead">Расскажите, как вам работается, что мешает или чего не хватает. Разработчик читает всё.</p>
+    <form class="gb-form" id="gbForm" autocomplete="off"
+          data-lang="ru" data-sending="Отправка…" data-thanks="Спасибо за сообщение!"
+          data-fail="Не удалось отправить. Попробуйте позже." data-toosoon="Подождите немного перед повторной отправкой." data-empty="Пока сообщений нет. Будьте первым!"
+          data-send="Отправить">
+      <div class="gb-row">
+        <input id="gbName" type="text" maxlength="20" placeholder="Имя" required>
+      </div>
+      <textarea id="gbText" maxlength="300" placeholder="Оставьте сообщение" required></textarea>
+      <button class="gb-send" id="gbSend" type="submit">Отправить</button>
+      <div class="gb-note" id="gbNote">Без регистрации · до 300 символов</div>
+    </form>
+    <div class="gb-list" id="gbList"></div>
+  </section>
+
   <div class="counts" id="counts" hidden>
     <span class="count" id="cVisitBox" hidden><span class="clab">Посетители</span><span class="cnum" id="cVisit">0</span></span>
     <span class="count"><span class="clab">Загрузки Windows</span><span class="cnum" id="cWin">0</span></span>
@@ -804,6 +854,103 @@
   for (const [id, platform] of [['dlBtn', 'win'], ['dlMacArm', 'mac'], ['dlMacX64', 'mac']]) {
     document.getElementById(id).addEventListener('click', (e) => {
       countDownload(platform, e.currentTarget.getAttribute('href'));
+    });
+  }
+
+  // ----- 방명록 -----
+  // 로그인 없이 쓰므로 스팸을 클라이언트·규칙 양쪽에서 막는다.
+  // (규칙: 필드 형태·길이·서버시각 강제 / 여기: 링크·연속 작성·중복 차단)
+  const gbForm = document.getElementById('gbForm');
+  if (gbForm) {
+    const gbList = document.getElementById('gbList');
+    const gbName = document.getElementById('gbName');
+    const gbText = document.getElementById('gbText');
+    const gbSend = document.getElementById('gbSend');
+    const gbNote = document.getElementById('gbNote');
+    const D = gbForm.dataset;
+    const GB = FS + '/guestbook';
+
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+    function fmtDate(iso) {
+      try {
+        const d = new Date(iso);
+        return d.toLocaleDateString(document.documentElement.lang || 'en',
+          { year: 'numeric', month: 'short', day: 'numeric' });
+      } catch (e) { return ''; }
+    }
+
+    function render(docs) {
+      if (!docs.length) { gbList.innerHTML = `<div class="gb-empty">${esc(D.empty)}</div>`; return; }
+      gbList.innerHTML = docs.map((d) => {
+        const f = d.fields || {};
+        const name = (f.name && f.name.stringValue) || '';
+        const text = (f.text && f.text.stringValue) || '';
+        const at = (f.at && f.at.timestampValue) || '';
+        return `<div class="gb-item">
+          <div class="gb-head"><span class="gb-name">${esc(name)}</span><span class="gb-date">${esc(fmtDate(at))}</span></div>
+          <div class="gb-text">${esc(text)}</div>
+        </div>`;
+      }).join('');
+    }
+
+    // 최신 30개 (Firestore REST는 orderBy 없이 최신순을 못 주므로 받아서 정렬)
+    fetch(GB + '?key=' + FS_KEY + '&pageSize=300', { cache: 'no-store' })
+      .then((r) => r.ok ? r.json() : Promise.reject())
+      .then((d) => {
+        const docs = (d.documents || []).sort((a, b) =>
+          String((b.fields.at || {}).timestampValue || '').localeCompare(
+            String((a.fields.at || {}).timestampValue || ''))).slice(0, 30);
+        render(docs);
+      })
+      .catch(() => { gbList.innerHTML = `<div class="gb-empty">${esc(D.empty)}</div>`; });
+
+    gbForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = gbName.value.trim();
+      const text = gbText.value.trim();
+      if (!name || !text) return;
+
+      // 링크가 든 글은 대부분 스팸이라 받지 않는다
+      if (/https?:\/\/|www\.|\.(com|net|org|ru|cn|xyz|top|shop)\b/i.test(text)) {
+        gbNote.textContent = D.fail; return;
+      }
+      // 같은 브라우저에서 1분 안에 다시 쓰는 것 차단
+      try {
+        const last = Number(localStorage.getItem('gb_last') || 0);
+        if (Date.now() - last < 60000) { gbNote.textContent = D.toosoon; return; }
+      } catch (err) { /* 저장이 막혀 있으면 통과 */ }
+
+      gbSend.disabled = true;
+      gbNote.textContent = D.sending;
+      fetch(GB + '?key=' + FS_KEY, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fields: {
+          name: { stringValue: name.slice(0, 20) },
+          text: { stringValue: text.slice(0, 300) },
+          lang: { stringValue: D.lang },
+          at: { timestampValue: new Date().toISOString() },
+        } }),
+      })
+        .then((r) => r.ok ? r.json() : Promise.reject())
+        .then((doc) => {
+          try { localStorage.setItem('gb_last', String(Date.now())); } catch (err) {}
+          gbNote.textContent = D.thanks;
+          gbText.value = '';
+          // 방금 쓴 글을 목록 맨 위에 바로 얹는다
+          const empty = gbList.querySelector('.gb-empty');
+          if (empty) gbList.innerHTML = '';
+          const el = document.createElement('div');
+          el.className = 'gb-item';
+          el.innerHTML = `<div class="gb-head"><span class="gb-name">${esc(name)}</span>
+            <span class="gb-date">${esc(fmtDate(new Date().toISOString()))}</span></div>
+            <div class="gb-text">${esc(text)}</div>`;
+          gbList.prepend(el);
+        })
+        .catch(() => { gbNote.textContent = D.fail; })
+        .finally(() => { gbSend.disabled = false; });
     });
   }
 </script>
