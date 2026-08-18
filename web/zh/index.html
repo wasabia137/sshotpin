@@ -997,19 +997,21 @@
 </div>
 
 <script>
-  // version.json이 있으면 최신 버전·다운로드 링크를 자동 갱신
+  // 최신 버전과 내려받을 파일 주소는 version.json 하나만 본다.
+  // 파일 이름을 여기서 조립하지 않는 이유: 이름 규칙이 바뀌면 9개 언어 페이지를
+  // 전부 고쳐야 하고 하나라도 빠뜨리면 그 언어만 404가 된다.
+  // version.json은 scripts/sync-web-version.mjs가 package.json에서 만들어 준다.
   fetch('../version.json', { cache: 'no-store' })
     .then((r) => r.ok ? r.json() : Promise.reject())
     .then((v) => {
-      if (v.version) {
-        document.getElementById('ver').textContent = 'v' + v.version;
-        const base = 'https://github.com/wasabia137/sshotpin/releases/latest/download/';
-        document.getElementById('dlBtn').href = base + 'SshotPin-Setup-' + v.version + '.exe';
-        document.getElementById('dlMacArm').href = base + 'SshotPin-' + v.version + '-mac-arm64.dmg';
-        document.getElementById('dlMacX64').href = base + 'SshotPin-' + v.version + '-mac-x64.dmg';
-      }
+      if (!v.version) return;
+      document.getElementById('ver').textContent = 'v' + v.version;
+      const link = (id, url) => { if (url) document.getElementById(id).href = url; };
+      link('dlBtn', v.win);
+      link('dlMacArm', v.macArm);
+      link('dlMacX64', v.macX64);
     })
-    .catch(() => { /* 없으면 기본 링크 사용 */ });
+    .catch(() => { /* 없으면 문서에 적힌 기본 링크를 그대로 쓴다 */ });
 
   // 언어 선택을 기억해 자동 이동을 멈춘다
   const langNav = document.getElementById('langNav');

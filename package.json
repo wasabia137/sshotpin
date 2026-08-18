@@ -16,8 +16,8 @@
   },
   "build": {
     "appId": "com.sshotpin.app",
-    "productName": "SshotPin",
-    "artifactName": "SshotPin-Setup-${version}.${ext}",
+    "productName": "Sshot-Pin",
+    "artifactName": "Sshot-Pin-Setup-${version}.${ext}",
     "publish": [
       {
         "provider": "github",
@@ -62,7 +62,7 @@
       ],
       "icon": "assets/icon-mac.png",
       "category": "public.app-category.education",
-      "artifactName": "SshotPin-${version}-mac-${arch}.${ext}",
+      "artifactName": "Sshot-Pin-${version}-mac-${arch}.${ext}",
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
       "entitlements": "build/entitlements.mac.plist",

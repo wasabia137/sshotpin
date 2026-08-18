@@ -79,6 +79,17 @@ npx electron-builder --mac --arm64 --x64 -c.mac.notarize=true
 
 VER=$(python3 -c "import json;print(json.load(open('package.json'))['version'])")
 
+# DMG 이름을 여기에 다시 적지 않는다. package.json의 artifactName을 그대로 채워 쓴다.
+# (예전에는 손으로 적어두어서 이름 규칙이 바뀌면 이 스크립트만 옛 이름을 찾다가
+#  "파일 없음"으로 조용히 넘어갔다)
+dmg_name() {
+  python3 -c "
+import json, sys
+tpl = json.load(open('package.json'))['build']['mac']['artifactName']
+print(tpl.replace('\${version}', sys.argv[1]).replace('\${arch}', sys.argv[2]).replace('\${ext}', 'dmg'))
+" "$VER" "$1"
+}
+
 # electron-builder는 .app만 서명·공증하고 그 뒤에 DMG를 만든다.
 # 사용자가 내려받는 파일은 DMG이므로 DMG도 직접 처리해야 한다.
 # 순서가 중요하다: 서명 → 공증 → 티켓 부착.
@@ -87,7 +98,7 @@ VER=$(python3 -c "import json;print(json.load(open('package.json'))['version'])"
 echo
 echo "── DMG 서명 + 공증 (배포 파일 자체) ──"
 for ARCH in arm64 x64; do
-  DMG="dist/SshotPin-${VER}-mac-${ARCH}.dmg"
+  DMG="dist/$(dmg_name "$ARCH")"
   [ -f "$DMG" ] || continue
   echo "· $ARCH 서명…"
   codesign --force --keychain "$KC_PATH" \
@@ -161,7 +172,7 @@ echo
 echo "── 검증 ──"
 FAIL=0
 for ARCH in arm64 x64; do
-  DMG="dist/SshotPin-${VER}-mac-${ARCH}.dmg"
+  DMG="dist/$(dmg_name "$ARCH")"
   [ -f "$DMG" ] || { echo "✗ $DMG 없음"; FAIL=1; continue; }
   if xcrun stapler validate "$DMG" >/dev/null 2>&1; then
     echo "✓ $ARCH — 공증 티켓 부착됨"
