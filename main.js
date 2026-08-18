@@ -9,6 +9,12 @@ const {
 } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const I18N = require('./src/i18n');
+
+// 표시 언어 — whenReady에서 설정·OS 언어로 확정된다. ko면 tr()은 원문 그대로.
+let lang = 'ko';
+let tr = I18N.translator('ko');
+ipcMain.on('get-locale', (e) => { e.returnValue = lang; });
 
 const isMac = process.platform === 'darwin';
 
@@ -62,8 +68,8 @@ process.on('uncaughtException', (err) => {
   try {
     if (Notification.isSupported()) {
       new Notification({
-        title: '스샷핀 오류',
-        body: '문제가 생겼지만 계속 실행됩니다. 반복되면 설정에서 로그를 확인해주세요.',
+        title: tr('스샷핀 오류'),
+        body: tr('문제가 생겼지만 계속 실행됩니다. 반복되면 설정에서 로그를 확인해주세요.'),
         silent: true,
       }).show();
     }
@@ -181,22 +187,22 @@ async function saveImageDialog(dataURL, parentWin) {
     try {
       const target = path.join(currentSaveDir(), fileName);
       fs.writeFileSync(target, img.toPNG());
-      notify(`저장했습니다: ${fileName}`);
+      notify(`${tr('저장했습니다')}: ${fileName}`);
       return;
     } catch (e) {
-      notify('빠른 저장에 실패했습니다. 저장 위치를 다시 선택해주세요.');
+      notify(tr('빠른 저장에 실패했습니다. 저장 위치를 다시 선택해주세요.'));
       // 실패하면 아래 대화상자로 진행
     }
   }
 
   const { canceled, filePath } = await dialog.showSaveDialog(parentWin || null, {
-    title: '스샷 저장',
+    title: tr('스샷 저장'),
     defaultPath: path.join(currentSaveDir(), fileName),
-    filters: [{ name: 'PNG 이미지', extensions: ['png'] }],
+    filters: [{ name: tr('PNG 이미지'), extensions: ['png'] }],
   });
   if (canceled || !filePath) return;
   fs.writeFileSync(filePath, img.toPNG());
-  notify(`저장했습니다: ${path.basename(filePath)}`);
+  notify(`${tr('저장했습니다')}: ${path.basename(filePath)}`);
 }
 
 // 프로그램에 의한 크기 변경 (resizable:false 창도 확실히 동작하도록 감쌈)
@@ -306,7 +312,7 @@ function fullscreenOverlayWindow(display) {
   win.webContents.on('render-process-gone', (e, details) => {
     log(`overlay 렌더러 사망: ${JSON.stringify(details)}`);
     if (!win.isDestroyed()) win.close();
-    notify('화면 창에 문제가 생겨 닫았습니다. 다시 시도해주세요.');
+    notify(tr('화면 창에 문제가 생겨 닫았습니다. 다시 시도해주세요.'));
   });
   win.on('unresponsive', () => log('overlay 응답 없음'));
   win.on('closed', () => log('overlay 닫힘'));
@@ -453,13 +459,13 @@ function openHistory() {
   if (historyWin) { historyWin.focus(); return; }
   historyWin = new BrowserWindow({
     width: 760, height: 620,
-    title: '최근 캡처',
+    title: tr('최근 캡처'),
     autoHideMenuBar: true,
     icon: path.join(__dirname, 'assets', 'icon.png'),
     webPreferences: { preload: path.join(__dirname, 'preload.js') },
   });
   historyWin.loadFile(path.join(__dirname, 'src', 'history.html'));
-  historyWin.webContents.once('did-finish-load', () => sendHistory());
+  historyWin.webContents.on('did-finish-load', () => sendHistory());
   historyWin.on('closed', () => { historyWin = null; });
 }
 
@@ -477,7 +483,7 @@ ipcMain.on('history-pin', (e, id) => {
       display.bounds.y + (display.bounds.height - h) / 2);
   } catch (err) {
     log('history 핀 실패', err.message);
-    notify('이 캡처를 불러오지 못했습니다.');
+    notify(tr('이 캡처를 불러오지 못했습니다.'));
   }
 });
 
@@ -486,8 +492,8 @@ ipcMain.on('history-copy', (e, id) => {
   if (!item) return;
   try {
     clipboard.writeImage(nativeImage.createFromDataURL(historyDataURL(item)));
-    notify('클립보드에 복사했습니다.');
-  } catch (err) { notify('복사에 실패했습니다.'); }
+    notify(tr('클립보드에 복사했습니다.'));
+  } catch (err) { notify(tr('복사에 실패했습니다.')); }
 });
 
 ipcMain.on('history-save', (e, id) => {
@@ -507,10 +513,10 @@ ipcMain.on('history-delete', (e, id) => {
 ipcMain.on('history-clear', async () => {
   const { response } = await dialog.showMessageBox(historyWin || null, {
     type: 'question',
-    title: '최근 캡처 전체 삭제',
-    message: '저장된 최근 캡처를 모두 삭제할까요?',
-    detail: '이미 저장하거나 붙여둔 이미지는 영향을 받지 않습니다.',
-    buttons: ['모두 삭제', '취소'],
+    title: tr('최근 캡처 전체 삭제'),
+    message: tr('저장된 최근 캡처를 모두 삭제할까요?'),
+    detail: tr('이미 저장하거나 붙여둔 이미지는 영향을 받지 않습니다.'),
+    buttons: [tr('모두 삭제'), tr('취소')],
     defaultId: 1,
     cancelId: 1,
   });
@@ -564,7 +570,7 @@ function createQuickbar() {
     log('퀵바 화면기록 제외 실패 — 예전 방식으로 숨김', e.message);
   }
   quickbarWin.loadFile(path.join(__dirname, 'src', 'quickbar.html'));
-  quickbarWin.webContents.once('did-finish-load', () => {
+  quickbarWin.webContents.on('did-finish-load', () => {
     if (quickbarWin) quickbarWin.webContents.send('quickbar-state', { hotkeys: settings.hotkeys });
   });
   quickbarWin.once('ready-to-show', () => quickbarWin.showInactive());
@@ -614,7 +620,7 @@ ipcMain.on('quickbar-action', (e, action) => {
   else if (action === 'settings') openSettings();
   else if (action === 'hide') {
     setQuickbarVisible(false);
-    notify('퀵 실행바를 숨겼습니다. 트레이 메뉴에서 다시 켤 수 있습니다.');
+    notify(tr('퀵 실행바를 숨겼습니다. 트레이 메뉴에서 다시 켤 수 있습니다.'));
   }
 });
 
@@ -647,14 +653,14 @@ async function startCapture(mode = 'capture') { // 'capture' | 'cover'
     } catch (err) {
       log('캡처 실패', err.message);
       if (!screenAccessGranted()) guideScreenAccess();
-      else notify(`화면을 읽지 못했습니다. ${err.message}`);
+      else notify(`${tr('화면을 읽지 못했습니다.')} ${err.message}`);
       reshowQuickbar();
       return;
     }
     if (!shot) {
       log('캡처 실패 — 빈 화면');
       if (!screenAccessGranted()) guideScreenAccess();
-      else notify('화면을 캡처하지 못했습니다. 잠시 후 다시 시도해주세요.');
+      else notify(tr('화면을 캡처하지 못했습니다. 잠시 후 다시 시도해주세요.'));
       reshowQuickbar();
       return;
     }
@@ -662,7 +668,7 @@ async function startCapture(mode = 'capture') { // 'capture' | 'cover'
     captureDisplay = { ...display.bounds };
     log(`capture: 화면 읽음 (${display.bounds.width}x${display.bounds.height} scale=${display.scaleFactor})`);
     captureWin = takeOverlay('capture', display);
-    if (!captureWin) { notify('캡처 창을 열지 못했습니다.'); reshowQuickbar(); return; }
+    if (!captureWin) { notify(tr('캡처 창을 열지 못했습니다.')); reshowQuickbar(); return; }
     showOverlayWhenReady(captureWin, 'capture-init', { shot, mode });
     // 유난히 느릴 때만 기록해 둔다 (평소엔 로그를 더럽히지 않게)
     captureWin.once('show', () => {
@@ -695,7 +701,7 @@ function guideScreenAccess() {
   const now = Date.now();
   if (now - screenGuideShownAt < 5000) return;
   screenGuideShownAt = now;
-  notify('화면 기록 권한을 허용해주세요. 목록에서 스샷핀을 켜면 바로 됩니다.');
+  notify(tr('화면 기록 권한을 허용해주세요. 목록에서 스샷핀을 켜면 바로 됩니다.'));
   shell.openExternal(
     'x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture');
 }
@@ -712,9 +718,9 @@ async function ensureInApplicationsFolder() {
   const { response } = await dialog.showMessageBox({
     type: 'question',
     title: '스샷핀',
-    message: '스샷핀을 응용 프로그램 폴더로 옮길까요?',
-    detail: '지금 위치에서 실행하면 맥이 앱을 임시 폴더로 옮겨 화면 기록 권한이 매번 초기화됩니다.\n옮겨두면 권한을 한 번만 허용하면 계속 유지됩니다.',
-    buttons: ['옮기기 (추천)', '나중에'],
+    message: tr('스샷핀을 응용 프로그램 폴더로 옮길까요?'),
+    detail: tr('지금 위치에서 실행하면 맥이 앱을 임시 폴더로 옮겨 화면 기록 권한이 매번 초기화됩니다.\n옮겨두면 권한을 한 번만 허용하면 계속 유지됩니다.'),
+    buttons: [tr('옮기기 (추천)'), tr('나중에')],
     defaultId: 0,
     cancelId: 1,
   });
@@ -724,7 +730,7 @@ async function ensureInApplicationsFolder() {
     app.moveToApplicationsFolder();
   } catch (e) {
     log('응용 프로그램 폴더 이동 실패', e.message);
-    notify('옮기지 못했습니다. 스샷핀을 응용 프로그램 폴더로 직접 끌어다 놓아주세요.');
+    notify(tr('옮기지 못했습니다. 스샷핀을 응용 프로그램 폴더로 직접 끌어다 놓아주세요.'));
   }
 }
 
@@ -750,7 +756,7 @@ ipcMain.on('capture-finish', (e, payload) => {
   const { action, dataURL, rect } = payload;
   if (action === 'copy') {
     clipboard.writeImage(nativeImage.createFromDataURL(dataURL));
-    notify('클립보드에 복사했습니다.');
+    notify(tr('클립보드에 복사했습니다.'));
   } else if (action === 'save') {
     saveImageDialog(dataURL);
   } else if (action === 'pin') {
@@ -804,17 +810,17 @@ function popupCoverMenu(id) {
   const c = covers.get(id);
   if (!c) return;
   const menu = Menu.buildFromTemplate([
-    { label: '공개 / 다시 가리기 (클릭)', click: () => c.win.webContents.send('cover-toggle') },
+    { label: tr('공개 / 다시 가리기 (클릭)'), click: () => c.win.webContents.send('cover-toggle') },
     {
-      label: '가리개 색',
+      label: tr('가리개 색'),
       submenu: COVER_COLORS.map(([name, color]) => ({
-        label: name,
+        label: tr(name),
         click: () => c.win.webContents.send('cover-style', { color }),
       })),
     },
     { type: 'separator' },
-    { label: '닫기', accelerator: 'Esc', click: () => c.win.close() },
-    { label: '모든 가리개 닫기', click: closeAllCovers },
+    { label: tr('닫기'), accelerator: 'Esc', click: () => c.win.close() },
+    { label: tr('모든 가리개 닫기'), click: closeAllCovers },
   ]);
   menu.popup({ window: c.win });
 }
@@ -843,20 +849,20 @@ async function toggleOverlay(mode) { // 'zoom' | 'draw'
     } catch (err) {
       log('확대·판서 실패', err.message);
       if (!screenAccessGranted()) guideScreenAccess();
-      else notify(`화면을 읽지 못했습니다. ${err.message}`);
+      else notify(`${tr('화면을 읽지 못했습니다.')} ${err.message}`);
       reshowQuickbar();
       return;
     }
     if (!shot) {
       if (!screenAccessGranted()) guideScreenAccess();
-      else notify('화면을 캡처하지 못했습니다. 잠시 후 다시 시도해주세요.');
+      else notify(tr('화면을 캡처하지 못했습니다. 잠시 후 다시 시도해주세요.'));
       reshowQuickbar();
       return;
     }
 
     overlayDisplay = { ...display.bounds };
     overlayWin = takeOverlay('overlay', display);
-    if (!overlayWin) { notify('화면 창을 열지 못했습니다.'); reshowQuickbar(); return; }
+    if (!overlayWin) { notify(tr('화면 창을 열지 못했습니다.')); reshowQuickbar(); return; }
     // 확대는 마우스 위치를 중심으로 시작해야 한다 (ZoomIt과 동일)
     const cur = screen.getCursorScreenPoint();
     showOverlayWhenReady(overlayWin, 'overlay-init', {
@@ -893,7 +899,7 @@ ipcMain.on('overlay-refresh', async (e) => {
       win.show();
       win.focus();
     }
-    if (!shot) notify('화면을 다시 읽지 못했습니다.');
+    if (!shot) notify(tr('화면을 다시 읽지 못했습니다.'));
   } finally {
     overlayRefreshBusy = false;
   }
@@ -917,7 +923,7 @@ ipcMain.on('overlay-finish', (e, payload) => {
   const { action, dataURL, w, h } = payload;
   if (action === 'copy') {
     clipboard.writeImage(nativeImage.createFromDataURL(dataURL));
-    notify('클립보드에 복사했습니다.');
+    notify(tr('클립보드에 복사했습니다.'));
   } else if (action === 'save') {
     closeSender();
     saveImageDialog(dataURL);
@@ -957,6 +963,34 @@ function toggleTimer() {
 // 렌더러 오류 로그
 ipcMain.on('renderer-log', (e, msg) => log('[renderer]', msg));
 
+// ---------- 언어 변경 ----------
+
+function applyLanguage() {
+  lang = I18N.resolve(settings.language || app.getLocale());
+  tr = I18N.translator(lang);
+  rebuildTrayMenu();
+  // 예열해 둔 오버레이는 이전 언어로 그려져 있으니 버리고 새로 준비한다
+  for (const kind of ['capture', 'overlay']) {
+    if (warm[kind] && !warm[kind].isDestroyed()) warm[kind].destroy();
+    warm[kind] = null;
+    prewarmOverlay(kind);
+  }
+  if (quickbarWin && !quickbarWin.isDestroyed()) quickbarWin.webContents.reload();
+  if (helpWin && !helpWin.isDestroyed()) {
+    helpWin.setTitle(tr('스샷핀 사용법'));
+    helpWin.loadFile(path.join(__dirname, 'src', helpFile()));
+  }
+  if (settingsWin && !settingsWin.isDestroyed()) {
+    settingsWin.setTitle(tr('스샷핀 설정'));
+    settingsWin.webContents.reload();
+  }
+  if (historyWin && !historyWin.isDestroyed()) {
+    historyWin.setTitle(tr('최근 캡처'));
+    historyWin.webContents.reload();
+  }
+  if (timerWin && !timerWin.isDestroyed()) timerWin.webContents.reload();
+}
+
 // ---------- 단축키 ----------
 
 const HOTKEY_ACTIONS = {
@@ -989,7 +1023,7 @@ function registerHotkeys() {
       const fixed = settings.hotkeys[key];
       if (!fixed) continue;
       if (globalShortcut.register(fixed, HOTKEY_ACTIONS[key])) continue;
-      hotkeyFailures.push(`${HOTKEY_LABELS[key]} (${fixed})`);
+      hotkeyFailures.push(`${tr(HOTKEY_LABELS[key])} (${fixed})`);
       continue;
     }
     let ok = false;
@@ -998,7 +1032,7 @@ function registerHotkeys() {
     } catch (e) {
       ok = false; // 잘못된 형식
     }
-    if (!ok) hotkeyFailures.push(`${HOTKEY_LABELS[key]} (${accel})`);
+    if (!ok) hotkeyFailures.push(`${tr(HOTKEY_LABELS[key])} (${accel})`);
   }
   return hotkeyFailures;
 }
@@ -1011,7 +1045,7 @@ function openSettings() {
   if (settingsWin) { settingsWin.focus(); return; }
   settingsWin = new BrowserWindow({
     width: 620, height: 720,
-    title: '스샷핀 설정',
+    title: tr('스샷핀 설정'),
     autoHideMenuBar: true,
     minimizable: false,
     maximizable: false,
@@ -1020,7 +1054,7 @@ function openSettings() {
     webPreferences: { preload: path.join(__dirname, 'preload.js') },
   });
   settingsWin.loadFile(path.join(__dirname, 'src', 'settings.html'));
-  settingsWin.webContents.once('did-finish-load', () => sendSettingsState());
+  settingsWin.webContents.on('did-finish-load', () => sendSettingsState());
   settingsWin.on('closed', () => { settingsWin = null; });
 }
 
@@ -1028,7 +1062,8 @@ function sendSettingsState() {
   if (!settingsWin) return;
   settingsWin.webContents.send('settings-state', {
     hotkeys: settings.hotkeys,
-    labels: HOTKEY_LABELS,
+    labels: Object.fromEntries(Object.entries(HOTKEY_LABELS).map(([k, v]) => [k, tr(v)])),
+    language: settings.language || '',
     defaults: DEFAULT_HOTKEYS,
     saveDir: currentSaveDir(),
     saveDirIsDefault: !settings.saveDir,
@@ -1054,7 +1089,7 @@ ipcMain.on('settings-set-hotkey', (e, { key, accel }) => {
   if (!HOTKEY_ACTIONS[key]) return;
   // 빈 값('사용 안 함')은 허용, 그 외에는 ASCII 액셀러레이터만 저장
   if (accel && !isValidAccelerator(accel)) {
-    notify('이 키는 단축키로 쓸 수 없습니다. 한글 입력을 끄고 다시 시도해주세요.');
+    notify(tr('이 키는 단축키로 쓸 수 없습니다. 한글 입력을 끄고 다시 시도해주세요.'));
     sendSettingsState();
     return;
   }
@@ -1064,7 +1099,7 @@ ipcMain.on('settings-set-hotkey', (e, { key, accel }) => {
   sendSettingsState();
   broadcastHotkeys();
   if (accel && failures.some((f) => f.includes(accel))) {
-    notify(`"${accel}" 단축키를 사용할 수 없습니다. 다른 프로그램이 이미 쓰고 있을 수 있어요.`);
+    notify(tr('"{a}" 단축키를 사용할 수 없습니다. 다른 프로그램이 이미 쓰고 있을 수 있어요.', { a: accel }));
   }
 });
 
@@ -1085,13 +1120,17 @@ ipcMain.on('settings-set-flag', (e, { key, value }) => {
   } else if (key === 'openAtLogin') {
     app.setLoginItemSettings({ openAtLogin: !!value });
     rebuildTrayMenu();
+  } else if (key === 'language') {
+    settings.language = value || '';
+    saveSettings();
+    applyLanguage();
   }
   sendSettingsState();
 });
 
 ipcMain.handle('settings-pick-dir', async () => {
   const { canceled, filePaths } = await dialog.showOpenDialog(settingsWin || null, {
-    title: '저장 폴더 선택',
+    title: tr('저장 폴더 선택'),
     defaultPath: currentSaveDir(),
     properties: ['openDirectory', 'createDirectory'],
   });
@@ -1118,7 +1157,7 @@ ipcMain.on('settings-open-logs', () => {
     if (!fs.existsSync(logPath)) fs.writeFileSync(logPath, '');
     shell.showItemInFolder(logPath);
   } catch (e) {
-    notify('로그 폴더를 열지 못했습니다.');
+    notify(tr('로그 폴더를 열지 못했습니다.'));
   }
 });
 
@@ -1126,11 +1165,15 @@ ipcMain.on('settings-open-help', () => openHelp());
 
 // ---------- 도움말 ----------
 
+function helpFile() {
+  return lang === 'ko' ? 'help.html' : `help_${lang}.html`;
+}
+
 function openHelp() {
   if (helpWin) { helpWin.focus(); return; }
   helpWin = new BrowserWindow({
     width: 620, height: 760,
-    title: '스샷핀 사용법',
+    title: tr('스샷핀 사용법'),
     autoHideMenuBar: true,
     minimizable: false,
     maximizable: false,
@@ -1138,9 +1181,9 @@ function openHelp() {
     icon: path.join(__dirname, 'assets', 'icon.png'),
     webPreferences: { preload: path.join(__dirname, 'preload.js') },
   });
-  helpWin.loadFile(path.join(__dirname, 'src', 'help.html'));
+  helpWin.loadFile(path.join(__dirname, 'src', helpFile()));
   // 실제 지정된 단축키를 표에 그대로 보여주기 위해 전달
-  helpWin.webContents.once('did-finish-load', () => {
+  helpWin.webContents.on('did-finish-load', () => {
     helpWin.webContents.send('help-state', { hotkeys: settings.hotkeys });
   });
   helpWin.on('closed', () => { helpWin = null; });
@@ -1217,7 +1260,7 @@ function pinFromClipboard() {
   const img = clipboard.readImage();
   if (img.isEmpty()) {
     const hk = settings.hotkeys.pin;
-    notify(`클립보드에 이미지가 없습니다.${hk ? ` (이미지를 복사한 뒤 ${hk})` : ''}`);
+    notify(tr('클립보드에 이미지가 없습니다.') + (hk ? tr(' (이미지를 복사한 뒤 {hk})', { hk }) : ''));
     return;
   }
   const cursor = screen.getCursorScreenPoint();
@@ -1237,11 +1280,11 @@ function popupPinMenu(id) {
   const p = pins.get(id);
   if (!p) return;
   const menu = Menu.buildFromTemplate([
-    { label: '복사', accelerator: 'Ctrl+C', click: () => pinCopy(id) },
-    { label: '저장…', accelerator: 'Ctrl+S', click: () => pinSave(id) },
+    { label: tr('복사'), accelerator: 'Ctrl+C', click: () => pinCopy(id) },
+    { label: tr('저장…'), accelerator: 'Ctrl+S', click: () => pinSave(id) },
     { type: 'separator' },
     {
-      label: `크기 (${Math.round(p.scale * 100)}%) — 모퉁이를 끌어도 됩니다`,
+      label: tr('크기 ({p}%) — 모퉁이를 끌어도 됩니다', { p: Math.round(p.scale * 100) }),
       submenu: [33, 50, 100, 150, 200].map((pct) => ({
         label: `${pct}%`,
         type: 'radio', checked: Math.round(p.scale * 100) === pct,
@@ -1249,7 +1292,7 @@ function popupPinMenu(id) {
       })),
     },
     {
-      label: `투명도 (${Math.round(p.opacity * 100)}%)`,
+      label: tr('투명도 ({p}%)', { p: Math.round(p.opacity * 100) }),
       submenu: [100, 80, 60, 40, 20].map((pct) => ({
         label: `${pct}%`,
         type: 'radio', checked: Math.round(p.opacity * 100) === pct,
@@ -1257,38 +1300,38 @@ function popupPinMenu(id) {
       })),
     },
     {
-      label: '회전·반전',
+      label: tr('회전·반전'),
       submenu: [
-        { label: '시계 방향 90° (1)', click: () => pinRotate(id, 1) },
-        { label: '반시계 방향 90° (2)', click: () => pinRotate(id, -1) },
-        { label: '좌우 반전 (3)', click: () => pinFlip(id, 'h') },
-        { label: '상하 반전 (4)', click: () => pinFlip(id, 'v') },
+        { label: tr('시계 방향 90° (1)'), click: () => pinRotate(id, 1) },
+        { label: tr('반시계 방향 90° (2)'), click: () => pinRotate(id, -1) },
+        { label: tr('좌우 반전 (3)'), click: () => pinFlip(id, 'h') },
+        { label: tr('상하 반전 (4)'), click: () => pinFlip(id, 'v') },
       ],
     },
     {
-      label: '테두리',
+      label: tr('테두리'),
       submenu: [
         {
-          label: '테두리 표시', type: 'checkbox', checked: p.borderVisible,
+          label: tr('테두리 표시'), type: 'checkbox', checked: p.borderVisible,
           click: () => pinSetBorder(id, { visible: !p.borderVisible }),
         },
         { type: 'separator' },
         ...BORDER_COLORS.map(([name, color]) => ({
-          label: name, type: 'radio', checked: p.borderColor === color,
+          label: tr(name), type: 'radio', checked: p.borderColor === color,
           click: () => pinSetBorder(id, { color }),
         })),
       ],
     },
     { type: 'separator' },
     {
-      label: '클릭 통과 (트레이에서 해제)',
+      label: tr('클릭 통과 (트레이에서 해제)'),
       click: () => pinSetClickThrough(id, true),
     },
     { label: p.collapsed ? '펼치기' : '접기 (더블클릭)', click: () => pinToggleCollapse(id) },
-    { label: '원래 크기·투명도 (0)', click: () => pinReset(id) },
+    { label: tr('원래 크기·투명도 (0)'), click: () => pinReset(id) },
     { type: 'separator' },
-    { label: '닫기', accelerator: 'Esc', click: () => p.win.close() },
-    { label: '모든 핀 닫기', click: closeAllPins },
+    { label: tr('닫기'), accelerator: 'Esc', click: () => p.win.close() },
+    { label: tr('모든 핀 닫기'), click: closeAllPins },
   ]);
   menu.popup({ window: p.win });
 }
@@ -1297,7 +1340,7 @@ function pinCopy(id) {
   const p = pins.get(id);
   if (!p) return;
   clipboard.writeImage(nativeImage.createFromDataURL(p.dataURL));
-  notify('클립보드에 복사했습니다.');
+  notify(tr('클립보드에 복사했습니다.'));
 }
 
 function pinSave(id) {
@@ -1421,7 +1464,7 @@ function pinSetClickThrough(id, on) {
   if (!p) return;
   p.clickThrough = on;
   p.win.setIgnoreMouseEvents(on);
-  if (on) notify('클릭 통과 모드 — 트레이 메뉴에서 해제할 수 있습니다.');
+  if (on) notify(tr('클릭 통과 모드 — 트레이 메뉴에서 해제할 수 있습니다.'));
   rebuildTrayMenu();
 }
 
@@ -1495,37 +1538,37 @@ function rebuildTrayMenu() {
   const anyClickThrough = [...pins.values()].some((p) => p.clickThrough);
   const hk = settings.hotkeys;
   const menu = Menu.buildFromTemplate([
-    { label: '📸 영역 캡처', accelerator: hk.capture || undefined, click: () => startCapture('capture') },
-    { label: '📌 클립보드 이미지 핀', accelerator: hk.pin || undefined, click: pinFromClipboard },
-    { label: '🔍 화면 확대·축소', accelerator: hk.zoom || undefined, click: () => toggleOverlay('zoom') },
-    { label: '✏️ 판서 (화면에 그리기)', accelerator: hk.draw || undefined, click: () => toggleOverlay('draw') },
-    { label: '⏱️ 타이머', accelerator: hk.timer || undefined, click: toggleTimer },
-    { label: '🙈 가리개', accelerator: hk.cover || undefined, click: () => startCapture('cover') },
-    { label: `🕘 최근 캡처 (${history.length})`, click: openHistory, enabled: history.length > 0 },
+    { label: tr('📸 영역 캡처'), accelerator: hk.capture || undefined, click: () => startCapture('capture') },
+    { label: tr('📌 클립보드 이미지 핀'), accelerator: hk.pin || undefined, click: pinFromClipboard },
+    { label: tr('🔍 화면 확대·축소'), accelerator: hk.zoom || undefined, click: () => toggleOverlay('zoom') },
+    { label: tr('✏️ 판서 (화면에 그리기)'), accelerator: hk.draw || undefined, click: () => toggleOverlay('draw') },
+    { label: tr('⏱️ 타이머'), accelerator: hk.timer || undefined, click: toggleTimer },
+    { label: tr('🙈 가리개'), accelerator: hk.cover || undefined, click: () => startCapture('cover') },
+    { label: tr('🕘 최근 캡처 ({n})', { n: history.length }), click: openHistory, enabled: history.length > 0 },
     { type: 'separator' },
     { label: pinsHidden ? '핀 모두 보이기' : '핀 모두 숨기기', click: toggleAllPinsVisible, enabled: pins.size > 0 || pinsHidden },
-    { label: '핀 모두 닫기', click: closeAllPins, enabled: pins.size > 0 },
-    { label: '가리개 모두 닫기', click: closeAllCovers, enabled: covers.size > 0 },
-    { label: '클릭 통과 모두 해제', click: releaseAllClickThrough, enabled: anyClickThrough },
+    { label: tr('핀 모두 닫기'), click: closeAllPins, enabled: pins.size > 0 },
+    { label: tr('가리개 모두 닫기'), click: closeAllCovers, enabled: covers.size > 0 },
+    { label: tr('클릭 통과 모두 해제'), click: releaseAllClickThrough, enabled: anyClickThrough },
     { type: 'separator' },
-    { label: '❓ 사용법·단축키', click: openHelp },
-    { label: '⚙️ 설정 (단축키 변경·저장 폴더)', click: openSettings },
+    { label: tr('❓ 사용법·단축키'), click: openHelp },
+    { label: tr('⚙️ 설정 (단축키 변경·저장 폴더)'), click: openSettings },
     {
-      label: '퀵 실행바 표시',
+      label: tr('퀵 실행바 표시'),
       type: 'checkbox',
       checked: settings.quickbarVisible,
       click: (item) => setQuickbarVisible(item.checked),
     },
     {
-      label: '컴퓨터 시작 시 자동 실행',
+      label: tr('컴퓨터 시작 시 자동 실행'),
       type: 'checkbox',
       checked: login.openAtLogin,
       click: (item) => app.setLoginItemSettings({ openAtLogin: item.checked }),
     },
     { type: 'separator' },
-    { label: '업데이트 확인', click: checkUpdatesManually },
+    { label: tr('업데이트 확인'), click: checkUpdatesManually },
     { label: `스샷핀 v${app.getVersion()}`, enabled: false },
-    { label: '종료', click: () => app.quit() },
+    { label: tr('종료'), click: () => app.quit() },
   ]);
   tray.setContextMenu(menu);
 }
@@ -1551,14 +1594,14 @@ function setUpdateState(status, text) {
 
 function checkUpdatesManually() {
   if (!app.isPackaged) {
-    setUpdateState('idle', '개발 모드에서는 업데이트를 확인할 수 없습니다.');
+    setUpdateState('idle', tr('개발 모드에서는 업데이트를 확인할 수 없습니다.'));
     return;
   }
   let autoUpdater;
   try {
     ({ autoUpdater } = require('electron-updater'));
   } catch (e) {
-    setUpdateState('error', '업데이트 기능을 불러오지 못했습니다.');
+    setUpdateState('error', tr('업데이트 기능을 불러오지 못했습니다.'));
     return;
   }
   // 리스너를 지우지 않으면 확인할 때마다 쌓여 알림이 여러 번 뜬다
@@ -1567,23 +1610,23 @@ function checkUpdatesManually() {
     autoUpdater.removeAllListeners(ev);
   }
   autoUpdater.autoDownload = true;
-  setUpdateState('checking', '새 버전을 확인하는 중…');
+  setUpdateState('checking', tr('새 버전을 확인하는 중…'));
 
   autoUpdater.once('update-available', (info) =>
-    setUpdateState('downloading', `새 버전 v${info.version}을 내려받는 중… 0%`));
+    setUpdateState('downloading', tr('새 버전 v{v}을 내려받는 중… 0%', { v: info.version })));
   autoUpdater.on('download-progress', (p) =>
-    setUpdateState('downloading', `내려받는 중… ${Math.round(p.percent)}%`));
+    setUpdateState('downloading', tr('내려받는 중… {p}%', { p: Math.round(p.percent) })));
   autoUpdater.once('update-not-available', () =>
-    setUpdateState('latest', '지금이 최신 버전입니다.'));
+    setUpdateState('latest', tr('지금이 최신 버전입니다.')));
   autoUpdater.once('update-downloaded', (info) => {
-    setUpdateState('ready', `v${info.version} 준비 완료 — 다시 시작하면 적용됩니다.`);
-    notify(`새 버전 v${info.version}을 받았습니다. 다시 시작하면 적용됩니다.`);
+    setUpdateState('ready', tr('v{v} 준비 완료 — 다시 시작하면 적용됩니다.', { v: info.version }));
+    notify(tr('새 버전 v{v}을 받았습니다. 다시 시작하면 적용됩니다.', { v: info.version }));
   });
   autoUpdater.once('error', (err) => {
     const net = /net::|ENOTFOUND|ETIMEDOUT|EAI_AGAIN/.test(String(err && err.message));
     setUpdateState('error', net
-      ? '인터넷에 연결되어 있는지 확인해주세요.'
-      : '업데이트 확인에 실패했습니다. 잠시 후 다시 시도해주세요.');
+      ? tr('인터넷에 연결되어 있는지 확인해주세요.')
+      : tr('업데이트 확인에 실패했습니다. 잠시 후 다시 시도해주세요.'));
   });
 
   autoUpdater.checkForUpdates().catch(() => { /* error 리스너가 처리 */ });
@@ -1595,7 +1638,7 @@ ipcMain.on('update-restart', () => {
     const { autoUpdater } = require('electron-updater');
     autoUpdater.quitAndInstall();
   } catch (e) {
-    notify('다시 시작하지 못했습니다. 프로그램을 직접 종료한 뒤 다시 실행해주세요.');
+    notify(tr('다시 시작하지 못했습니다. 프로그램을 직접 종료한 뒤 다시 실행해주세요.'));
   }
 });
 ipcMain.on('update-check', () => checkUpdatesManually());
@@ -1612,9 +1655,9 @@ async function firstRunFlow() {
   const { response } = await dialog.showMessageBox({
     type: 'question',
     title: '스샷핀',
-    message: '컴퓨터를 켤 때 스샷핀을 자동으로 실행할까요?',
-    detail: `자동 실행을 켜두면 부팅 후 바로 ${settings.hotkeys.capture}(캡처), ${settings.hotkeys.pin}(핀)을 쓸 수 있습니다.\n트레이 메뉴에서 언제든 바꿀 수 있습니다.`,
-    buttons: ['자동 실행 켜기 (추천)', '나중에'],
+    message: tr('컴퓨터를 켤 때 스샷핀을 자동으로 실행할까요?'),
+    detail: tr('자동 실행을 켜두면 부팅 후 바로 {c}(캡처), {p}(핀)을 쓸 수 있습니다.\n트레이 메뉴에서 언제든 바꿀 수 있습니다.', { c: settings.hotkeys.capture, p: settings.hotkeys.pin }),
+    buttons: [tr('자동 실행 켜기 (추천)'), tr('나중에')],
     defaultId: 0,
     cancelId: 1,
   });
@@ -1631,21 +1674,24 @@ if (!gotLock) {
   app.quit();
 } else {
   app.on('second-instance', () =>
-    notify(`스샷핀이 이미 실행 중입니다. (${settings.hotkeys.capture} 캡처 / ${settings.hotkeys.pin} 핀)`));
+    notify(tr('스샷핀이 이미 실행 중입니다. ({c} 캡처 / {p} 핀)', { c: settings.hotkeys.capture, p: settings.hotkeys.pin })));
 
   app.whenReady().then(() => {
     app.setAppUserModelId('com.sshotpin.app');
+    // 표시 언어 확정: 설정에서 골랐으면 그 언어, 아니면 OS 언어 (ko/en/ja 외에는 en)
+    lang = I18N.resolve(settings.language || app.getLocale());
+    tr = I18N.translator(lang);
     createTray();
     if (settings.quickbarVisible) createQuickbar();
 
     const failures = registerHotkeys();
     if (failures.length) {
-      notify(`단축키 충돌: ${failures.join(', ')} — 트레이 → ⚙️ 설정에서 바꿀 수 있어요.`);
+      notify(tr('단축키 충돌: {list} — 트레이 → ⚙️ 설정에서 바꿀 수 있어요.', { list: failures.join(', ') }));
     }
     if (hotkeysMigrated) {
       saveSettings();
       log('단축키를 새 기본값으로 자동 변경', JSON.stringify(settings.hotkeys));
-      notify(`단축키가 바뀌었습니다. 캡처 ${settings.hotkeys.capture}, 핀 ${settings.hotkeys.pin}`);
+      notify(tr('단축키가 바뀌었습니다. 캡처 {c}, 핀 {p}', { c: settings.hotkeys.capture, p: settings.hotkeys.pin }));
     }
 
     ensureInApplicationsFolder().then(() => firstRunFlow());
@@ -1665,8 +1711,8 @@ if (!gotLock) {
           const { autoUpdater } = require('electron-updater');
           autoUpdater.on('error', () => { /* 네트워크 오류 등은 조용히 무시 */ });
           autoUpdater.checkForUpdatesAndNotify({
-            title: '스샷핀 업데이트',
-            body: '새 버전이 다운로드됐습니다. 프로그램을 다시 시작하면 적용됩니다.',
+            title: tr('스샷핀 업데이트'),
+            body: tr('새 버전이 다운로드됐습니다. 프로그램을 다시 시작하면 적용됩니다.'),
           });
         } catch (e) { /* 업데이트 실패는 조용히 무시 */ }
       }, 5000);

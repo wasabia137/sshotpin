@@ -64,7 +64,14 @@
 
   <div class="tip">앞에서 보여준 자료를 다시 찍지 않고 여기서 바로 꺼내 쓰세요.</div>
 
+<script src="i18n.js"></script>
 <script>
+  // ----- 다국어: OS 언어에 맞춰 표시 (ko는 원문 그대로) -----
+  const LANG = (window.api && window.api.locale) || 'ko';
+  const T = window.I18N ? I18N.translator(LANG) : ((s) => s);
+  if (LANG !== 'ko' && window.I18N) I18N.applyPage(LANG, 'history.html', document);
+
+
   const list = document.getElementById('list');
 
   function when(ts) {
@@ -78,7 +85,7 @@
 
   window.api.onHistoryState(({ items }) => {
     if (!items.length) {
-      list.innerHTML = '<div class="empty">아직 캡처한 것이 없습니다.<br>퀵 실행바의 📸 로 화면을 찍어보세요.</div>';
+      list.innerHTML = `<div class="empty">${T('아직 캡처한 것이 없습니다.<br>퀵 실행바의 📸 로 화면을 찍어보세요.')}</div>`;
       return;
     }
     list.className = 'grid';
@@ -87,14 +94,14 @@
       const el = document.createElement('div');
       el.className = 'item';
       el.innerHTML = `
-        <div class="thumb" title="클릭하면 화면에 붙입니다">
-          ${it.thumb ? `<img src="${it.thumb}" alt="">` : '<span style="color:#94a3b8">미리보기 없음</span>'}
+        <div class="thumb" title="${T('클릭하면 화면에 붙입니다')}">
+          ${it.thumb ? `<img src="${it.thumb}" alt="">` : `<span style="color:#94a3b8">${T('미리보기 없음')}</span>`}
         </div>
         <div class="meta">
           <span class="size">${it.w}×${it.h} · ${when(it.at)}</span>
-          <button class="ib" data-act="copy" title="복사">📋</button>
-          <button class="ib" data-act="save" title="저장">💾</button>
-          <button class="ib" data-act="del" title="삭제">🗑</button>
+          <button class="ib" data-act="copy" title="${T('복사')}">📋</button>
+          <button class="ib" data-act="save" title="${T('저장')}">💾</button>
+          <button class="ib" data-act="del" title="${T('삭제')}">🗑</button>
         </div>
       `;
       el.querySelector('.thumb').addEventListener('click', () => window.api.historyPin(it.id));

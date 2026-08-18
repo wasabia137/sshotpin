@@ -82,10 +82,13 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "스샷핀",
+      "shortcutName": "SshotPin",
       "installerLanguages": [
-        "ko_KR"
-      ]
+        "ko_KR",
+        "en_US",
+        "ja_JP"
+      ],
+      "multiLanguageInstaller": true
     },
     "copyright": "Copyright (c) 2026 SshotPin (sshot-pin.web.app)"
   },

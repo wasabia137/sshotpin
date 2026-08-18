@@ -44,7 +44,14 @@
     <div class="btn" id="hideBtn" data-act="hide" title="퀵바 숨기기 (트레이에서 다시 켤 수 있어요)">✕</div>
   </div>
 
+<script src="i18n.js"></script>
 <script>
+  // ----- 다국어: OS 언어에 맞춰 표시 (ko는 원문 그대로) -----
+  const LANG = (window.api && window.api.locale) || 'ko';
+  const T = window.I18N ? I18N.translator(LANG) : ((s) => s);
+  if (LANG !== 'ko' && window.I18N) I18N.applyPage(LANG, 'quickbar.html', document);
+
+
   // 버튼 실행
   for (const el of document.querySelectorAll('.btn')) {
     el.addEventListener('click', () => window.api.quickbarAction(el.dataset.act));

@@ -11,6 +11,8 @@ window.addEventListener('unhandledrejection', (e) => {
 });
 
 contextBridge.exposeInMainWorld('api', {
+  // 표시 언어 ('ko' | 'en' | 'ja') — 창이 열릴 때 메인에서 받아온다
+  locale: ipcRenderer.sendSync('get-locale'),
   log: (msg) => ipcRenderer.send('renderer-log', String(msg)),
   // 창 공통 드래그 이동
   winDragStart: () => ipcRenderer.send('win-drag-start'),

@@ -46,7 +46,14 @@
   </div>
   <div id="close" title="닫기 (Esc)">✕</div>
 
+<script src="i18n.js"></script>
 <script>
+  // ----- 다국어: OS 언어에 맞춰 표시 (ko는 원문 그대로) -----
+  const LANG = (window.api && window.api.locale) || 'ko';
+  const T = window.I18N ? I18N.translator(LANG) : ((s) => s);
+  if (LANG !== 'ko' && window.I18N) I18N.applyPage(LANG, 'cover.html', document);
+
+
   let id = null;
   let revealed = false;
   let dragging = false, sx = 0, sy = 0, moved = 0;

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>How to use SshotPin</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif;
+    background: #f8fafc; color: #1e293b;
+    padding: 24px 28px 40px;
+    line-height: 1.7;
+  }
+  h1 { font-size: 22px; margin-bottom: 4px; }
+  .sub { color: #64748b; font-size: 13px; margin-bottom: 20px; }
+  h2 {
+    font-size: 15px; margin: 22px 0 8px;
+    padding-left: 10px; border-left: 4px solid #2563eb;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; background: #fff; border-radius: 8px; overflow: hidden; }
+  th, td { padding: 7px 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+  th { background: #f1f5f9; color: #475569; font-weight: 600; width: 190px; }
+  kbd {
+    display: inline-block;
+    background: #1e293b; color: #f1f5f9;
+    border-radius: 5px; padding: 1px 7px;
+    font: 12px 'Segoe UI', sans-serif;
+    margin: 0 1px;
+  }
+  .tip {
+    background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px;
+    padding: 10px 14px; font-size: 13px; margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+  <h1>📌 How to use SshotPin</h1>
+  <div class="sub">Reopen anytime from the tray icon → ❓ How to use & shortcuts.</div>
+
+  <h2>Global shortcuts</h2>
+  <table>
+    <tr><th><span data-hk="capture">—</span></th><td>Region capture</td></tr>
+    <tr><th><span data-hk="pin">—</span></th><td>Pin the copied image on screen</td></tr>
+    <tr><th><span data-hk="zoom">—</span></th><td>Zoom the screen in / out</td></tr>
+    <tr><th><span data-hk="draw">—</span></th><td>Draw on screen</td></tr>
+    <tr><th><span data-hk="timer">—</span></th><td>Timer</td></tr>
+    <tr><th><span data-hk="cover">—</span></th><td>Cover</td></tr>
+  </table>
+  <div class="tip">
+    If a shortcut doesn't suit you, change it or clear it in tray → <b>⚙️ Settings</b>.
+    Cleared actions can still be run from the quick bar.
+  </div>
+
+  <h2>📸 Region capture</h2>
+  <table>
+    <tr><th>Drag</th><td>Select the area to capture</td></tr>
+    <tr><th>Drag a blue dot</th><td>Resize the selection</td></tr>
+    <tr><th>Drag inside</th><td>Move the selection</td></tr>
+    <tr><th>Tool buttons</th><td>✏️Pen ↗Arrow ▭Rect ◯Ellipse 🖍Highlighter 🔲Mosaic ①Numbers</td></tr>
+    <tr><th>↩ / <kbd>Ctrl</kbd>+<kbd>Z</kbd> / right-click</th><td>Undo drawing</td></tr>
+    <tr><th><kbd>Enter</kbd> or 📌</th><td>Pin on screen</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+<kbd>C</kbd> / <kbd>Ctrl</kbd>+<kbd>S</kbd></th><td>Copy / save as PNG</td></tr>
+    <tr><th>🙈 button</th><td>Cover the selected area</td></tr>
+    <tr><th><kbd>Esc</kbd></th><td>Deselect tool; press again to cancel</td></tr>
+  </table>
+  <div class="tip">Great for shooting material and adding an arrow before showing it. Pick a tool, draw inside the area, then press <kbd>Enter</kbd>.</div>
+
+  <h2>📌 Pins — images stuck on screen</h2>
+  <table>
+    <tr><th>Drag</th><td>Move</td></tr>
+    <tr><th>Drag a corner</th><td>Resize (keeps ratio)</td></tr>
+    <tr><th>Wheel</th><td>Zoom in / out</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+wheel</th><td>Opacity</td></tr>
+    <tr><th>Double-click</th><td>Collapse / expand</td></tr>
+    <tr><th>✕ button · wheel click · <kbd>Esc</kbd></th><td>Close (✕ appears top-right on hover)</td></tr>
+    <tr><th><kbd>0</kbd></th><td>Original size & opacity</td></tr>
+    <tr><th><kbd>1</kbd> / <kbd>2</kbd></th><td>Rotate 90° cw / ccw</td></tr>
+    <tr><th><kbd>3</kbd> / <kbd>4</kbd></th><td>Flip horizontally / vertically</td></tr>
+    <tr><th>Right-click</th><td>Border color, zoom & opacity, click-through</td></tr>
+  </table>
+  <div class="tip">With <b>click-through</b> on, you can use the programs underneath while the pin stays on top. Turn it off via tray → "Turn off all click-through".</div>
+
+  <h2>🔍 Zoom · ✏️ Draw</h2>
+  <table>
+    <tr><th>Bottom toolbar</th><td>Color, pen size, clear, boards, pin, copy, save — all by mouse</td></tr>
+    <tr><th>Wheel · <kbd>↑</kbd><kbd>↓</kbd> · <kbd>+</kbd><kbd>−</kbd></th><td>Zoom in / out (the view follows your mouse)</td></tr>
+    <tr><th>Drag</th><td>Pen</td></tr>
+    <tr><th><kbd>Shift</kbd>+drag</th><td>Straight line</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+drag</th><td>Rectangle</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+drag</th><td>Arrow</td></tr>
+    <tr><th><kbd>Tab</kbd>+drag</th><td>Ellipse</td></tr>
+    <tr><th><kbd>Alt</kbd>+click</th><td>Step numbers ①②③</td></tr>
+    <tr><th>🔲 or <kbd>M</kbd></th><td>Mosaic — turn on and drag to hide</td></tr>
+    <tr><th>🔴 or <kbd>L</kbd></th><td>Laser pointer — strokes fade away</td></tr>
+    <tr><th><kbd>F5</kbd></th><td>Re-capture the screen, keeping zoom & drawings</td></tr>
+    <tr><th><kbd>R</kbd> <kbd>G</kbd> <kbd>B</kbd> <kbd>O</kbd> <kbd>Y</kbd> <kbd>P</kbd></th><td>Red · green · blue · orange · yellow · pink</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+wheel</th><td>Pen size</td></tr>
+    <tr><th><kbd>W</kbd> / <kbd>K</kbd></th><td>White board / black board</td></tr>
+    <tr><th>Right-click / <kbd>Ctrl</kbd>+<kbd>Z</kbd></th><td>Undo one stroke</td></tr>
+    <tr><th><kbd>E</kbd></th><td>Clear all</td></tr>
+    <tr><th><kbd>Enter</kbd></th><td>Pin the current view</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+<kbd>C</kbd> / <kbd>Ctrl</kbd>+<kbd>S</kbd></th><td>Copy / save</td></tr>
+    <tr><th><kbd>Esc</kbd></th><td>Exit the mode immediately</td></tr>
+  </table>
+
+  <h2>🙈 Cover</h2>
+  <table>
+    <tr><th>Drag</th><td>Select the area to cover; it's created on release</td></tr>
+    <tr><th>Click</th><td>Reveal ↔ cover again</td></tr>
+    <tr><th>Drag</th><td>Move the cover</td></tr>
+    <tr><th>Right-click</th><td>Change color (navy · chalkboard green · gray · yellow)</td></tr>
+    <tr><th>✕ button · wheel click · <kbd>Esc</kbd></th><td>Close (✕ appears top-right on hover)</td></tr>
+  </table>
+
+  <h2>⏱️ Timer</h2>
+  <table>
+    <tr><th>1·3·5·10·15 min buttons</th><td>Start right away with that time</td></tr>
+    <tr><th>Click the time</th><td>Type it in — <b>5:30</b> or <b>10</b></td></tr>
+    <tr><th>Wheel / ±30s buttons</th><td>Adjust by 30 seconds</td></tr>
+    <tr><th><kbd>Space</kbd> or ▶</th><td>Start / pause</td></tr>
+    <tr><th><kbd>Esc</kbd></th><td>Close</td></tr>
+  </table>
+
+  <h2>And more</h2>
+  <table>
+    <tr><th>🕘 Recent captures</th><td>Keeps the last 24. Click one to pin it back on screen</td></tr>
+    <tr><th>Quick bar</th><td>Move with the ⠿ handle, hide with ✕ (re-enable from tray)</td></tr>
+    <tr><th>Double-click tray icon</th><td>Region capture</td></tr>
+    <tr><th>Right-click tray icon</th><td>Full menu — hide/close pins, check updates, quit</td></tr>
+    <tr><th>⚙️ Settings</th><td>Shortcuts, save folder, quick save, quick bar, start at login, language</td></tr>
+  </table>
+
+<script>
+  // 실제로 지정된 단축키를 그대로 보여준다 (플랫폼·사용자 설정에 따라 다름)
+  function pretty(accel) {
+    if (!accel) return 'Not set';
+    return accel
+      .replace('CommandOrControl', 'Ctrl')
+      .replace('Control', 'Ctrl')
+      .replace('Command', 'Cmd')
+      .replace('Option', 'Alt')
+      .split('+')
+      .map((k) => `<kbd>${k}</kbd>`)
+      .join('+');
+  }
+  window.api.onHelpState(({ hotkeys }) => {
+    for (const el of document.querySelectorAll('[data-hk]')) {
+      el.innerHTML = pretty(hotkeys[el.dataset.hk]);
+    }
+  });
+</script>
+</body>
+</html>

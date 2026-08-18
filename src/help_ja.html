@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>SshotPin の使い方</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', 'Meiryo', sans-serif;
+    background: #f8fafc; color: #1e293b;
+    padding: 24px 28px 40px;
+    line-height: 1.7;
+  }
+  h1 { font-size: 22px; margin-bottom: 4px; }
+  .sub { color: #64748b; font-size: 13px; margin-bottom: 20px; }
+  h2 {
+    font-size: 15px; margin: 22px 0 8px;
+    padding-left: 10px; border-left: 4px solid #2563eb;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; background: #fff; border-radius: 8px; overflow: hidden; }
+  th, td { padding: 7px 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+  th { background: #f1f5f9; color: #475569; font-weight: 600; width: 190px; }
+  kbd {
+    display: inline-block;
+    background: #1e293b; color: #f1f5f9;
+    border-radius: 5px; padding: 1px 7px;
+    font: 12px 'Meiryo', sans-serif;
+    margin: 0 1px;
+  }
+  .tip {
+    background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px;
+    padding: 10px 14px; font-size: 13px; margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+  <h1>📌 SshotPin の使い方</h1>
+  <div class="sub">トレイアイコン → ❓ 使い方・ショートカット でいつでも開けます。</div>
+
+  <h2>グローバルショートカット</h2>
+  <table>
+    <tr><th><span data-hk="capture">—</span></th><td>範囲キャプチャ</td></tr>
+    <tr><th><span data-hk="pin">—</span></th><td>コピーした画像を画面にピン</td></tr>
+    <tr><th><span data-hk="zoom">—</span></th><td>画面の拡大・縮小</td></tr>
+    <tr><th><span data-hk="draw">—</span></th><td>画面に書き込み</td></tr>
+    <tr><th><span data-hk="timer">—</span></th><td>タイマー</td></tr>
+    <tr><th><span data-hk="cover">—</span></th><td>カバー</td></tr>
+  </table>
+  <div class="tip">
+    合わないショートカットはトレイ → <b>⚙️ 設定</b> で変更するかクリアしてください。
+    クリアしてもクイックバーから実行できます。
+  </div>
+
+  <h2>📸 範囲キャプチャ</h2>
+  <table>
+    <tr><th>ドラッグ</th><td>キャプチャする範囲を選択</td></tr>
+    <tr><th>青い点をドラッグ</th><td>選択範囲のサイズ変更</td></tr>
+    <tr><th>範囲内をドラッグ</th><td>選択範囲の移動</td></tr>
+    <tr><th>ツールボタン</th><td>✏️ペン ↗矢印 ▭四角 ◯円 🖍蛍光ペン 🔲モザイク ①番号</td></tr>
+    <tr><th>↩ / <kbd>Ctrl</kbd>+<kbd>Z</kbd> / 右クリック</th><td>描画を元に戻す</td></tr>
+    <tr><th><kbd>Enter</kbd> または 📌</th><td>画面にピン</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+<kbd>C</kbd> / <kbd>Ctrl</kbd>+<kbd>S</kbd></th><td>コピー / PNG保存</td></tr>
+    <tr><th>🙈 ボタン</th><td>選択範囲をカバーで隠す</td></tr>
+    <tr><th><kbd>Esc</kbd></th><td>ツール解除、もう一度押すとキャンセル</td></tr>
+  </table>
+  <div class="tip">資料を撮って矢印を載せて見せるときに便利です。ツールを選び、範囲内に描いて <kbd>Enter</kbd>。</div>
+
+  <h2>📌 ピン — 画面に貼り付いた画像</h2>
+  <table>
+    <tr><th>ドラッグ</th><td>移動</td></tr>
+    <tr><th>角をドラッグ</th><td>サイズ変更(比率維持)</td></tr>
+    <tr><th>ホイール</th><td>拡大 / 縮小</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+ホイール</th><td>不透明度</td></tr>
+    <tr><th>ダブルクリック</th><td>折りたたみ / 展開</td></tr>
+    <tr><th>✕ ボタン · ホイールクリック · <kbd>Esc</kbd></th><td>閉じる(ホバーで右上に✕が表示)</td></tr>
+    <tr><th><kbd>0</kbd></th><td>元のサイズ・不透明度</td></tr>
+    <tr><th><kbd>1</kbd> / <kbd>2</kbd></th><td>時計回り / 反時計回りに90°回転</td></tr>
+    <tr><th><kbd>3</kbd> / <kbd>4</kbd></th><td>左右 / 上下反転</td></tr>
+    <tr><th>右クリック</th><td>枠線の色、拡大・不透明度、クリック透過</td></tr>
+  </table>
+  <div class="tip"><b>クリック透過</b>をオンにすると、ピンを表示したまま下のプログラムを操作できます。解除はトレイ → 「クリック透過をすべて解除」。</div>
+
+  <h2>🔍 画面拡大 · ✏️ 書き込み</h2>
+  <table>
+    <tr><th>下部ツールバー</th><td>色・太さ・消去・ボード・ピン・コピー・保存をマウスで操作</td></tr>
+    <tr><th>ホイール · <kbd>↑</kbd><kbd>↓</kbd> · <kbd>+</kbd><kbd>−</kbd></th><td>拡大 / 縮小(マウスに画面が追従)</td></tr>
+    <tr><th>ドラッグ</th><td>ペン</td></tr>
+    <tr><th><kbd>Shift</kbd>+ドラッグ</th><td>直線</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+ドラッグ</th><td>四角形</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+ドラッグ</th><td>矢印</td></tr>
+    <tr><th><kbd>Tab</kbd>+ドラッグ</th><td>円</td></tr>
+    <tr><th><kbd>Alt</kbd>+クリック</th><td>手順番号 ①②③</td></tr>
+    <tr><th>🔲 または <kbd>M</kbd></th><td>モザイク — オンにしてドラッグで隠す</td></tr>
+    <tr><th>🔴 または <kbd>L</kbd></th><td>レーザーポインター — 描くと少し後に消える</td></tr>
+    <tr><th><kbd>F5</kbd></th><td>画面を撮り直す(倍率・書き込みは維持)</td></tr>
+    <tr><th><kbd>R</kbd> <kbd>G</kbd> <kbd>B</kbd> <kbd>O</kbd> <kbd>Y</kbd> <kbd>P</kbd></th><td>赤・緑・青・オレンジ・黄・ピンク</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+ホイール</th><td>ペンの太さ</td></tr>
+    <tr><th><kbd>W</kbd> / <kbd>K</kbd></th><td>ホワイトボード / 黒板</td></tr>
+    <tr><th>右クリック / <kbd>Ctrl</kbd>+<kbd>Z</kbd></th><td>一画消す</td></tr>
+    <tr><th><kbd>E</kbd></th><td>すべて消す</td></tr>
+    <tr><th><kbd>Enter</kbd></th><td>今の画面をピンに</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+<kbd>C</kbd> / <kbd>Ctrl</kbd>+<kbd>S</kbd></th><td>コピー / 保存</td></tr>
+    <tr><th><kbd>Esc</kbd></th><td>モードを即終了</td></tr>
+  </table>
+
+  <h2>🙈 カバー</h2>
+  <table>
+    <tr><th>ドラッグ</th><td>隠す範囲を選択、離すとすぐ作成</td></tr>
+    <tr><th>クリック</th><td>公開 ↔ 再び隠す</td></tr>
+    <tr><th>ドラッグ</th><td>カバーの移動</td></tr>
+    <tr><th>右クリック</th><td>色を変更(ネイビー・黒板グリーン・グレー・イエロー)</td></tr>
+    <tr><th>✕ ボタン · ホイールクリック · <kbd>Esc</kbd></th><td>閉じる(ホバーで右上に✕が表示)</td></tr>
+  </table>
+
+  <h2>⏱️ タイマー</h2>
+  <table>
+    <tr><th>1·3·5·10·15分ボタン</th><td>押すとその時間ですぐ開始</td></tr>
+    <tr><th>時間をクリック</th><td>直接入力 — <b>5:30</b> または <b>10</b></td></tr>
+    <tr><th>ホイール / ±30秒ボタン</th><td>30秒ずつ調整</td></tr>
+    <tr><th><kbd>Space</kbd> または ▶</th><td>開始 / 一時停止</td></tr>
+    <tr><th><kbd>Esc</kbd></th><td>閉じる</td></tr>
+  </table>
+
+  <h2>そのほか</h2>
+  <table>
+    <tr><th>🕘 最近のキャプチャ</th><td>最新24件を保管。クリックで画面に再度貼り付け</td></tr>
+    <tr><th>クイックバー</th><td>⠿ ハンドルで移動、✕で非表示(トレイで再表示)</td></tr>
+    <tr><th>トレイをダブルクリック</th><td>範囲キャプチャ</td></tr>
+    <tr><th>トレイを右クリック</th><td>全メニュー — ピンの非表示・閉じる、更新確認、終了</td></tr>
+    <tr><th>⚙️ 設定</th><td>ショートカット、保存フォルダ、すぐ保存、クイックバー、自動実行、言語</td></tr>
+  </table>
+
+<script>
+  // 실제로 지정된 단축키를 그대로 보여준다 (플랫폼·사용자 설정에 따라 다름)
+  function pretty(accel) {
+    if (!accel) return '未設定';
+    return accel
+      .replace('CommandOrControl', 'Ctrl')
+      .replace('Control', 'Ctrl')
+      .replace('Command', 'Cmd')
+      .replace('Option', 'Alt')
+      .split('+')
+      .map((k) => `<kbd>${k}</kbd>`)
+      .join('+');
+  }
+  window.api.onHelpState(({ hotkeys }) => {
+    for (const el of document.querySelectorAll('[data-hk]')) {
+      el.innerHTML = pretty(hotkeys[el.dataset.hk]);
+    }
+  });
+</script>
+</body>
+</html>

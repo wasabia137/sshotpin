@@ -154,7 +154,14 @@
     </div>
   </div>
 
+<script src="i18n.js"></script>
 <script>
+  // ----- 다국어: OS 언어에 맞춰 표시 (ko는 원문 그대로) -----
+  const LANG = (window.api && window.api.locale) || 'ko';
+  const T = window.I18N ? I18N.translator(LANG) : ((s) => s);
+  if (LANG !== 'ko' && window.I18N) I18N.applyPage(LANG, 'capture.html', document);
+
+
   const shot = document.getElementById('shot');
   const veil = document.getElementById('veil');
   const sizeLabel = document.getElementById('sizeLabel');
@@ -205,14 +212,14 @@
     toolbar.classList.remove('show');
     sizeLabel.style.display = 'none';
     document.getElementById('copied').classList.remove('show');
-    hint.textContent = '드래그해서 영역을 선택하세요 · Enter=핀 · Esc=취소';
+    hint.textContent = T('드래그해서 영역을 선택하세요 · Enter=핀 · Esc=취소');
     hint.style.display = 'block';
 
     mode = d.mode || 'capture';
     paintShot(d.shot);
     resizeCanvas();
     if (mode === 'cover') {
-      hint.textContent = '🙈 가릴 영역을 드래그하세요 (놓는 즉시 가리개 생성) · Esc=취소';
+      hint.textContent = T('🙈 가릴 영역을 드래그하세요 (놓는 즉시 가리개 생성) · Esc=취소');
     }
     // 그리기는 위에서 동기적으로 끝났으므로 곧바로 알린다.
     // (숨겨진 창에서는 requestAnimationFrame이 돌지 않아 기다리면 안 된다)

@@ -83,7 +83,14 @@
   </div>
   <div id="zhint">휠·↑↓ = 배율 &nbsp;·&nbsp; 드래그 = 그리기 &nbsp;·&nbsp; F5 = 화면 갱신 &nbsp;·&nbsp; Esc·우클릭 = 끝내기</div>
 
+<script src="i18n.js"></script>
 <script>
+  // ----- 다국어: OS 언어에 맞춰 표시 (ko는 원문 그대로) -----
+  const LANG = (window.api && window.api.locale) || 'ko';
+  const T = window.I18N ? I18N.translator(LANG) : ((s) => s);
+  if (LANG !== 'ko' && window.I18N) I18N.applyPage(LANG, 'screen.html', document);
+
+
   const bgCanvas = document.getElementById('bg');
   const inkCanvas = document.getElementById('ink');
   // 배경은 늘 전체를 덮어 칠하므로 알파가 필요 없다 — 알파를 빼면 합성이 더 싸다

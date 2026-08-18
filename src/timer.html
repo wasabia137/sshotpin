@@ -82,7 +82,14 @@
     <button id="plusBtn">+30초</button>
   </div>
 
+<script src="i18n.js"></script>
 <script>
+  // ----- 다국어: OS 언어에 맞춰 표시 (ko는 원문 그대로) -----
+  const LANG = (window.api && window.api.locale) || 'ko';
+  const T = window.I18N ? I18N.translator(LANG) : ((s) => s);
+  if (LANG !== 'ko' && window.I18N) I18N.applyPage(LANG, 'timer.html', document);
+
+
   let total = 5 * 60;      // 설정 시간(초)
   let remain = total;
   let running = false;
@@ -98,7 +105,7 @@
   }
 
   function renderTime() {
-    timeEl.textContent = alarmed ? '시간 종료!' : fmt(remain);
+    timeEl.textContent = alarmed ? T('시간 종료!') : fmt(remain);
     timeEl.style.fontSize = alarmed ? '34px' : '52px';
   }
 
@@ -118,7 +125,7 @@
 
   function setRunning(on) {
     running = on;
-    startBtn.textContent = on ? '⏸ 멈춤' : '▶ 시작';
+    startBtn.textContent = on ? T('⏸ 멈춤') : T('▶ 시작');
     clearInterval(tick);
     if (on) {
       tick = setInterval(() => {
