@@ -16,9 +16,12 @@ let lang = 'ko';
 let tr = I18N.translator('ko');
 ipcMain.on('get-locale', (e) => { e.returnValue = lang; });
 
-// 후원 페이지 — 설정·도움말의 ☕ 버튼에서 연다
-const SUPPORT_URL = 'https://buymeacoffee.com/kkunggabba';
-ipcMain.on('open-support', () => shell.openExternal(SUPPORT_URL));
+// 후원 페이지 — 사용자 언어의 웹 후원 절을 연다 (한국어=카카오페이,
+// 중국어=알리페이, 그 외=카드). 창구가 바뀌어도 웹만 고치면 된다.
+ipcMain.on('open-support', () => {
+  const seg = lang === 'ko' ? '' : `${lang}/`;
+  shell.openExternal(`https://sshot-pin.web.app/${seg}#support`);
+});
 
 const isMac = process.platform === 'darwin';
 
