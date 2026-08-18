@@ -528,7 +528,10 @@ ipcMain.on('history-clear', async () => {
 function createQuickbar() {
   if (quickbarWin) { quickbarWin.showInactive(); return; }
   const display = screen.getPrimaryDisplay();
-  const W = 472, H = 46;
+  // 내용물에 정확히 맞춘 크기. 창이 더 넓으면 바가 늘어나며 버튼은 왼쪽
+  // 정렬이라 오른쪽에만 빈 공간이 생긴다 (좌우 패딩이 달라 보이는 원인).
+  // = 여백2 + 테두리2 + 패딩12 + 손잡이22 + 버튼 9×38 + ✕28 + 간격 10×2
+  const W = 428, H = 46;
   let { x, y } = {
     x: display.workArea.x + Math.round((display.workArea.width - W) / 2),
     y: display.workArea.y + 8,
@@ -1619,22 +1622,28 @@ if (!gotLock) {
       notify(`단축키가 바뀌었습니다. 캡처 ${settings.hotkeys.capture}, 핀 ${settings.hotkeys.pin}`);
     }
 
-    // 첫 단축키가 곧바로 반응하도록 오버레이 창을 미리 만들어 둔다
-    prewarmOverlay('capture');
-    prewarmOverlay('overlay');
-
     ensureInApplicationsFolder().then(() => firstRunFlow());
+
+    // 오버레이 예열·업데이트 확인은 첫 화면(퀵바·도움말)이 뜬 뒤로 미룬다.
+    // 시작하자마자 전체 화면 창 2개를 만들면 첫 화면 로딩과 경쟁해,
+    // 설치 직후 실행이 한동안 멈춘 것처럼 보인다.
+    setTimeout(() => {
+      prewarmOverlay('capture');
+      prewarmOverlay('overlay');
+    }, 1500);
 
     // 자동 업데이트 (설치 버전에서만) — GitHub Releases 확인
     if (app.isPackaged) {
-      try {
-        const { autoUpdater } = require('electron-updater');
-        autoUpdater.on('error', () => { /* 네트워크 오류 등은 조용히 무시 */ });
-        autoUpdater.checkForUpdatesAndNotify({
-          title: '스샷핀 업데이트',
-          body: '새 버전이 다운로드됐습니다. 프로그램을 다시 시작하면 적용됩니다.',
-        });
-      } catch (e) { /* 업데이트 실패는 조용히 무시 */ }
+      setTimeout(() => {
+        try {
+          const { autoUpdater } = require('electron-updater');
+          autoUpdater.on('error', () => { /* 네트워크 오류 등은 조용히 무시 */ });
+          autoUpdater.checkForUpdatesAndNotify({
+            title: '스샷핀 업데이트',
+            body: '새 버전이 다운로드됐습니다. 프로그램을 다시 시작하면 적용됩니다.',
+          });
+        } catch (e) { /* 업데이트 실패는 조용히 무시 */ }
+      }, 5000);
     }
 
     log(`스샷핀 v${app.getVersion()} 시작 — 단축키 ${JSON.stringify(settings.hotkeys)}`);
