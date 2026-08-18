@@ -556,7 +556,7 @@
     <g transform="translate(455 205)">
       <g>
         <animateTransform attributeName="transform" type="scale"
-          values="1;1;2.15;2.15;1;1" dur="8s" repeatCount="indefinite" keyTimes="0;.06;.34;.66;.94;1"
+          values="1;1;2.15;2.15;1;1" dur="6.5s" repeatCount="indefinite" keyTimes="0;.06;.34;.66;.94;1"
           calcMode="spline" keySplines="0 0 1 1;.25 .1 .25 1;0 0 1 1;.25 .1 .25 1;0 0 1 1"/>
         <g transform="translate(-455 -205)">
           <rect x="120" y="108" width="300" height="11" rx="5.5" fill="var(--line)"/>
@@ -579,7 +579,7 @@
   <!-- 마우스가 가리킨 곳이 확대의 중심 -->
   <g transform="translate(455 205)">
     <circle r="26" fill="var(--blue)" opacity="0">
-      <animate attributeName="opacity" values="0;.22;0;0" dur="8s" repeatCount="indefinite" keyTimes="0;.1;.28;1"/>
+      <animate attributeName="opacity" values="0;.22;0;0" dur="6.5s" repeatCount="indefinite" keyTimes="0;.1;.28;1"/>
     </circle>
     <path d="M0 0 L0 26 L7 19 L12 30 L18 27 L13 17 L22 16 Z" fill="var(--text)" stroke="var(--card)" stroke-width="1.6" stroke-linejoin="round"/>
   </g>
@@ -596,46 +596,62 @@
     <rect x="105" y="255" width="300" height="10" rx="5" fill="var(--line)"/>
     <rect x="105" y="285" width="420" height="10" rx="5" fill="var(--line)"/>
     <rect x="105" y="345" width="250" height="10" rx="5" fill="var(--line)"/>
+    <rect x="105" y="375" width="360" height="10" rx="5" fill="var(--line)"/>
   </g>
 
   <!-- 밑줄 -->
   <path d="M105 172 L470 172" stroke="#ef4444" stroke-width="5" stroke-linecap="round" fill="none"
-        stroke-dasharray="365" stroke-dashoffset="365">
-    <animate attributeName="stroke-dashoffset" values="365;0;0;365" dur="6.5s" repeatCount="indefinite" keyTimes="0;.22;.86;1"/>
+        stroke-dasharray="365" stroke-dashoffset="365" opacity="0">
+    <animate attributeName="stroke-dashoffset" values="365;0;0;0" dur="6.5s" repeatCount="indefinite" keyTimes="0;.22;.88;1"/>
+    <animate attributeName="opacity" values="0;1;1;0;0" dur="6.5s" repeatCount="indefinite" keyTimes="0;.02;.88;.95;1"/>
   </path>
-  <!-- 동그라미 -->
-  <ellipse cx="300" cy="290" rx="170" ry="42" fill="none" stroke="#22c55e" stroke-width="5"
-           stroke-dasharray="680" stroke-dashoffset="680" transform="rotate(-2 300 290)">
-    <animate attributeName="stroke-dashoffset" values="680;680;0;0;680" dur="6.5s" repeatCount="indefinite" keyTimes="0;.28;.52;.86;1"/>
-  </ellipse>
+  <!-- 동그라미 — 펜이 따라갈 수 있도록 ellipse 대신 path로 그린다 -->
+  <path id="dCircle" d="M470 300 A170 42 0 0 1 130 300 A170 42 0 0 1 470 300"
+        transform="rotate(-2 300 300)" fill="none" stroke="#22c55e" stroke-width="5" stroke-linecap="round"
+        stroke-dasharray="730" stroke-dashoffset="730" opacity="0">
+    <animate attributeName="stroke-dashoffset" values="730;730;0;0" dur="6.5s" repeatCount="indefinite" keyTimes="0;.28;.52;1"/>
+    <animate attributeName="opacity" values="0;0;1;1;0;0" dur="6.5s" repeatCount="indefinite" keyTimes="0;.28;.30;.88;.95;1"/>
+  </path>
   <!-- 화살표 -->
   <g stroke="#3b82f6" stroke-width="5" fill="none" stroke-linecap="round">
-    <path d="M615 150 L505 262" stroke-dasharray="157" stroke-dashoffset="157">
-      <animate attributeName="stroke-dashoffset" values="157;157;0;0;157" dur="6.5s" repeatCount="indefinite" keyTimes="0;.56;.7;.86;1"/>
+    <path d="M640 140 L520 252" stroke-dasharray="164" stroke-dashoffset="164" opacity="0">
+      <animate attributeName="stroke-dashoffset" values="164;164;0;0" dur="6.5s" repeatCount="indefinite" keyTimes="0;.56;.70;1"/>
+      <animate attributeName="opacity" values="0;0;1;1;0;0" dur="6.5s" repeatCount="indefinite" keyTimes="0;.56;.58;.88;.95;1"/>
     </path>
-    <path d="M505 262 L539 256 M505 262 L511 228" stroke-dasharray="80" stroke-dashoffset="80">
-      <animate attributeName="stroke-dashoffset" values="80;80;0;0;80" dur="6.5s" repeatCount="indefinite" keyTimes="0;.68;.76;.86;1"/>
+    <path d="M520 252 L555 247 M520 252 L525 217" stroke-dasharray="80" stroke-dashoffset="80" opacity="0">
+      <animate attributeName="stroke-dashoffset" values="80;80;0;0" dur="6.5s" repeatCount="indefinite" keyTimes="0;.69;.76;1"/>
+      <animate attributeName="opacity" values="0;0;1;1;0;0" dur="6.5s" repeatCount="indefinite" keyTimes="0;.69;.70;.88;.95;1"/>
     </path>
   </g>
 
-  <!-- 펜이 획을 따라간다 -->
+  <!-- 획을 긋는 동안에만 펜이 보인다 (획 사이 순간이동이 보이지 않게) -->
   <g opacity="0">
-    <animate attributeName="opacity" values="0;1;1;0;0" dur="6.5s" repeatCount="indefinite" keyTimes="0;.03;.76;.82;1"/>
-    <animateTransform attributeName="transform" type="translate"
-      values="105 172; 470 172; 470 172; 130 290; 470 290; 470 290; 615 150; 505 262; 505 262"
-      dur="6.5s" repeatCount="indefinite" keyTimes="0;.22;.28;.3;.52;.56;.58;.76;1"/>
+    <animate attributeName="opacity" values="0;1;1;0;0" dur="6.5s" repeatCount="indefinite" keyTimes="0;.02;.22;.25;1"/>
+    <animateMotion dur="6.5s" repeatCount="indefinite" path="M105 172 L470 172"
+      calcMode="linear" keyPoints="0;1;1" keyTimes="0;.22;1"/>
     <g transform="rotate(-32)">
       <rect x="-6.5" y="-50" width="13" height="42" rx="6" fill="var(--text)"/>
       <path d="M-6.5 -9 L6.5 -9 L0 3 Z" fill="#ef4444"/>
     </g>
   </g>
-
-  <!-- 펜 색 -->
-  <g transform="translate(300 400)">
-    <rect x="-4" y="-4" width="208" height="42" rx="21" fill="var(--card)" stroke="var(--line)"/>
-    <circle cx="24" cy="17" r="12" fill="#ef4444"/><circle cx="60" cy="17" r="12" fill="#f97316"/>
-    <circle cx="96" cy="17" r="12" fill="#eab308"/><circle cx="132" cy="17" r="12" fill="#22c55e"/>
-    <circle cx="168" cy="17" r="12" fill="#3b82f6"/>
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" dur="6.5s" repeatCount="indefinite" keyTimes="0;.27;.29;.52;.55;1"/>
+    <animateMotion dur="6.5s" repeatCount="indefinite" calcMode="linear" keyPoints="0;0;1;1" keyTimes="0;.28;.52;1">
+      <mpath href="#dCircle"/>
+    </animateMotion>
+    <g transform="rotate(-32)">
+      <rect x="-6.5" y="-50" width="13" height="42" rx="6" fill="var(--text)"/>
+      <path d="M-6.5 -9 L6.5 -9 L0 3 Z" fill="#22c55e"/>
+    </g>
+  </g>
+  <g opacity="0">
+    <animate attributeName="opacity" values="0;0;1;1;0;0" dur="6.5s" repeatCount="indefinite" keyTimes="0;.55;.57;.70;.73;1"/>
+    <animateMotion dur="6.5s" repeatCount="indefinite" path="M640 140 L520 252"
+      calcMode="linear" keyPoints="0;0;1;1" keyTimes="0;.56;.70;1"/>
+    <g transform="rotate(-32)">
+      <rect x="-6.5" y="-50" width="13" height="42" rx="6" fill="var(--text)"/>
+      <path d="M-6.5 -9 L6.5 -9 L0 3 Z" fill="#3b82f6"/>
+    </g>
   </g>
 </svg>
             <div class="shot-cap">Desenhar na tela <kbd>Ctrl</kbd>+<kbd>2</kbd></div>
@@ -1254,35 +1270,61 @@
     const slides = [...shot.querySelectorAll('.slide')];
     const btns = [...tabs.querySelectorAll('.shot-tab')];
     if (!slides.length) return;
-    let cur = 0, timer = null, auto = true;
+    let cur = 0, timer = null, auto = true, visible = true;
+
+    // SMIL은 페이지가 열린 순간부터 계속 돈다. 되감아주지 않으면 나중에
+    // 나타나는 슬라이드가 애니메이션 중간부터 보인다(확대가 이미 확대된 채로).
+    function rewind(slide) {
+      const svg = slide.querySelector('svg');
+      if (!svg || !svg.setCurrentTime) return;
+      try { svg.setCurrentTime(0); svg.unpauseAnimations(); } catch (e) { /* 무시 */ }
+    }
+    function freeze(slide) {
+      const svg = slide.querySelector('svg');
+      if (!svg || !svg.pauseAnimations) return;
+      try { svg.pauseAnimations(); } catch (e) { /* 무시 */ }
+    }
+    // 슬라이드마다 애니메이션 길이가 다르므로 한 사이클을 다 보여주고 넘긴다
+    function cycleMs(slide) {
+      const a = slide.querySelector('animate, animateTransform, animateMotion');
+      const d = a && parseFloat(a.getAttribute('dur'));
+      return d ? Math.round(d * 1000) + 400 : 5000;
+    }
 
     function show(i) {
       cur = i;
-      slides.forEach((s, n) => s.classList.toggle('on', n === i));
+      slides.forEach((s, n) => {
+        const on = n === i;
+        s.classList.toggle('on', on);
+        if (on) rewind(s); else freeze(s);
+      });
       btns.forEach((b, n) => b.classList.toggle('on', n === i));
     }
 
-    function tick() { if (auto) show((cur + 1) % slides.length); }
+    function queue() {
+      clearTimeout(timer); timer = null;
+      if (!auto || !visible) return;
+      timer = setTimeout(() => { show((cur + 1) % slides.length); queue(); }, cycleMs(slides[cur]));
+    }
 
     btns.forEach((b) => b.addEventListener('click', () => {
-      auto = false; clearInterval(timer);
+      auto = false; clearTimeout(timer); timer = null;
       show(Number(b.dataset.i));
     }));
 
-    // 화면에 보일 때만 돌린다 (스크롤로 지나가면 정지)
+    // 화면에 보일 때만 돌린다 (스크롤로 지나가면 정지, 돌아오면 처음부터)
     show(0);
     if ('IntersectionObserver' in window) {
+      visible = false;
       new IntersectionObserver((es) => {
         for (const e of es) {
-          if (e.isIntersecting) {
-            if (auto && !timer) timer = setInterval(tick, 4600);
-          } else {
-            clearInterval(timer); timer = null;
-          }
+          visible = e.isIntersecting;
+          if (visible) { show(cur); queue(); }
+          else { clearTimeout(timer); timer = null; freeze(slides[cur]); }
         }
       }, { threshold: 0.2 }).observe(shot);
-    } else if (auto) {
-      timer = setInterval(tick, 4600);
+    } else {
+      queue();
     }
   })();
 </script>
