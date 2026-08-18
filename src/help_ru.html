@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Руководство SshotPin</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif;
+    background: #f8fafc; color: #1e293b;
+    padding: 24px 28px 40px;
+    line-height: 1.7;
+  }
+  h1 { font-size: 22px; margin-bottom: 4px; }
+  .sub { color: #64748b; font-size: 13px; margin-bottom: 20px; }
+  h2 {
+    font-size: 15px; margin: 22px 0 8px;
+    padding-left: 10px; border-left: 4px solid #2563eb;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; background: #fff; border-radius: 8px; overflow: hidden; }
+  th, td { padding: 7px 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+  th { background: #f1f5f9; color: #475569; font-weight: 600; width: 190px; }
+  kbd {
+    display: inline-block;
+    background: #1e293b; color: #f1f5f9;
+    border-radius: 5px; padding: 1px 7px;
+    font: 12px 'Segoe UI', sans-serif;
+    margin: 0 1px;
+  }
+  .tip {
+    background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px;
+    padding: 10px 14px; font-size: 13px; margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+  <h1>📌 Руководство SshotPin</h1>
+  <div class="sub">Открывается в любое время: значок в трее → ❓ Руководство и клавиши.</div>
+
+  <h2>Глобальные сочетания</h2>
+  <table>
+    <tr><th><span data-hk="capture">—</span></th><td>Снимок области</td></tr>
+    <tr><th><span data-hk="pin">—</span></th><td>Закрепить скопированное изображение</td></tr>
+    <tr><th><span data-hk="zoom">—</span></th><td>Увеличить / уменьшить экран</td></tr>
+    <tr><th><span data-hk="draw">—</span></th><td>Рисовать на экране</td></tr>
+    <tr><th><span data-hk="timer">—</span></th><td>Таймер</td></tr>
+    <tr><th><span data-hk="cover">—</span></th><td>Шторка</td></tr>
+  </table>
+  <div class="tip">
+    Если сочетание не подходит, измените или очистите его: трей → <b>⚙️ Настройки</b>.
+    Очищенные действия доступны через панель запуска.
+  </div>
+
+  <h2>📸 Снимок области</h2>
+  <table>
+    <tr><th>Перетаскивание</th><td>Выберите область для снимка</td></tr>
+    <tr><th>Тяните синюю точку</th><td>Измените размер выделения</td></tr>
+    <tr><th>Тяните внутри</th><td>Переместите выделение</td></tr>
+    <tr><th>Кнопки инструментов</th><td>✏️Перо ↗Стрелка ▭Прямоуг. ◯Эллипс 🖍Маркер 🔲Мозаика ①Номера</td></tr>
+    <tr><th>↩ / <kbd>Ctrl</kbd>+<kbd>Z</kbd> / правый клик</th><td>Отменить рисование</td></tr>
+    <tr><th><kbd>Enter</kbd> или 📌</th><td>Закрепить на экране</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+<kbd>C</kbd> / <kbd>Ctrl</kbd>+<kbd>S</kbd></th><td>Копировать / сохранить в PNG</td></tr>
+    <tr><th>Кнопка 🙈</th><td>Накрыть выделенную область</td></tr>
+    <tr><th><kbd>Esc</kbd></th><td>Снять инструмент; ещё раз — отмена</td></tr>
+  </table>
+  <div class="tip">Удобно снять материал и добавить стрелку перед показом. Выберите инструмент, нарисуйте в области и нажмите <kbd>Enter</kbd>.</div>
+
+  <h2>📌 Закладки — изображения на экране</h2>
+  <table>
+    <tr><th>Перетаскивание</th><td>Переместить</td></tr>
+    <tr><th>Тяните за угол</th><td>Масштабировать (пропорции сохраняются)</td></tr>
+    <tr><th>Колесо</th><td>Увеличить / уменьшить</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+колесо</th><td>Непрозрачность</td></tr>
+    <tr><th>Двойной клик</th><td>Свернуть / развернуть</td></tr>
+    <tr><th>Кнопка ✕ · клик колесом · <kbd>Esc</kbd></th><td>Закрыть (✕ появляется справа вверху при наведении)</td></tr>
+    <tr><th><kbd>0</kbd></th><td>Исходный размер и непрозрачность</td></tr>
+    <tr><th><kbd>1</kbd> / <kbd>2</kbd></th><td>Поворот на 90° по/против часовой</td></tr>
+    <tr><th><kbd>3</kbd> / <kbd>4</kbd></th><td>Отразить по горизонтали / вертикали</td></tr>
+    <tr><th>Правый клик</th><td>Цвет рамки, масштаб и непрозрачность, сквозные клики</td></tr>
+  </table>
+  <div class="tip">Со <b>сквозными кликами</b> можно работать с программами под закладкой, пока она остаётся сверху. Отключается: трей → «Отключить все сквозные клики».</div>
+
+  <h2>🔍 Масштаб · ✏️ Рисование</h2>
+  <table>
+    <tr><th>Нижняя панель</th><td>Цвет, толщина, очистка, доски, закрепление, копирование, сохранение — всё мышью</td></tr>
+    <tr><th>Колесо · <kbd>↑</kbd><kbd>↓</kbd> · <kbd>+</kbd><kbd>−</kbd></th><td>Масштаб (вид следует за мышью)</td></tr>
+    <tr><th>Перетаскивание</th><td>Перо</td></tr>
+    <tr><th><kbd>Shift</kbd>+тянуть</th><td>Прямая линия</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+тянуть</th><td>Прямоугольник</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+тянуть</th><td>Стрелка</td></tr>
+    <tr><th><kbd>Tab</kbd>+тянуть</th><td>Эллипс</td></tr>
+    <tr><th><kbd>Alt</kbd>+клик</th><td>Номера шагов ①②③</td></tr>
+    <tr><th>🔲 или <kbd>M</kbd></th><td>Мозаика — включите и проведите, чтобы скрыть</td></tr>
+    <tr><th>🔴 или <kbd>L</kbd></th><td>Лазерная указка — штрихи исчезают</td></tr>
+    <tr><th><kbd>F5</kbd></th><td>Переснять экран, сохранив масштаб и рисунки</td></tr>
+    <tr><th><kbd>R</kbd> <kbd>G</kbd> <kbd>B</kbd> <kbd>O</kbd> <kbd>Y</kbd> <kbd>P</kbd></th><td>Красный · зелёный · синий · оранжевый · жёлтый · розовый</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+колесо</th><td>Толщина пера</td></tr>
+    <tr><th><kbd>W</kbd> / <kbd>K</kbd></th><td>Белая / чёрная доска</td></tr>
+    <tr><th>Правый клик / <kbd>Ctrl</kbd>+<kbd>Z</kbd></th><td>Отменить один штрих</td></tr>
+    <tr><th><kbd>E</kbd></th><td>Стереть всё</td></tr>
+    <tr><th><kbd>Enter</kbd></th><td>Закрепить текущий вид</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+<kbd>C</kbd> / <kbd>Ctrl</kbd>+<kbd>S</kbd></th><td>Копировать / сохранить</td></tr>
+    <tr><th><kbd>Esc</kbd></th><td>Немедленно выйти из режима</td></tr>
+  </table>
+
+  <h2>🙈 Шторка</h2>
+  <table>
+    <tr><th>Перетаскивание</th><td>Выберите область; шторка создаётся при отпускании</td></tr>
+    <tr><th>Клик</th><td>Показать ↔ снова скрыть</td></tr>
+    <tr><th>Перетаскивание</th><td>Переместить шторку</td></tr>
+    <tr><th>Правый клик</th><td>Сменить цвет (тёмно-синий · доска · серый · жёлтый)</td></tr>
+    <tr><th>Кнопка ✕ · клик колесом · <kbd>Esc</kbd></th><td>Закрыть (✕ появляется справа вверху при наведении)</td></tr>
+  </table>
+
+  <h2>⏱️ Таймер</h2>
+  <table>
+    <tr><th>Кнопки 1·3·5·10·15 мин</th><td>Сразу запускает с этим временем</td></tr>
+    <tr><th>Клик по времени</th><td>Введите — <b>5:30</b> или <b>10</b></td></tr>
+    <tr><th>Колесо / кнопки ±30 с</th><td>Шаг 30 секунд</td></tr>
+    <tr><th><kbd>Пробел</kbd> или ▶</th><td>Старт / пауза</td></tr>
+    <tr><th><kbd>Esc</kbd></th><td>Закрыть</td></tr>
+  </table>
+
+  <h2>И ещё</h2>
+  <table>
+    <tr><th>🕘 Недавние снимки</th><td>Хранит последние 24. Клик — снова закрепить</td></tr>
+    <tr><th>Панель запуска</th><td>Перемещайте за ⠿, скрывайте ✕ (включается в трее)</td></tr>
+    <tr><th>Двойной клик по значку в трее</th><td>Снимок области</td></tr>
+    <tr><th>Правый клик по значку в трее</th><td>Полное меню — скрыть/закрыть закладки, обновления, выход</td></tr>
+    <tr><th>⚙️ Настройки</th><td>Сочетания, папка, быстрое сохранение, панель, автозапуск, язык</td></tr>
+  </table>
+
+<script>
+  // 실제로 지정된 단축키를 그대로 보여준다 (플랫폼·사용자 설정에 따라 다름)
+  function pretty(accel) {
+    if (!accel) return 'Не задано';
+    return accel
+      .replace('CommandOrControl', 'Ctrl')
+      .replace('Control', 'Ctrl')
+      .replace('Command', 'Cmd')
+      .replace('Option', 'Alt')
+      .split('+')
+      .map((k) => `<kbd>${k}</kbd>`)
+      .join('+');
+  }
+  window.api.onHelpState(({ hotkeys }) => {
+    for (const el of document.querySelectorAll('[data-hk]')) {
+      el.innerHTML = pretty(hotkeys[el.dataset.hk]);
+    }
+  });
+</script>
+</body>
+</html>

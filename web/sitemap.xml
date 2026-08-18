@@ -9,6 +9,12 @@
     <xhtml:link rel="alternate" hreflang="ko" href="https://sshot-pin.web.app/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://sshot-pin.web.app/en/"/>
     <xhtml:link rel="alternate" hreflang="ja" href="https://sshot-pin.web.app/ja/"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://sshot-pin.web.app/zh/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://sshot-pin.web.app/es/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://sshot-pin.web.app/fr/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://sshot-pin.web.app/de/"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://sshot-pin.web.app/pt/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://sshot-pin.web.app/ru/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://sshot-pin.web.app/en/"/>
   </url>
   <url>
@@ -19,6 +25,12 @@
     <xhtml:link rel="alternate" hreflang="ko" href="https://sshot-pin.web.app/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://sshot-pin.web.app/en/"/>
     <xhtml:link rel="alternate" hreflang="ja" href="https://sshot-pin.web.app/ja/"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://sshot-pin.web.app/zh/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://sshot-pin.web.app/es/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://sshot-pin.web.app/fr/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://sshot-pin.web.app/de/"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://sshot-pin.web.app/pt/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://sshot-pin.web.app/ru/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://sshot-pin.web.app/en/"/>
   </url>
   <url>
@@ -29,6 +41,108 @@
     <xhtml:link rel="alternate" hreflang="ko" href="https://sshot-pin.web.app/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://sshot-pin.web.app/en/"/>
     <xhtml:link rel="alternate" hreflang="ja" href="https://sshot-pin.web.app/ja/"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://sshot-pin.web.app/zh/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://sshot-pin.web.app/es/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://sshot-pin.web.app/fr/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://sshot-pin.web.app/de/"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://sshot-pin.web.app/pt/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://sshot-pin.web.app/ru/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sshot-pin.web.app/en/"/>
+  </url>
+  <url>
+    <loc>https://sshot-pin.web.app/zh/</loc>
+    <lastmod>2026-08-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://sshot-pin.web.app/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://sshot-pin.web.app/en/"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://sshot-pin.web.app/ja/"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://sshot-pin.web.app/zh/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://sshot-pin.web.app/es/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://sshot-pin.web.app/fr/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://sshot-pin.web.app/de/"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://sshot-pin.web.app/pt/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://sshot-pin.web.app/ru/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sshot-pin.web.app/en/"/>
+  </url>
+  <url>
+    <loc>https://sshot-pin.web.app/es/</loc>
+    <lastmod>2026-08-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://sshot-pin.web.app/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://sshot-pin.web.app/en/"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://sshot-pin.web.app/ja/"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://sshot-pin.web.app/zh/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://sshot-pin.web.app/es/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://sshot-pin.web.app/fr/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://sshot-pin.web.app/de/"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://sshot-pin.web.app/pt/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://sshot-pin.web.app/ru/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sshot-pin.web.app/en/"/>
+  </url>
+  <url>
+    <loc>https://sshot-pin.web.app/fr/</loc>
+    <lastmod>2026-08-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://sshot-pin.web.app/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://sshot-pin.web.app/en/"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://sshot-pin.web.app/ja/"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://sshot-pin.web.app/zh/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://sshot-pin.web.app/es/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://sshot-pin.web.app/fr/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://sshot-pin.web.app/de/"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://sshot-pin.web.app/pt/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://sshot-pin.web.app/ru/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sshot-pin.web.app/en/"/>
+  </url>
+  <url>
+    <loc>https://sshot-pin.web.app/de/</loc>
+    <lastmod>2026-08-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://sshot-pin.web.app/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://sshot-pin.web.app/en/"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://sshot-pin.web.app/ja/"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://sshot-pin.web.app/zh/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://sshot-pin.web.app/es/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://sshot-pin.web.app/fr/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://sshot-pin.web.app/de/"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://sshot-pin.web.app/pt/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://sshot-pin.web.app/ru/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sshot-pin.web.app/en/"/>
+  </url>
+  <url>
+    <loc>https://sshot-pin.web.app/pt/</loc>
+    <lastmod>2026-08-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://sshot-pin.web.app/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://sshot-pin.web.app/en/"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://sshot-pin.web.app/ja/"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://sshot-pin.web.app/zh/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://sshot-pin.web.app/es/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://sshot-pin.web.app/fr/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://sshot-pin.web.app/de/"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://sshot-pin.web.app/pt/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://sshot-pin.web.app/ru/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sshot-pin.web.app/en/"/>
+  </url>
+  <url>
+    <loc>https://sshot-pin.web.app/ru/</loc>
+    <lastmod>2026-08-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://sshot-pin.web.app/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://sshot-pin.web.app/en/"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://sshot-pin.web.app/ja/"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://sshot-pin.web.app/zh/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://sshot-pin.web.app/es/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://sshot-pin.web.app/fr/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://sshot-pin.web.app/de/"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://sshot-pin.web.app/pt/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://sshot-pin.web.app/ru/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://sshot-pin.web.app/en/"/>
   </url>
   <url>

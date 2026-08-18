@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>SshotPin 使用说明</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: #f8fafc; color: #1e293b;
+    padding: 24px 28px 40px;
+    line-height: 1.7;
+  }
+  h1 { font-size: 22px; margin-bottom: 4px; }
+  .sub { color: #64748b; font-size: 13px; margin-bottom: 20px; }
+  h2 {
+    font-size: 15px; margin: 22px 0 8px;
+    padding-left: 10px; border-left: 4px solid #2563eb;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; background: #fff; border-radius: 8px; overflow: hidden; }
+  th, td { padding: 7px 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+  th { background: #f1f5f9; color: #475569; font-weight: 600; width: 190px; }
+  kbd {
+    display: inline-block;
+    background: #1e293b; color: #f1f5f9;
+    border-radius: 5px; padding: 1px 7px;
+    font: 12px sans-serif;
+    margin: 0 1px;
+  }
+  .tip {
+    background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px;
+    padding: 10px 14px; font-size: 13px; margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+  <h1>📌 SshotPin 使用说明</h1>
+  <div class="sub">随时可从托盘图标 → ❓ 使用说明与快捷键 重新打开。</div>
+
+  <h2>全局快捷键</h2>
+  <table>
+    <tr><th><span data-hk="capture">—</span></th><td>区域截图</td></tr>
+    <tr><th><span data-hk="pin">—</span></th><td>把复制的图片钉到屏幕上</td></tr>
+    <tr><th><span data-hk="zoom">—</span></th><td>屏幕放大 / 缩小</td></tr>
+    <tr><th><span data-hk="draw">—</span></th><td>屏幕标注</td></tr>
+    <tr><th><span data-hk="timer">—</span></th><td>计时器</td></tr>
+    <tr><th><span data-hk="cover">—</span></th><td>遮盖</td></tr>
+  </table>
+  <div class="tip">
+    不合适的快捷键可在托盘 → <b>⚙️ 设置</b>中更改或清除。
+    清除后仍可通过快捷栏执行。
+  </div>
+
+  <h2>📸 区域截图</h2>
+  <table>
+    <tr><th>拖动</th><td>选择要截取的区域</td></tr>
+    <tr><th>拖动蓝点</th><td>调整选区大小</td></tr>
+    <tr><th>在选区内拖动</th><td>移动选区</td></tr>
+    <tr><th>工具按钮</th><td>✏️画笔 ↗箭头 ▭矩形 ◯椭圆 🖍荧光笔 🔲马赛克 ①编号</td></tr>
+    <tr><th>↩ / <kbd>Ctrl</kbd>+<kbd>Z</kbd> / 右键</th><td>撤销绘制</td></tr>
+    <tr><th><kbd>Enter</kbd> 或 📌</th><td>钉到屏幕上</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+<kbd>C</kbd> / <kbd>Ctrl</kbd>+<kbd>S</kbd></th><td>复制 / 保存为 PNG</td></tr>
+    <tr><th>🙈 按钮</th><td>用遮盖挡住选区</td></tr>
+    <tr><th><kbd>Esc</kbd></th><td>取消工具;再按一次退出</td></tr>
+  </table>
+  <div class="tip">截取资料、加上箭头再展示时很方便。选好工具,在区域内绘制后按 <kbd>Enter</kbd>。</div>
+
+  <h2>📌 钉图 — 贴在屏幕上的图片</h2>
+  <table>
+    <tr><th>拖动</th><td>移动</td></tr>
+    <tr><th>拖动边角</th><td>调整大小(保持比例)</td></tr>
+    <tr><th>滚轮</th><td>放大 / 缩小</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+滚轮</th><td>不透明度</td></tr>
+    <tr><th>双击</th><td>折叠 / 展开</td></tr>
+    <tr><th>✕ 按钮 · 按下滚轮 · <kbd>Esc</kbd></th><td>关闭(悬停时右上角出现 ✕)</td></tr>
+    <tr><th><kbd>0</kbd></th><td>原始大小与不透明度</td></tr>
+    <tr><th><kbd>1</kbd> / <kbd>2</kbd></th><td>顺时针 / 逆时针旋转 90°</td></tr>
+    <tr><th><kbd>3</kbd> / <kbd>4</kbd></th><td>水平 / 垂直翻转</td></tr>
+    <tr><th>右键</th><td>边框颜色、缩放与不透明度、点击穿透</td></tr>
+  </table>
+  <div class="tip">开启<b>点击穿透</b>后,钉图仍在最前,但可以直接操作下面的程序。在托盘 → "解除所有点击穿透" 中关闭。</div>
+
+  <h2>🔍 屏幕缩放 · ✏️ 标注</h2>
+  <table>
+    <tr><th>底部工具栏</th><td>颜色、笔粗细、清除、画板、钉图、复制、保存 — 全部鼠标操作</td></tr>
+    <tr><th>滚轮 · <kbd>↑</kbd><kbd>↓</kbd> · <kbd>+</kbd><kbd>−</kbd></th><td>放大 / 缩小(画面跟随鼠标)</td></tr>
+    <tr><th>拖动</th><td>画笔</td></tr>
+    <tr><th><kbd>Shift</kbd>+拖动</th><td>直线</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+拖动</th><td>矩形</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+拖动</th><td>箭头</td></tr>
+    <tr><th><kbd>Tab</kbd>+拖动</th><td>椭圆</td></tr>
+    <tr><th><kbd>Alt</kbd>+点击</th><td>步骤编号 ①②③</td></tr>
+    <tr><th>🔲 或 <kbd>M</kbd></th><td>马赛克 — 打开后拖动即可遮挡</td></tr>
+    <tr><th>🔴 或 <kbd>L</kbd></th><td>激光笔 — 笔迹片刻后消失</td></tr>
+    <tr><th><kbd>F5</kbd></th><td>重新截取屏幕,保留缩放与标注</td></tr>
+    <tr><th><kbd>R</kbd> <kbd>G</kbd> <kbd>B</kbd> <kbd>O</kbd> <kbd>Y</kbd> <kbd>P</kbd></th><td>红 · 绿 · 蓝 · 橙 · 黄 · 粉</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+滚轮</th><td>笔的粗细</td></tr>
+    <tr><th><kbd>W</kbd> / <kbd>K</kbd></th><td>白板 / 黑板</td></tr>
+    <tr><th>右键 / <kbd>Ctrl</kbd>+<kbd>Z</kbd></th><td>撤销一笔</td></tr>
+    <tr><th><kbd>E</kbd></th><td>全部清除</td></tr>
+    <tr><th><kbd>Enter</kbd></th><td>钉住当前画面</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+<kbd>C</kbd> / <kbd>Ctrl</kbd>+<kbd>S</kbd></th><td>复制 / 保存</td></tr>
+    <tr><th><kbd>Esc</kbd></th><td>立即退出该模式</td></tr>
+  </table>
+
+  <h2>🙈 遮盖</h2>
+  <table>
+    <tr><th>拖动</th><td>选择要遮盖的区域;松开即创建</td></tr>
+    <tr><th>点击</th><td>显示 ↔ 再次遮盖</td></tr>
+    <tr><th>拖动</th><td>移动遮盖</td></tr>
+    <tr><th>右键</th><td>更换颜色(藏青 · 黑板绿 · 灰 · 黄)</td></tr>
+    <tr><th>✕ 按钮 · 按下滚轮 · <kbd>Esc</kbd></th><td>关闭(悬停时右上角出现 ✕)</td></tr>
+  </table>
+
+  <h2>⏱️ 计时器</h2>
+  <table>
+    <tr><th>1·3·5·10·15分钟按钮</th><td>按下即以该时长开始</td></tr>
+    <tr><th>点击时间</th><td>直接输入 — <b>5:30</b> 或 <b>10</b></td></tr>
+    <tr><th>滚轮 / ±30秒按钮</th><td>以 30 秒为单位调整</td></tr>
+    <tr><th><kbd>Space</kbd> 或 ▶</th><td>开始 / 暂停</td></tr>
+    <tr><th><kbd>Esc</kbd></th><td>关闭</td></tr>
+  </table>
+
+  <h2>更多</h2>
+  <table>
+    <tr><th>🕘 最近的截图</th><td>保留最近 24 张。点击即可重新钉到屏幕</td></tr>
+    <tr><th>快捷栏</th><td>用 ⠿ 手柄移动,✕ 隐藏(托盘中恢复)</td></tr>
+    <tr><th>双击托盘图标</th><td>区域截图</td></tr>
+    <tr><th>右键托盘图标</th><td>完整菜单 — 隐藏/关闭钉图、检查更新、退出</td></tr>
+    <tr><th>⚙️ 设置</th><td>快捷键、保存文件夹、快速保存、快捷栏、开机启动、语言</td></tr>
+  </table>
+
+<script>
+  // 실제로 지정된 단축키를 그대로 보여준다 (플랫폼·사용자 설정에 따라 다름)
+  function pretty(accel) {
+    if (!accel) return '未设置';
+    return accel
+      .replace('CommandOrControl', 'Ctrl')
+      .replace('Control', 'Ctrl')
+      .replace('Command', 'Cmd')
+      .replace('Option', 'Alt')
+      .split('+')
+      .map((k) => `<kbd>${k}</kbd>`)
+      .join('+');
+  }
+  window.api.onHelpState(({ hotkeys }) => {
+    for (const el of document.querySelectorAll('[data-hk]')) {
+      el.innerHTML = pretty(hotkeys[el.dataset.hk]);
+    }
+  });
+</script>
+</body>
+</html>

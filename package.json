@@ -86,7 +86,13 @@
       "installerLanguages": [
         "ko_KR",
         "en_US",
-        "ja_JP"
+        "ja_JP",
+        "zh_CN",
+        "es_ES",
+        "fr_FR",
+        "de_DE",
+        "pt_BR",
+        "ru_RU"
       ],
       "multiLanguageInstaller": true
     },

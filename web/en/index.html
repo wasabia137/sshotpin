@@ -11,6 +11,12 @@
 <link rel="alternate" hreflang="ko" href="https://sshot-pin.web.app/">
 <link rel="alternate" hreflang="en" href="https://sshot-pin.web.app/en/">
 <link rel="alternate" hreflang="ja" href="https://sshot-pin.web.app/ja/">
+<link rel="alternate" hreflang="zh" href="https://sshot-pin.web.app/zh/">
+<link rel="alternate" hreflang="es" href="https://sshot-pin.web.app/es/">
+<link rel="alternate" hreflang="fr" href="https://sshot-pin.web.app/fr/">
+<link rel="alternate" hreflang="de" href="https://sshot-pin.web.app/de/">
+<link rel="alternate" hreflang="pt" href="https://sshot-pin.web.app/pt/">
+<link rel="alternate" hreflang="ru" href="https://sshot-pin.web.app/ru/">
 <link rel="alternate" hreflang="x-default" href="https://sshot-pin.web.app/en/">
 <meta name="robots" content="index, follow">
 
@@ -285,14 +291,12 @@
   }
 
   /* 언어 전환 */
-  .langs { position: absolute; top: 16px; right: 16px; display: flex; gap: 6px; z-index: 20; }
-  .langs a {
-    font-size: 12.5px; color: var(--muted); text-decoration: none;
-    padding: 5px 12px; border-radius: 999px;
-    border: 1px solid var(--line); background: var(--card);
+  #langNav {
+    position: absolute; top: 16px; right: 16px; z-index: 20;
+    font-size: 13px; color: var(--text); background: var(--card);
+    border: 1px solid var(--line); border-radius: 999px;
+    padding: 6px 12px; cursor: pointer; font-family: inherit;
   }
-  .langs a.on { color: #fff; background: var(--blue); border-color: var(--blue); }
-  .langs a:hover:not(.on) { background: var(--chip); }
 
   footer {
     text-align: center; padding: 44px 0 60px; margin-top: 40px;
@@ -311,11 +315,17 @@
   }
 </style></head>
 <body>
-<nav class="langs" aria-label="Language">
-  <a href="/" lang="ko">한국어</a>
-  <a href="/en/" class="on" lang="en">English</a>
-  <a href="/ja/" lang="ja">日本語</a>
-</nav>
+<select id="langNav" aria-label="Language">
+  <option value="/">한국어</option>
+  <option value="/en/" selected>English</option>
+  <option value="/ja/">日本語</option>
+  <option value="/zh/">中文</option>
+  <option value="/es/">Español</option>
+  <option value="/fr/">Français</option>
+  <option value="/de/">Deutsch</option>
+  <option value="/pt/">Português</option>
+  <option value="/ru/">Русский</option>
+</select>
 <div class="wrap">
 
   <header>
@@ -577,10 +587,12 @@
     })
     .catch(() => { /* 없으면 기본 링크 사용 */ });
 
-  // 언어 전환 버튼을 누르면 선택을 기억해 자동 이동을 멈춘다
-  for (const a of document.querySelectorAll('.langs a')) {
-    a.addEventListener('click', () => { try { localStorage.setItem('langChosen', '1'); } catch (e) {} });
-  }
+  // 언어 선택을 기억해 자동 이동을 멈춘다
+  const langNav = document.getElementById('langNav');
+  if (langNav) langNav.addEventListener('change', () => {
+    try { localStorage.setItem('langChosen', '1'); } catch (e) {}
+    location.href = langNav.value;
+  });
 
   // 맥 다운로드 버튼: Apple Silicon / Intel 선택 메뉴
   const macBtn = document.getElementById('dlMacBtn');

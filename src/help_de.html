@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>SshotPin-Anleitung</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif;
+    background: #f8fafc; color: #1e293b;
+    padding: 24px 28px 40px;
+    line-height: 1.7;
+  }
+  h1 { font-size: 22px; margin-bottom: 4px; }
+  .sub { color: #64748b; font-size: 13px; margin-bottom: 20px; }
+  h2 {
+    font-size: 15px; margin: 22px 0 8px;
+    padding-left: 10px; border-left: 4px solid #2563eb;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; background: #fff; border-radius: 8px; overflow: hidden; }
+  th, td { padding: 7px 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+  th { background: #f1f5f9; color: #475569; font-weight: 600; width: 190px; }
+  kbd {
+    display: inline-block;
+    background: #1e293b; color: #f1f5f9;
+    border-radius: 5px; padding: 1px 7px;
+    font: 12px 'Segoe UI', sans-serif;
+    margin: 0 1px;
+  }
+  .tip {
+    background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px;
+    padding: 10px 14px; font-size: 13px; margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+  <h1>📌 SshotPin-Anleitung</h1>
+  <div class="sub">Jederzeit über das Tray-Symbol → ❓ Anleitung & Kürzel erreichbar.</div>
+
+  <h2>Globale Kürzel</h2>
+  <table>
+    <tr><th><span data-hk="capture">—</span></th><td>Bereichsaufnahme</td></tr>
+    <tr><th><span data-hk="pin">—</span></th><td>Kopiertes Bild am Bildschirm anheften</td></tr>
+    <tr><th><span data-hk="zoom">—</span></th><td>Bildschirm vergrößern / verkleinern</td></tr>
+    <tr><th><span data-hk="draw">—</span></th><td>Auf dem Bildschirm zeichnen</td></tr>
+    <tr><th><span data-hk="timer">—</span></th><td>Timer</td></tr>
+    <tr><th><span data-hk="cover">—</span></th><td>Abdeckung</td></tr>
+  </table>
+  <div class="tip">
+    Passt ein Kürzel nicht, ändern oder leeren Sie es unter Tray → <b>⚙️ Einstellungen</b>.
+    Geleerte Aktionen bleiben über die Schnellleiste nutzbar.
+  </div>
+
+  <h2>📸 Bereichsaufnahme</h2>
+  <table>
+    <tr><th>Ziehen</th><td>Aufzunehmenden Bereich wählen</td></tr>
+    <tr><th>Blauen Punkt ziehen</th><td>Auswahl skalieren</td></tr>
+    <tr><th>Innen ziehen</th><td>Auswahl verschieben</td></tr>
+    <tr><th>Werkzeugtasten</th><td>✏️Stift ↗Pfeil ▭Rechteck ◯Ellipse 🖍Marker 🔲Mosaik ①Nummern</td></tr>
+    <tr><th>↩ / <kbd>Strg</kbd>+<kbd>Z</kbd> / Rechtsklick</th><td>Zeichnung rückgängig</td></tr>
+    <tr><th><kbd>Enter</kbd> oder 📌</th><td>Am Bildschirm anheften</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+<kbd>C</kbd> / <kbd>Ctrl</kbd>+<kbd>S</kbd></th><td>Kopieren / als PNG speichern</td></tr>
+    <tr><th>🙈-Taste</th><td>Gewählten Bereich abdecken</td></tr>
+    <tr><th><kbd>Esc</kbd></th><td>Werkzeug abwählen; nochmal zum Abbrechen</td></tr>
+  </table>
+  <div class="tip">Ideal, um Material aufzunehmen und vor dem Zeigen einen Pfeil zu ergänzen. Werkzeug wählen, im Bereich zeichnen, dann <kbd>Enter</kbd>.</div>
+
+  <h2>📌 Pins — angeheftete Bilder</h2>
+  <table>
+    <tr><th>Ziehen</th><td>Verschieben</td></tr>
+    <tr><th>Ecke ziehen</th><td>Skalieren (Seitenverhältnis bleibt)</td></tr>
+    <tr><th>Mausrad</th><td>Vergrößern / verkleinern</td></tr>
+    <tr><th><kbd>Strg</kbd>+Rad</th><td>Deckkraft</td></tr>
+    <tr><th>Doppelklick</th><td>Ein-/ausklappen</td></tr>
+    <tr><th>✕-Taste · Radklick · <kbd>Esc</kbd></th><td>Schließen (✕ erscheint oben rechts beim Überfahren)</td></tr>
+    <tr><th><kbd>0</kbd></th><td>Originalgröße & Deckkraft</td></tr>
+    <tr><th><kbd>1</kbd> / <kbd>2</kbd></th><td>90° im / gegen Uhrzeigersinn</td></tr>
+    <tr><th><kbd>3</kbd> / <kbd>4</kbd></th><td>Horizontal / vertikal spiegeln</td></tr>
+    <tr><th>Rechtsklick</th><td>Rahmenfarbe, Zoom & Deckkraft, Klick-Durchlass</td></tr>
+  </table>
+  <div class="tip">Mit aktiviertem <b>Klick-Durchlass</b> bedienen Sie die Programme darunter, während der Pin oben bleibt. Deaktivierbar über Tray → „Alle Klick-Durchlässe deaktivieren".</div>
+
+  <h2>🔍 Zoom · ✏️ Zeichnen</h2>
+  <table>
+    <tr><th>Untere Leiste</th><td>Farbe, Stiftgröße, Löschen, Tafeln, Anheften, Kopieren, Speichern — alles per Maus</td></tr>
+    <tr><th>Rad · <kbd>↑</kbd><kbd>↓</kbd> · <kbd>+</kbd><kbd>−</kbd></th><td>Vergrößern / verkleinern (die Ansicht folgt der Maus)</td></tr>
+    <tr><th>Ziehen</th><td>Stift</td></tr>
+    <tr><th><kbd>Umschalt</kbd>+Ziehen</th><td>Gerade Linie</td></tr>
+    <tr><th><kbd>Strg</kbd>+Ziehen</th><td>Rechteck</td></tr>
+    <tr><th><kbd>Strg</kbd>+<kbd>Umschalt</kbd>+Ziehen</th><td>Pfeil</td></tr>
+    <tr><th><kbd>Tab</kbd>+Ziehen</th><td>Ellipse</td></tr>
+    <tr><th><kbd>Alt</kbd>+Klick</th><td>Schrittnummern ①②③</td></tr>
+    <tr><th>🔲 oder <kbd>M</kbd></th><td>Mosaik — aktivieren und zum Verbergen ziehen</td></tr>
+    <tr><th>🔴 oder <kbd>L</kbd></th><td>Laserpointer — Striche verblassen</td></tr>
+    <tr><th><kbd>F5</kbd></th><td>Bildschirm neu aufnehmen, Zoom & Zeichnungen bleiben</td></tr>
+    <tr><th><kbd>R</kbd> <kbd>G</kbd> <kbd>B</kbd> <kbd>O</kbd> <kbd>Y</kbd> <kbd>P</kbd></th><td>Rot · Grün · Blau · Orange · Gelb · Rosa</td></tr>
+    <tr><th><kbd>Strg</kbd>+Rad</th><td>Stiftgröße</td></tr>
+    <tr><th><kbd>W</kbd> / <kbd>K</kbd></th><td>Whiteboard / Tafel</td></tr>
+    <tr><th>Rechtsklick / <kbd>Strg</kbd>+<kbd>Z</kbd></th><td>Einen Strich zurücknehmen</td></tr>
+    <tr><th><kbd>E</kbd></th><td>Alles löschen</td></tr>
+    <tr><th><kbd>Enter</kbd></th><td>Aktuelle Ansicht anheften</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+<kbd>C</kbd> / <kbd>Ctrl</kbd>+<kbd>S</kbd></th><td>Kopieren / speichern</td></tr>
+    <tr><th><kbd>Esc</kbd></th><td>Modus sofort beenden</td></tr>
+  </table>
+
+  <h2>🙈 Abdeckung</h2>
+  <table>
+    <tr><th>Ziehen</th><td>Abzudeckenden Bereich wählen; entsteht beim Loslassen</td></tr>
+    <tr><th>Klick</th><td>Aufdecken ↔ wieder verdecken</td></tr>
+    <tr><th>Ziehen</th><td>Abdeckung verschieben</td></tr>
+    <tr><th>Rechtsklick</th><td>Farbe ändern (Marine · Tafelgrün · Grau · Gelb)</td></tr>
+    <tr><th>✕-Taste · Radklick · <kbd>Esc</kbd></th><td>Schließen (✕ erscheint oben rechts beim Überfahren)</td></tr>
+  </table>
+
+  <h2>⏱️ Timer</h2>
+  <table>
+    <tr><th>1·3·5·10·15-Min-Tasten</th><td>Startet sofort mit dieser Zeit</td></tr>
+    <tr><th>Auf die Zeit klicken</th><td>Eingeben — <b>5:30</b> oder <b>10</b></td></tr>
+    <tr><th>Rad / ±30-s-Tasten</th><td>In 30-Sekunden-Schritten</td></tr>
+    <tr><th><kbd>Leertaste</kbd> oder ▶</th><td>Start / Pause</td></tr>
+    <tr><th><kbd>Esc</kbd></th><td>Schließen</td></tr>
+  </table>
+
+  <h2>Und mehr</h2>
+  <table>
+    <tr><th>🕘 Letzte Aufnahmen</th><td>Bewahrt die letzten 24. Klick heftet sie wieder an</td></tr>
+    <tr><th>Schnellleiste</th><td>Mit ⠿ verschieben, mit ✕ ausblenden (im Tray reaktivierbar)</td></tr>
+    <tr><th>Tray-Symbol doppelklicken</th><td>Bereichsaufnahme</td></tr>
+    <tr><th>Tray-Symbol rechtsklicken</th><td>Volles Menü — Pins ausblenden/schließen, Updates, Beenden</td></tr>
+    <tr><th>⚙️ Einstellungen</th><td>Kürzel, Ordner, Schnellspeichern, Leiste, Autostart, Sprache</td></tr>
+  </table>
+
+<script>
+  // 실제로 지정된 단축키를 그대로 보여준다 (플랫폼·사용자 설정에 따라 다름)
+  function pretty(accel) {
+    if (!accel) return 'Nicht belegt';
+    return accel
+      .replace('CommandOrControl', 'Ctrl')
+      .replace('Control', 'Ctrl')
+      .replace('Command', 'Cmd')
+      .replace('Option', 'Alt')
+      .split('+')
+      .map((k) => `<kbd>${k}</kbd>`)
+      .join('+');
+  }
+  window.api.onHelpState(({ hotkeys }) => {
+    for (const el of document.querySelectorAll('[data-hk]')) {
+      el.innerHTML = pretty(hotkeys[el.dataset.hk]);
+    }
+  });
+</script>
+</body>
+</html>

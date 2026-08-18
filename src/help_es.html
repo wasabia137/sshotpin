@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Cómo usar SshotPin</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif;
+    background: #f8fafc; color: #1e293b;
+    padding: 24px 28px 40px;
+    line-height: 1.7;
+  }
+  h1 { font-size: 22px; margin-bottom: 4px; }
+  .sub { color: #64748b; font-size: 13px; margin-bottom: 20px; }
+  h2 {
+    font-size: 15px; margin: 22px 0 8px;
+    padding-left: 10px; border-left: 4px solid #2563eb;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; background: #fff; border-radius: 8px; overflow: hidden; }
+  th, td { padding: 7px 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+  th { background: #f1f5f9; color: #475569; font-weight: 600; width: 190px; }
+  kbd {
+    display: inline-block;
+    background: #1e293b; color: #f1f5f9;
+    border-radius: 5px; padding: 1px 7px;
+    font: 12px 'Segoe UI', sans-serif;
+    margin: 0 1px;
+  }
+  .tip {
+    background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px;
+    padding: 10px 14px; font-size: 13px; margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+  <h1>📌 Cómo usar SshotPin</h1>
+  <div class="sub">Ábrelo cuando quieras desde la bandeja → ❓ Guía y atajos.</div>
+
+  <h2>Atajos globales</h2>
+  <table>
+    <tr><th><span data-hk="capture">—</span></th><td>Captura de región</td></tr>
+    <tr><th><span data-hk="pin">—</span></th><td>Fijar la imagen copiada en pantalla</td></tr>
+    <tr><th><span data-hk="zoom">—</span></th><td>Acercar / alejar la pantalla</td></tr>
+    <tr><th><span data-hk="draw">—</span></th><td>Dibujar en pantalla</td></tr>
+    <tr><th><span data-hk="timer">—</span></th><td>Temporizador</td></tr>
+    <tr><th><span data-hk="cover">—</span></th><td>Cubierta</td></tr>
+  </table>
+  <div class="tip">
+    Si un atajo no te va bien, cámbialo o bórralo en bandeja → <b>⚙️ Ajustes</b>.
+    Lo borrado sigue disponible desde la barra rápida.
+  </div>
+
+  <h2>📸 Captura de región</h2>
+  <table>
+    <tr><th>Arrastrar</th><td>Selecciona el área a capturar</td></tr>
+    <tr><th>Arrastra un punto azul</th><td>Cambia el tamaño de la selección</td></tr>
+    <tr><th>Arrastra dentro</th><td>Mueve la selección</td></tr>
+    <tr><th>Botones de herramientas</th><td>✏️Lápiz ↗Flecha ▭Rect ◯Elipse 🖍Marcador 🔲Mosaico ①Números</td></tr>
+    <tr><th>↩ / <kbd>Ctrl</kbd>+<kbd>Z</kbd> / clic derecho</th><td>Deshacer el dibujo</td></tr>
+    <tr><th><kbd>Enter</kbd> o 📌</th><td>Fijar en pantalla</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+<kbd>C</kbd> / <kbd>Ctrl</kbd>+<kbd>S</kbd></th><td>Copiar / guardar como PNG</td></tr>
+    <tr><th>Botón 🙈</th><td>Cubrir el área seleccionada</td></tr>
+    <tr><th><kbd>Esc</kbd></th><td>Soltar la herramienta; otra vez para cancelar</td></tr>
+  </table>
+  <div class="tip">Ideal para capturar material y añadir una flecha antes de mostrarlo. Elige una herramienta, dibuja dentro y pulsa <kbd>Enter</kbd>.</div>
+
+  <h2>📌 Pines — imágenes pegadas a la pantalla</h2>
+  <table>
+    <tr><th>Arrastrar</th><td>Mover</td></tr>
+    <tr><th>Arrastra una esquina</th><td>Redimensionar (mantiene proporción)</td></tr>
+    <tr><th>Rueda</th><td>Acercar / alejar</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+rueda</th><td>Opacidad</td></tr>
+    <tr><th>Doble clic</th><td>Plegar / desplegar</td></tr>
+    <tr><th>Botón ✕ · clic de rueda · <kbd>Esc</kbd></th><td>Cerrar (✕ aparece arriba a la derecha al pasar el ratón)</td></tr>
+    <tr><th><kbd>0</kbd></th><td>Tamaño y opacidad originales</td></tr>
+    <tr><th><kbd>1</kbd> / <kbd>2</kbd></th><td>Rotar 90° horario / antihorario</td></tr>
+    <tr><th><kbd>3</kbd> / <kbd>4</kbd></th><td>Voltear horizontal / vertical</td></tr>
+    <tr><th>Clic derecho</th><td>Color del borde, zoom y opacidad, clic a través</td></tr>
+  </table>
+  <div class="tip">Con <b>clic a través</b> activado, usas los programas de debajo mientras el pin sigue encima. Desactívalo en bandeja → «Desactivar todos los clics a través».</div>
+
+  <h2>🔍 Zoom · ✏️ Dibujo</h2>
+  <table>
+    <tr><th>Barra inferior</th><td>Color, grosor, borrar, pizarras, fijar, copiar, guardar — todo con el ratón</td></tr>
+    <tr><th>Rueda · <kbd>↑</kbd><kbd>↓</kbd> · <kbd>+</kbd><kbd>−</kbd></th><td>Acercar / alejar (la vista sigue al ratón)</td></tr>
+    <tr><th>Arrastrar</th><td>Lápiz</td></tr>
+    <tr><th><kbd>Shift</kbd>+arrastrar</th><td>Línea recta</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+arrastrar</th><td>Rectángulo</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+arrastrar</th><td>Flecha</td></tr>
+    <tr><th><kbd>Tab</kbd>+arrastrar</th><td>Elipse</td></tr>
+    <tr><th><kbd>Alt</kbd>+clic</th><td>Números de paso ①②③</td></tr>
+    <tr><th>🔲 o <kbd>M</kbd></th><td>Mosaico — actívalo y arrastra para ocultar</td></tr>
+    <tr><th>🔴 o <kbd>L</kbd></th><td>Puntero láser — los trazos se desvanecen</td></tr>
+    <tr><th><kbd>F5</kbd></th><td>Recapturar la pantalla manteniendo zoom y dibujos</td></tr>
+    <tr><th><kbd>R</kbd> <kbd>G</kbd> <kbd>B</kbd> <kbd>O</kbd> <kbd>Y</kbd> <kbd>P</kbd></th><td>Rojo · verde · azul · naranja · amarillo · rosa</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+rueda</th><td>Grosor del lápiz</td></tr>
+    <tr><th><kbd>W</kbd> / <kbd>K</kbd></th><td>Pizarra blanca / negra</td></tr>
+    <tr><th>Clic derecho / <kbd>Ctrl</kbd>+<kbd>Z</kbd></th><td>Deshacer un trazo</td></tr>
+    <tr><th><kbd>E</kbd></th><td>Borrar todo</td></tr>
+    <tr><th><kbd>Enter</kbd></th><td>Fijar la vista actual</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+<kbd>C</kbd> / <kbd>Ctrl</kbd>+<kbd>S</kbd></th><td>Copiar / guardar</td></tr>
+    <tr><th><kbd>Esc</kbd></th><td>Salir del modo al instante</td></tr>
+  </table>
+
+  <h2>🙈 Cubierta</h2>
+  <table>
+    <tr><th>Arrastrar</th><td>Selecciona el área a cubrir; se crea al soltar</td></tr>
+    <tr><th>Clic</th><td>Revelar ↔ cubrir de nuevo</td></tr>
+    <tr><th>Arrastrar</th><td>Mover la cubierta</td></tr>
+    <tr><th>Clic derecho</th><td>Cambiar color (marino · verde pizarra · gris · amarillo)</td></tr>
+    <tr><th>Botón ✕ · clic de rueda · <kbd>Esc</kbd></th><td>Cerrar (✕ aparece arriba a la derecha al pasar el ratón)</td></tr>
+  </table>
+
+  <h2>⏱️ Temporizador</h2>
+  <table>
+    <tr><th>Botones 1·3·5·10·15 min</th><td>Empieza al instante con ese tiempo</td></tr>
+    <tr><th>Clic en la hora</th><td>Escríbela — <b>5:30</b> o <b>10</b></td></tr>
+    <tr><th>Rueda / botones ±30 s</th><td>Ajustar de 30 en 30 segundos</td></tr>
+    <tr><th><kbd>Espacio</kbd> o ▶</th><td>Iniciar / pausar</td></tr>
+    <tr><th><kbd>Esc</kbd></th><td>Cerrar</td></tr>
+  </table>
+
+  <h2>Y más</h2>
+  <table>
+    <tr><th>🕘 Capturas recientes</th><td>Guarda las últimas 24. Clic para fijarla de nuevo</td></tr>
+    <tr><th>Barra rápida</th><td>Mueve con el asa ⠿, oculta con ✕ (reactivar en la bandeja)</td></tr>
+    <tr><th>Doble clic en la bandeja</th><td>Captura de región</td></tr>
+    <tr><th>Clic derecho en la bandeja</th><td>Menú completo — ocultar/cerrar pines, actualizar, salir</td></tr>
+    <tr><th>⚙️ Ajustes</th><td>Atajos, carpeta, guardado rápido, barra, inicio automático, idioma</td></tr>
+  </table>
+
+<script>
+  // 실제로 지정된 단축키를 그대로 보여준다 (플랫폼·사용자 설정에 따라 다름)
+  function pretty(accel) {
+    if (!accel) return 'Sin asignar';
+    return accel
+      .replace('CommandOrControl', 'Ctrl')
+      .replace('Control', 'Ctrl')
+      .replace('Command', 'Cmd')
+      .replace('Option', 'Alt')
+      .split('+')
+      .map((k) => `<kbd>${k}</kbd>`)
+      .join('+');
+  }
+  window.api.onHelpState(({ hotkeys }) => {
+    for (const el of document.querySelectorAll('[data-hk]')) {
+      el.innerHTML = pretty(hotkeys[el.dataset.hk]);
+    }
+  });
+</script>
+</body>
+</html>

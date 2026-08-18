@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="es">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>스샷핀 — 화면 캡처·확대·판서 무료 프로그램 (윈도우·맥)</title>
-<meta name="description" content="화면을 캡처해 항상 위에 고정하고, 확대하고, 그 위에 바로 그리는 무료 프로그램. 가리개·모자이크·최근 캡처·타이머 제공. 윈도우 10/11·맥 무료 다운로드.">
-<meta name="keywords" content="스샷핀, 화면캡처 프로그램, 캡처 고정, 화면에 붙이기, 스니페이스트 대안, 수업 도구, 판서 프로그램, 화면 확대 프로그램, ZoomIt 대안, 수업 타이머, 정답 가리개, 무료 캡처 프로그램, 윈도우 캡처, 맥 캡처 프로그램">
-<meta name="author" content="스샷핀">
-<link rel="canonical" href="https://sshot-pin.web.app/">
+<title>SshotPin — Fija capturas en pantalla, zoom y anotaciones gratis (Windows/Mac)</title>
+<meta name="description" content="Captura cualquier parte de tu pantalla y fíjala siempre visible. Zoom, dibujo, cubierta, mosaico y temporizador — herramienta gratuita para presentaciones, clases y soporte remoto. Windows 10/11 y macOS.">
+<meta name="keywords" content="SshotPin, fijar captura de pantalla, captura siempre visible, alternativa Snipaste, alternativa ZoomIt, anotar pantalla, zoom pantalla presentación, captura de pantalla gratis">
+<meta name="author" content="SshotPin">
+<link rel="canonical" href="https://sshot-pin.web.app/es/">
 <link rel="alternate" hreflang="ko" href="https://sshot-pin.web.app/">
 <link rel="alternate" hreflang="en" href="https://sshot-pin.web.app/en/">
 <link rel="alternate" hreflang="ja" href="https://sshot-pin.web.app/ja/">
@@ -18,26 +18,8 @@
 <link rel="alternate" hreflang="pt" href="https://sshot-pin.web.app/pt/">
 <link rel="alternate" hreflang="ru" href="https://sshot-pin.web.app/ru/">
 <link rel="alternate" hreflang="x-default" href="https://sshot-pin.web.app/en/">
-<script>
-// 첫 방문이면 브라우저 언어에 맞는 페이지로 안내한다.
-// 검색엔진 봇은 제외 — 한국어 페이지가 그대로 색인되어야 한다.
-(function () {
-  try {
-    if (localStorage.getItem('langChosen')) return;
-    if (/bot|crawl|spider|yeti|slurp|bingpreview|petalbot/i.test(navigator.userAgent)) return;
-    var l = (navigator.language || '').toLowerCase();
-    if (l.indexOf('ko') === 0) return;
-    var MAP = ['ja', 'zh', 'es', 'fr', 'de', 'pt', 'ru'];
-    for (var i = 0; i < MAP.length; i++) {
-      if (l.indexOf(MAP[i]) === 0) { location.replace('/' + MAP[i] + '/'); return; }
-    }
-    location.replace('/en/');
-  } catch (e) { /* 이동 실패 시 그냥 한국어 페이지 */ }
-})();
-</script>
 <meta name="robots" content="index, follow">
 
-<!-- Google 애널리틱스 (GA4) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-9XBNQ9KQQQ"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -46,60 +28,55 @@
   gtag('config', 'G-9XBNQ9KQQQ');
 </script>
 
-<!-- 파비콘 -->
-<link rel="icon" type="image/png" href="icon.png">
-<link rel="apple-touch-icon" href="icon.png">
+<link rel="icon" type="image/png" href="../icon.png">
+<link rel="apple-touch-icon" href="../icon.png">
 
-<!-- Open Graph (카카오톡·페이스북 공유 미리보기) -->
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="스샷핀">
-<meta property="og:locale" content="ko_KR">
-<meta property="og:url" content="https://sshot-pin.web.app/">
-<meta property="og:title" content="스샷핀 — 화면 캡처·확대·판서 무료 프로그램">
-<meta property="og:description" content="화면을 캡처해 항상 위에 고정하고, 확대하고, 그 위에 그립니다. 윈도우·맥 무료.">
+<meta property="og:site_name" content="SshotPin">
+<meta property="og:locale" content="es_ES">
+<meta property="og:url" content="https://sshot-pin.web.app/es/">
+<meta property="og:title" content="SshotPin — Fija capturas en pantalla, zoom y anotaciones">
+<meta property="og:description" content="Captura tu pantalla, fíjala siempre encima, haz zoom y dibuja sobre ella. Gratis para Windows y Mac.">
 <meta property="og:image" content="https://sshot-pin.web.app/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 
-<!-- 트위터 카드 -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="스샷핀 — 화면 캡처·확대·판서 무료 프로그램">
-<meta name="twitter:description" content="화면을 캡처해 항상 위에 고정하고, 확대하고, 그 위에 그립니다.">
+<meta name="twitter:title" content="SshotPin — Fija capturas en pantalla, zoom y anotaciones">
+<meta name="twitter:description" content="Captura tu pantalla, fíjala siempre encima, haz zoom y dibuja sobre ella. Gratis para Windows y Mac.">
 <meta name="twitter:image" content="https://sshot-pin.web.app/og.png">
 
-<!-- 구조화 데이터 (구글 검색 결과 리치 스니펫) -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
-  "name": "스샷핀",
-  "alternateName": "SshotPin",
-  "description": "화면을 캡처해 항상 위에 고정하고, 확대하고, 그 위에 그리는 무료 프로그램. 가리개, 모자이크, 최근 캡처, 타이머 제공.",
-  "url": "https://sshot-pin.web.app/",
+  "name": "SshotPin",
+  "description": "Captura cualquier parte de la pantalla y fíjala siempre encima. Zoom, dibujo en pantalla, cubierta de respuestas, mosaico y temporizador — gratis.",
+  "url": "https://sshot-pin.web.app/es/",
   "image": "https://sshot-pin.web.app/og.png",
   "applicationCategory": "UtilitiesApplication",
-  "applicationSubCategory": "화면 캡처",
+  "applicationSubCategory": "Captura de pantalla",
   "operatingSystem": "Windows 10, Windows 11, macOS",
   "softwareVersion": "0.7.3",
-  "inLanguage": "ko",
+  "inLanguage": "es",
   "downloadUrl": "https://github.com/wasabia137/sshotpin/releases/latest/download/SshotPin-Setup-0.7.3.exe",
   "fileSize": "81MB",
   "offers": {
     "@type": "Offer",
     "price": "0",
-    "priceCurrency": "KRW"
+    "priceCurrency": "USD"
   },
   "featureList": [
-    "영역 캡처 후 화면에 고정(핀)",
-    "클릭만으로 쓰는 퀵 실행바",
-    "화면 확대·축소",
-    "화면 판서 (직선·사각형·화살표·번호)",
-    "타이머",
-    "가리개",
-    "모자이크로 개인정보 가리기",
-    "단축키 사용자 지정",
-    "캡처 직후 주석(화살표·형광펜·번호)",
-    "최근 캡처 히스토리 다시 불러오기"
+    "Captura de región fijada siempre encima",
+    "Barra rápida de un clic",
+    "Zoom fluido de pantalla",
+    "Dibujo en pantalla (líneas, rectángulos, flechas, números)",
+    "Puntero láser",
+    "Temporizador",
+    "Cubierta de respuestas",
+    "Mosaico para datos privados",
+    "Atajos personalizables",
+    "Historial de capturas"
   ]
 }
 </script>
@@ -323,6 +300,14 @@
     border: 1px solid var(--line); border-radius: 999px;
     padding: 6px 12px; cursor: pointer; font-family: inherit;
   }
+  .langs { position: absolute; top: 16px; right: 16px; display: flex; gap: 6px; z-index: 20; }
+  .langs a {
+    font-size: 12.5px; color: var(--muted); text-decoration: none;
+    padding: 5px 12px; border-radius: 999px;
+    border: 1px solid var(--line); background: var(--card);
+  }
+  .langs a.on { color: #fff; background: var(--blue); border-color: var(--blue); }
+  .langs a:hover:not(.on) { background: var(--chip); }
 
   footer {
     text-align: center; padding: 44px 0 60px; margin-top: 40px;
@@ -343,11 +328,11 @@
 </head>
 <body>
 <select id="langNav" aria-label="Language">
-  <option value="/" selected>한국어</option>
+  <option value="/">한국어</option>
   <option value="/en/">English</option>
   <option value="/ja/">日本語</option>
   <option value="/zh/">中文</option>
-  <option value="/es/">Español</option>
+  <option value="/es/" selected>Español</option>
   <option value="/fr/">Français</option>
   <option value="/de/">Deutsch</option>
   <option value="/pt/">Português</option>
@@ -356,268 +341,292 @@
 <div class="wrap">
 
   <header>
-    <img class="logo" src="icon.png" alt="스샷핀 아이콘">
-    <div><span class="badge">무료 · 회원가입 없음 · 윈도우/맥</span></div>
-    <h1>스샷핀</h1>
-    <p class="tagline">스샷을 콕! <b>화면에 붙여두는</b> 캡처 도구</p>
-    <p class="sub">캡처한 화면을 맨 위에 고정하고, 확대하고, 그 위에 바로 그립니다.</p>
+    <img class="logo" src="../icon.png" alt="Icono de SshotPin">
+    <div><span class="badge">Gratis · Sin registro · Windows/Mac</span></div>
+    <h1>SshotPin</h1>
+    <p class="tagline">Fija capturas <b>encima de tu pantalla</b></p>
+    <p class="sub">Captura tu pantalla, mantenla siempre visible, haz zoom y dibuja justo encima.</p>
     <div class="chips">
-      <span class="chip">📌 캡처 고정</span>
-      <span class="chip">🔍 화면 확대</span>
-      <span class="chip">✏️ 판서</span>
-      <span class="chip">🙈 정답 가리개</span>
-      <span class="chip">🔲 모자이크</span>
-      <span class="chip">⏱️ 타이머</span>
+      <span class="chip">📌 Fijar encima</span>
+      <span class="chip">🔍 Zoom de pantalla</span>
+      <span class="chip">✏️ Dibujar en pantalla</span>
+      <span class="chip">🙈 Cubierta</span>
+      <span class="chip">🔲 Mosaico</span>
+      <span class="chip">⏱️ Temporizador</span>
     </div>
     <div class="dl-row">
       <a class="dl" id="dlBtn" href="https://github.com/wasabia137/sshotpin/releases/latest/download/SshotPin-Setup-0.7.3.exe">
-        ⬇ 윈도우용 다운로드
+        ⬇ Descargar para Windows
       </a>
       <div class="dl-mac-wrap">
-        <button class="dl dl-mac" id="dlMacBtn" type="button">⬇ 맥용 다운로드</button>
+        <button class="dl dl-mac" id="dlMacBtn" type="button">⬇ Descargar para Mac</button>
         <div class="dl-menu" id="dlMacMenu">
-          <a id="dlMacArm" href="https://github.com/wasabia137/sshotpin/releases/latest/download/SshotPin-0.7.3-mac-arm64.dmg">Apple Silicon <small>M1~M4</small></a>
+          <a id="dlMacArm" href="https://github.com/wasabia137/sshotpin/releases/latest/download/SshotPin-0.7.3-mac-arm64.dmg">Apple Silicon <small>M1–M4</small></a>
           <a id="dlMacX64" href="https://github.com/wasabia137/sshotpin/releases/latest/download/SshotPin-0.7.3-mac-x64.dmg">Intel</a>
         </div>
       </div>
     </div>
-    <p class="meta">Windows 10/11 · macOS · 무료 · <span id="ver">v0.7.3</span></p>
+    <p class="meta">Windows 10/11 · macOS · Gratis · <span id="ver">v0.7.3</span></p>
   </header>
 
   <section>
-    <div class="eyebrow">핵심 기능</div>
-    <h2>캡처하고, 붙이고, 그 위에 그립니다</h2>
-    <p class="lead">발표·수업·원격 지원 — 화면을 두고 설명하는 모든 자리에서.</p>
+    <div class="eyebrow">FUNCIONES CLAVE</div>
+    <h2>Captura, fija y dibuja sobre lo que sea</h2>
+    <p class="lead">Para presentaciones, clases y soporte remoto — donde sea que expliques cosas en pantalla.</p>
 
     <div class="feats">
       <div class="feat">
         <figure class="fmedia demo" style="background:none;border:0">
-          <video data-src="demo-pin.mp4?v=5" autoplay loop muted playsinline preload="none"
-                 data-poster="demo-pin-poster.jpg?v=5" aria-label="캡처해서 화면에 붙이기 동작 화면"></video>
+          <video data-src="../demo-pin.mp4?v=5" autoplay loop muted playsinline preload="none"
+                 data-poster="../demo-pin-poster.jpg?v=5" aria-label="Demostración de fijar capturas"></video>
         </figure>
         <div class="ftext">
-          <h3>캡처해서 화면에 붙이기<span class="hk"><kbd>Ctrl</kbd>+<kbd>F1</kbd></span></h3>
-          <p>필요한 부분만 드래그해서 찍고 <b>화면 맨 위에 고정</b>합니다. 다른 창을 열어도 위에 남아, 참고 자료를 띄워두고 작업할 수 있습니다. 찍은 자리에서 화살표·형광펜도 바로 얹습니다.</p>
+          <h3>Captura y fija encima<span class="hk"><kbd>Ctrl</kbd><span class="plus">+</span><kbd>F1</kbd></span></h3>
+          <p>Arrastra sobre lo que necesites y <b>fíjalo encima de todas las ventanas</b>. Sigue visible mientras trabajas en otras apps — perfecto para tener material de referencia a la vista. Añade flechas y marcadores ahí mismo.</p>
         </div>
       </div>
       <div class="feat">
         <figure class="fmedia demo" style="background:none;border:0">
-          <video data-src="demo-zoom.mp4?v=5" autoplay loop muted playsinline preload="none"
-                 data-poster="demo-zoom-poster.jpg?v=5" aria-label="화면 확대 동작 화면"></video>
+          <video data-src="../demo-zoom.mp4?v=5" autoplay loop muted playsinline preload="none"
+                 data-poster="../demo-zoom-poster.jpg?v=5" aria-label="Demostración de zoom"></video>
         </figure>
         <div class="ftext">
-          <h3>화면 확대<span class="hk"><kbd>Ctrl</kbd>+<kbd>1</kbd></span></h3>
-          <p>마우스 주변을 <b>미끄러지듯 크게</b> 봅니다. 휠로 배율을 조절하고, 마우스를 움직이면 화면이 부드럽게 따라옵니다. 작은 글씨를 보여줄 때 그만입니다.</p>
+          <h3>Zoom de pantalla<span class="hk"><kbd>Ctrl</kbd><span class="plus">+</span><kbd>1</kbd></span></h3>
+          <p>Amplía alrededor del ratón con un <b>deslizamiento suavísimo</b>. Rueda para el zoom; mueve el ratón y la vista lo sigue. Ideal para mostrar texto pequeño.</p>
         </div>
       </div>
       <div class="feat">
         <figure class="fmedia demo" style="background:none;border:0">
-          <video data-src="demo-draw.mp4?v=5" autoplay loop muted playsinline preload="none"
-                 data-poster="demo-draw-poster.jpg?v=5" aria-label="화면에 그리기 동작 화면"></video>
+          <video data-src="../demo-draw.mp4?v=5" autoplay loop muted playsinline preload="none"
+                 data-poster="../demo-draw-poster.jpg?v=5" aria-label="Demostración de dibujo"></video>
         </figure>
         <div class="ftext">
-          <h3>화면에 그리기<span class="hk"><kbd>Ctrl</kbd>+<kbd>2</kbd></span></h3>
-          <p>화면 위에 바로 <b>밑줄·동그라미·화살표</b>를 긋습니다. 색과 굵기를 바꾸고, 빈 칠판으로 전환할 수도 있습니다. 그린 화면은 핀·복사·저장으로 남깁니다.</p>
+          <h3>Dibujar en pantalla<span class="hk"><kbd>Ctrl</kbd><span class="plus">+</span><kbd>2</kbd></span></h3>
+          <p>Subraya, rodea y señala con <b>flechas dibujadas directamente en tu pantalla</b>. Cambia colores y grosor, pasa a una pizarra en blanco, y fija, copia o guarda lo dibujado.</p>
         </div>
       </div>
     </div>
 
     <div class="demos">
       <figure class="demo">
-        <video data-src="demo-cover.mp4?v=5" autoplay loop muted playsinline preload="none"
-               data-poster="demo-cover-poster.jpg?v=5" aria-label="가리개 동작 화면"></video>
-        <figcaption><b>가리개<span class="hk"><kbd>Ctrl</kbd>+<kbd>F3</kbd></span></b><span class="d">보여주지 않을 부분을 덮어두고, 필요한 때 클릭해서 공개합니다.</span></figcaption>
+        <video data-src="../demo-cover.mp4?v=5" autoplay loop muted playsinline preload="none"
+               data-poster="../demo-cover-poster.jpg?v=5" aria-label="Demostración de cubierta"></video>
+        <figcaption><b>Cubierta<span class="hk"><kbd>Ctrl</kbd><span class="plus">+</span><kbd>F3</kbd></span></b><span class="d">Tapa la respuesta y revélala con un clic cuando toque.</span></figcaption>
       </figure>
       <figure class="demo">
-        <video data-src="demo-mosaic.mp4?v=5" autoplay loop muted playsinline preload="none"
-               data-poster="demo-mosaic-poster.jpg?v=5" aria-label="모자이크 동작 화면"></video>
-        <figcaption><b>모자이크<span class="hk">그리기 중 <kbd>M</kbd></span></b><span class="d">이름·연락처처럼 가려야 할 정보를 드래그로 덮습니다.</span></figcaption>
+        <video data-src="../demo-mosaic.mp4?v=5" autoplay loop muted playsinline preload="none"
+               data-poster="../demo-mosaic-poster.jpg?v=5" aria-label="Demostración de mosaico"></video>
+        <figcaption><b>Mosaico<span class="hk"><kbd>M</kbd> al dibujar</span></b><span class="d">Arrastra sobre nombres o datos que deban quedar privados.</span></figcaption>
       </figure>
       <figure class="demo">
-        <video data-src="demo-history.mp4?v=5" autoplay loop muted playsinline preload="none"
-               data-poster="demo-history-poster.jpg?v=5" aria-label="최근 캡처 다시 꺼내기 동작 화면"></video>
-        <figcaption><b>최근 캡처<span class="hk">퀵바 🕘</span></b><span class="d">최근 24개를 보관합니다. 다시 찍지 않고 클릭 한 번으로 붙입니다.</span></figcaption>
+        <video data-src="../demo-history.mp4?v=5" autoplay loop muted playsinline preload="none"
+               data-poster="../demo-history-poster.jpg?v=5" aria-label="Demostración de historial"></video>
+        <figcaption><b>Capturas recientes<span class="hk">🕘 en la barra</span></b><span class="d">Guarda las últimas 24. Vuelve a fijar cualquiera con un clic.</span></figcaption>
       </figure>
       <figure class="demo">
-        <video data-src="demo-pinops.mp4?v=5" autoplay loop muted playsinline preload="none"
-               data-poster="demo-pinops-poster.jpg?v=5" aria-label="붙여둔 그림 다루기 동작 화면"></video>
-        <figcaption><b>붙여둔 그림 다루기<span class="hk">모퉁이 드래그</span></b><span class="d">모퉁이로 크기, 휠로 배율, Ctrl+휠로 투명도. 더블클릭하면 접힙니다.</span></figcaption>
+        <video data-src="../demo-pinops.mp4?v=5" autoplay loop muted playsinline preload="none"
+               data-poster="../demo-pinops-poster.jpg?v=5" aria-label="Demostración de control de pines"></video>
+        <figcaption><b>Control de pines<span class="hk">arrastra una esquina</span></b><span class="d">Esquinas para el tamaño, rueda para zoom, Ctrl+rueda para opacidad. Doble clic pliega.</span></figcaption>
       </figure>
       <figure class="demo">
-        <video data-src="demo-timer.mp4?v=5" autoplay loop muted playsinline preload="none"
-               data-poster="demo-timer-poster.jpg?v=5" aria-label="타이머 동작 화면"></video>
-        <figcaption><b>타이머<span class="hk"><kbd>Ctrl</kbd>+<kbd>3</kbd></span></b><span class="d">남은 시간을 화면에 띄우고, 끝나면 소리로 알립니다.</span></figcaption>
+        <video data-src="../demo-timer.mp4?v=5" autoplay loop muted playsinline preload="none"
+               data-poster="../demo-timer-poster.jpg?v=5" aria-label="Demostración de temporizador"></video>
+        <figcaption><b>Temporizador<span class="hk"><kbd>Ctrl</kbd><span class="plus">+</span><kbd>3</kbd></span></b><span class="d">Muestra el tiempo restante y avisa con un pitido al terminar.</span></figcaption>
       </figure>
       <figure class="demo">
-        <video data-src="demo-quickbar.mp4?v=5" autoplay loop muted playsinline preload="none"
-               data-poster="demo-quickbar-poster.jpg?v=5" aria-label="퀵 실행바 동작 화면"></video>
-        <figcaption><b>퀵 실행바</b><span class="d">떠 있는 버튼바에서 모든 기능을 클릭으로 실행합니다. 캡처할 땐 저절로 숨습니다.</span></figcaption>
+        <video data-src="../demo-quickbar.mp4?v=5" autoplay loop muted playsinline preload="none"
+               data-poster="../demo-quickbar-poster.jpg?v=5" aria-label="Demostración de barra rápida"></video>
+        <figcaption><b>Barra rápida</b><span class="d">Una barra flotante que ejecuta todo con un clic. Se oculta al capturar.</span></figcaption>
       </figure>
     </div>
   </section>
 
   <section>
-    <div class="eyebrow">단축키</div>
-    <h2>단축키 한눈에</h2>
-    <p class="lead">외울 건 여섯 개뿐입니다. 겹치면 트레이 → ⚙️ 설정에서 바꾸세요.</p>
+    <div class="eyebrow">ATAJOS</div>
+    <h2>Atajos de un vistazo</h2>
+    <p class="lead">Solo seis que recordar. Si alguno choca, cámbialo en bandeja → ⚙️ Ajustes.</p>
     <div class="hotkeys">
       <div class="hkcard">
         <div class="keys"><kbd>Ctrl</kbd><span class="plus">+</span><kbd>F1</kbd></div>
-        <b>영역 캡처</b>
-        <span class="desc">드래그로 찍고 <kbd>Enter</kbd> 하면 화면에 핀</span>
+        <b>Captura de región</b>
+        <span class="desc">Arrastra para capturar y <kbd>Enter</kbd> la fija</span>
       </div>
       <div class="hkcard">
         <div class="keys"><kbd>Ctrl</kbd><span class="plus">+</span><kbd>F2</kbd></div>
-        <b>클립보드 핀</b>
-        <span class="desc">복사해둔 이미지를 그대로 화면에 핀</span>
+        <b>Fijar portapapeles</b>
+        <span class="desc">Fija la imagen copiada tal cual</span>
       </div>
       <div class="hkcard">
         <div class="keys"><kbd>Ctrl</kbd><span class="plus">+</span><kbd>1</kbd></div>
-        <b>화면 확대·축소</b>
-        <span class="desc">휠·<kbd>↑</kbd><kbd>↓</kbd>로 배율 · <kbd>Esc</kbd>로 종료</span>
+        <b>Zoom de pantalla</b>
+        <span class="desc">Rueda · <kbd>↑</kbd><kbd>↓</kbd> para zoom · <kbd>Esc</kbd> sale</span>
       </div>
       <div class="hkcard">
         <div class="keys"><kbd>Ctrl</kbd><span class="plus">+</span><kbd>2</kbd></div>
-        <b>판서</b>
-        <span class="desc"><kbd>Shift</kbd> 직선 · <kbd>Ctrl</kbd> 사각형 · <kbd>Alt</kbd>+클릭 ①②③</span>
+        <b>Dibujar en pantalla</b>
+        <span class="desc"><kbd>Shift</kbd> línea · <kbd>Ctrl</kbd> rect · <kbd>Alt</kbd>+clic ①②③</span>
       </div>
       <div class="hkcard">
         <div class="keys"><kbd>Ctrl</kbd><span class="plus">+</span><kbd>3</kbd></div>
-        <b>타이머</b>
-        <span class="desc">남은 시간 표시 · 클릭해서 직접 입력</span>
+        <b>Temporizador</b>
+        <span class="desc">Muestra el tiempo · clic para escribirlo</span>
       </div>
       <div class="hkcard">
         <div class="keys"><kbd>Ctrl</kbd><span class="plus">+</span><kbd>F3</kbd></div>
-        <b>가리개</b>
-        <span class="desc">덮어뒀다가 클릭하면 공개, 다시 클릭하면 가림</span>
+        <b>Cubierta</b>
+        <span class="desc">Tapa un área; clic revela, clic vuelve a tapar</span>
       </div>
     </div>
-    <p class="fine">맥은 <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>1</kbd>·<kbd>2</kbd>·<kbd>3</kbd>을 씁니다.</p>
+    <p class="fine">En Mac usa <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>1</kbd>·<kbd>2</kbd>·<kbd>3</kbd>.</p>
   </section>
 
   <section>
-    <div class="eyebrow">그 밖에</div>
-    <h2>세세한 것도 챙겼습니다</h2>
+    <div class="eyebrow">Y MÁS</div>
+    <h2>Los detalles también están cuidados</h2>
     <div class="extras">
-      <div class="extra"><b>단축키 바꾸기</b><p>다른 프로그램과 겹치면 원하는 키로 바꾸거나 비워둡니다. 비워둬도 퀵 실행바로 실행합니다.</p></div>
-      <div class="extra"><b>저장 방식 선택</b><p>저장 폴더를 지정해두고, 위치를 묻지 않고 바로 저장하게 할 수 있습니다.</p></div>
-      <div class="extra"><b>클릭 통과</b><p>붙여둔 그림을 깔아둔 채로 그 아래 프로그램을 그대로 조작합니다.</p></div>
-      <div class="extra"><b>시작 시 자동 실행</b><p>컴퓨터를 켜면 트레이에 올라와 바로 쓸 수 있습니다.</p></div>
-      <div class="extra"><b>자동 업데이트</b><p>새 버전이 나오면 알아서 받아둡니다. 직접 확인할 수도 있습니다.</p></div>
-      <div class="extra"><b>오류 기록</b><p>문제가 생기면 기록이 남습니다. 문의할 때 그 파일만 첨부하면 됩니다.</p></div>
+      <div class="extra"><b>Atajos personalizables</b><p>¿Choca con otra app? Reasigna cualquier atajo o déjalo vacío — la barra rápida lo ejecuta todo.</p></div>
+      <div class="extra"><b>Guardado rápido</b><p>Define una carpeta una vez y olvídate del diálogo de guardar.</p></div>
+      <div class="extra"><b>Clic a través</b><p>Mantén un pin en pantalla mientras usas los programas de debajo.</p></div>
+      <div class="extra"><b>Inicio automático</b><p>Vive en la bandeja, listo en cuanto arranca el equipo.</p></div>
+      <div class="extra"><b>Actualización automática</b><p>Las nuevas versiones se descargan solas. También puedes comprobarlo a mano.</p></div>
+      <div class="extra"><b>Registro de errores</b><p>Si algo falla queda registrado — solo adjúntalo al escribirnos.</p></div>
     </div>
   </section>
 
   <section>
-    <div class="eyebrow">시작하기</div>
-    <h2>설치 방법</h2>
+    <div class="eyebrow">EMPEZAR</div>
+    <h2>Cómo instalar</h2>
     <ol class="steps">
-      <li>위 <b>다운로드</b> 버튼을 눌러 설치파일을 받습니다.</li>
-      <li class="hl">받은 <b>SshotPin-Setup.exe</b>를 <b>우클릭 → 속성</b> → 맨 아래 <b>"차단 해제"에 체크</b> → <b>확인</b>
-        <div class="why">이걸 하면 윈도우 경고창이 뜨지 않습니다. 건너뛰어도 설치는 됩니다.</div>
-      </li>
-      <li>파일을 <b>두 번 클릭</b>해서 실행하고 안내에 따라 설치합니다.</li>
-      <li>설치가 끝나면 <b>사용법 창</b>이 열리고, "컴퓨터 시작 시 자동 실행"을 물어봅니다. <b>켜기</b>를 누르면 다음 부팅부터 바로 씁니다.</li>
+      <li>Pulsa el botón de <b>Descargar</b> de arriba para obtener el instalador.</li>
+      <li class="hl"><b>Clic derecho</b> en <b>SshotPin-Setup.exe</b> → <b>Propiedades</b> → marca <b>«Desbloquear»</b> abajo → <b>Aceptar</b><div class="why">Así no aparece el aviso de Windows. Puedes saltártelo; se instala igual.</div></li>
+      <li><b>Doble clic</b> en el archivo y sigue el instalador.</li>
+      <li>Al terminar se abre una <b>ventana de guía</b> y pregunta por el «inicio automático». Elige <b>Activar</b> y estará listo desde el próximo arranque.</li>
     </ol>
     <p class="fine">
-      "Windows에서 PC를 보호했습니다" 창이 떴다면 <b>추가 정보 → 실행</b>. 위 2번을 먼저 하면 나오지 않습니다.<br>
-      맥은 DMG를 열어 응용 프로그램에 끌어다 놓고, 처음 실행할 때 앱을 <b>우클릭 → 열기</b>.<br>
-      설치하면 창이 아니라 <b>작업표시줄 오른쪽 트레이 아이콘</b>으로 올라옵니다. 우클릭하면 전체 메뉴가 나옵니다.
+      Si ves «Windows protegió tu PC», pulsa <b>Más información → Ejecutar de todas formas</b>. El paso 2 lo evita.<br>
+      En Mac, abre el DMG, arrastra la app a Aplicaciones y en el primer uso <b>clic derecho → Abrir</b>.<br>
+      SshotPin vive en la <b>bandeja del sistema</b>, no en una ventana. Clic derecho en el icono para el menú completo.
     </p>
   </section>
 
   <section>
     <div class="eyebrow">FAQ</div>
-    <h2>자주 묻는 질문</h2>
+    <h2>Preguntas frecuentes</h2>
     <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
     {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "스샷핀은 무료인가요?",
-          "acceptedAnswer": { "@type": "Answer", "text": "네, 완전 무료입니다. 결제나 회원가입 없이 다운로드해서 바로 쓸 수 있고, 사용 기간 제한도 없습니다." }
-        },
-        {
-          "@type": "Question",
-          "name": "보통 캡처 프로그램과 무엇이 다른가요?",
-          "acceptedAnswer": { "@type": "Answer", "text": "보통 캡처 프로그램은 찍어서 저장하거나 붙여넣으면 끝입니다. 스샷핀은 캡처한 화면을 쪽지처럼 화면 맨 위에 고정해둘 수 있습니다. 다른 프로그램을 쓰는 동안에도 계속 보이기 때문에 참고할 자료를 띄워두고 작업하기 좋습니다." }
-        },
-        {
-          "@type": "Question",
-          "name": "Windows에서 PC를 보호했습니다 경고가 떠요.",
-          "acceptedAnswer": { "@type": "Answer", "text": "유료 코드 서명 인증서를 붙이지 않은 프로그램에 윈도우가 기본으로 띄우는 안내입니다. 다운로드한 설치파일을 우클릭하고 속성에서 차단 해제를 체크한 뒤 실행하면 경고 없이 설치됩니다. 이미 경고가 떴다면 추가 정보를 누른 뒤 실행을 선택하세요." }
-        },
-        {
-          "@type": "Question",
-          "name": "어떤 컴퓨터에서 쓸 수 있나요?",
-          "acceptedAnswer": { "@type": "Answer", "text": "Windows 10과 Windows 11의 64비트 버전에서 동작하며, 맥용(Apple Silicon과 Intel)도 제공합니다. 맥용은 다운로드 버튼에서 칩 종류를 고르세요." }
-        },
-        {
-          "@type": "Question",
-          "name": "어떤 때 쓰나요?",
-          "acceptedAnswer": { "@type": "Answer", "text": "문제를 캡처해 화면에 고정해두고 풀이를 진행하거나, 정답 부분을 가리개로 덮어두고 학생들 답을 들은 뒤 클릭으로 공개할 수 있습니다. 화면 확대로 크게 보여주고, 화면 위에 바로 밑줄이나 동그라미를 그려 설명할 수 있습니다. 모둠 활동 시간은 타이머로 표시합니다." }
-        },
-        {
-          "@type": "Question",
-          "name": "설치 후 프로그램이 안 보여요.",
-          "acceptedAnswer": { "@type": "Answer", "text": "스샷핀은 창으로 뜨지 않고 작업표시줄 오른쪽 트레이 아이콘으로 상주합니다. 아이콘을 우클릭하면 모든 기능과 사용법을 볼 수 있고, Ctrl+F1을 누르면 바로 캡처가 시작됩니다." }
-        }
-      ]
+      "@type": "Question",
+      "name": "¿SshotPin es gratis?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Totalmente gratis. Sin pagos, sin registro y sin límite de tiempo."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "¿En qué se diferencia de una herramienta de capturas normal?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "La mayoría termina al guardar o pegar. SshotPin fija la captura encima como una nota adhesiva — sigue visible mientras trabajas en otros programas, con tu referencia siempre a la vista."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Me sale el aviso «Windows protegió tu PC».",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Windows lo muestra con programas sin certificado de firma de pago. Clic derecho en el instalador → Propiedades → marca «Desbloquear» y ejecútalo. Si ya apareció, pulsa Más información → Ejecutar de todas formas."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Mi antivirus bloquea el instalador.",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Los programas nuevos sin firmar a veces se bloquean de forma preventiva (falso positivo). SshotPin funciona totalmente en local. Añade el archivo a las excepciones y reinstala."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "¿En qué equipos funciona?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Windows 10·11 de 64 bits y macOS (Apple Silicon · Intel). En Mac, elige tu chip en el botón de descarga."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "¿Cuándo lo uso?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Siempre que expliques algo en pantalla. En presentaciones, fija material y haz zoom o dibuja para señalar; en clase, tapa la respuesta y revélala con un clic; en soporte remoto, captura y añade flechas; al compartir pantalla, mosaico para lo privado."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "La app no aparece tras instalarla.",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "SshotPin no abre ventana — vive en la bandeja del sistema. Clic derecho en el icono para todo el menú, o pulsa Ctrl+F1 para capturar ya."
+      }
     }
+  ]
+}
     </script>
     <div class="faq">
       <div class="qa">
-        <h3>스샷핀은 무료인가요?</h3>
-        <p>무료입니다. 결제도 회원가입도 없고 사용 기간 제한도 없습니다.</p>
+        <h3>¿SshotPin es gratis?</h3>
+        <p>Totalmente gratis. Sin pagos, sin registro y sin límite de tiempo.</p>
       </div>
       <div class="qa">
-        <h3>보통 캡처 프로그램과 무엇이 다른가요?</h3>
-        <p>보통은 찍어서 저장하거나 붙여넣으면 끝입니다. 스샷핀은 캡처한 화면을 <b>쪽지처럼 맨 위에 고정</b>합니다. 다른 프로그램을 쓰는 동안에도 보이니 참고할 자료를 띄워두고 작업할 수 있습니다.</p>
+        <h3>¿En qué se diferencia de una herramienta de capturas normal?</h3>
+        <p>La mayoría termina al guardar o pegar. SshotPin <b>fija la captura encima como una nota adhesiva</b> — sigue visible mientras trabajas en otros programas, con tu referencia siempre a la vista.</p>
       </div>
       <div class="qa">
-        <h3>"Windows에서 PC를 보호했습니다" 경고가 떠요.</h3>
-        <p>코드 서명 인증서를 붙이지 않은 프로그램에 윈도우가 띄우는 안내입니다. 설치파일을 <b>우클릭 → 속성 → "차단 해제" 체크</b> 후 실행하면 뜨지 않습니다. 이미 떴다면 <b>추가 정보 → 실행</b>을 누르세요.</p>
+        <h3>Me sale el aviso «Windows protegió tu PC».</h3>
+        <p>Windows lo muestra con programas sin certificado de firma de pago. <b>Clic derecho en el instalador → Propiedades → marca «Desbloquear»</b> y ejecútalo. Si ya apareció, pulsa <b>Más información → Ejecutar de todas formas</b>.</p>
       </div>
       <div class="qa">
-        <h3>V3 등 백신이 설치파일을 차단해요.</h3>
-        <p>새로 배포된 서명 없는 프로그램을 백신이 예방 차원에서 막는 경우가 있습니다(오탐). 스샷핀은 화면 캡처 외에 네트워크로 정보를 보내지 않습니다. V3에서는 <b>검사 결과 창에서 해당 파일 선택 → 예외(신뢰) 등록</b> 후 다시 설치하면 됩니다.</p>
+        <h3>Mi antivirus bloquea el instalador.</h3>
+        <p>Los programas nuevos sin firmar a veces se bloquean de forma preventiva (falso positivo). SshotPin funciona totalmente en local. Añade el archivo a las <b>excepciones</b> y reinstala.</p>
       </div>
       <div class="qa">
-        <h3>어떤 컴퓨터에서 쓸 수 있나요?</h3>
-        <p>Windows 10·11 64비트, 그리고 맥(Apple Silicon·Intel)에서 동작합니다. 맥용은 다운로드 버튼에서 칩 종류를 고르세요.</p>
+        <h3>¿En qué equipos funciona?</h3>
+        <p>Windows 10·11 de 64 bits y macOS (Apple Silicon · Intel). En Mac, elige tu chip en el botón de descarga.</p>
       </div>
       <div class="qa">
-        <h3>어떤 때 쓰나요?</h3>
-        <p>화면을 두고 설명하는 자리 전반에 씁니다. 발표에서는 자료를 띄워두고 확대·판서로 짚어가며 이야기하고, 수업에서는 문제를 고정해두고 정답을 가려뒀다가 공개합니다. 원격으로 도와줄 때는 화면을 캡처해 화살표를 얹어 보내고, 화면 공유 중에는 모자이크로 개인정보를 덮습니다.</p>
+        <h3>¿Cuándo lo uso?</h3>
+        <p>Siempre que expliques algo en pantalla. En presentaciones, fija material y haz zoom o dibuja para señalar; en clase, tapa la respuesta y revélala con un clic; en soporte remoto, captura y añade flechas; al compartir pantalla, mosaico para lo privado.</p>
       </div>
       <div class="qa">
-        <h3>설치 후 프로그램이 안 보여요.</h3>
-        <p>스샷핀은 창으로 뜨지 않고 <b>작업표시줄 오른쪽 트레이 아이콘</b>으로 상주합니다. 아이콘을 우클릭하면 전체 메뉴가 나오고, <kbd>Ctrl</kbd>+<kbd>F1</kbd>로 바로 캡처합니다.</p>
+        <h3>La app no aparece tras instalarla.</h3>
+        <p>SshotPin no abre ventana — vive en la <b>bandeja del sistema</b>. Clic derecho en el icono para todo el menú, o pulsa <kbd>Ctrl</kbd>+<kbd>F1</kbd> para capturar ya.</p>
       </div>
     </div>
   </section>
 
   <div class="counts" id="counts" hidden>
-    <span class="count" id="cVisitBox" hidden><span class="clab">방문자</span><span class="cnum" id="cVisit">0</span></span>
-    <span class="count"><span class="clab">Windows 내려받기</span><span class="cnum" id="cWin">0</span></span>
-    <span class="count"><span class="clab">Mac 내려받기</span><span class="cnum" id="cMac">0</span></span>
+    <span class="count" id="cVisitBox" hidden><span class="clab">Visitantes</span><span class="cnum" id="cVisit">0</span></span>
+    <span class="count"><span class="clab">Descargas Windows</span><span class="cnum" id="cWin">0</span></span>
+    <span class="count"><span class="clab">Descargas Mac</span><span class="cnum" id="cMac">0</span></span>
   </div>
 
   <footer>
-    화면 캡처 · 고정 · 확대 · 판서 · 가리개 · 모자이크 · 타이머<br>
-    <a href="privacy.html">개인정보처리방침</a> ·
+    Captura de pantalla · fijar · zoom · dibujar · cubierta · mosaico · temporizador<br>
+    <a href="../privacy.html">Política de privacidad</a> ·
     <a href="https://github.com/wasabia137/sshotpin" rel="noopener">GitHub</a> ·
-    <a href="mailto:intothemint@gmail.com">문의</a><br>
-    <span style="opacity:.7">만든 사람 kkunggabba · sshot-pin.web.app</span>
+    <a href="mailto:intothemint@gmail.com">Contacto</a><br>
+    <span style="opacity:.7">Made by kkunggabba · sshot-pin.web.app</span>
   </footer>
 
 </div>
 
 <script>
   // version.json이 있으면 최신 버전·다운로드 링크를 자동 갱신
-  fetch('version.json', { cache: 'no-store' })
+  fetch('../version.json', { cache: 'no-store' })
     .then((r) => r.ok ? r.json() : Promise.reject())
     .then((v) => {
       if (v.version) {

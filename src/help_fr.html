@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Guide SshotPin</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif;
+    background: #f8fafc; color: #1e293b;
+    padding: 24px 28px 40px;
+    line-height: 1.7;
+  }
+  h1 { font-size: 22px; margin-bottom: 4px; }
+  .sub { color: #64748b; font-size: 13px; margin-bottom: 20px; }
+  h2 {
+    font-size: 15px; margin: 22px 0 8px;
+    padding-left: 10px; border-left: 4px solid #2563eb;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; background: #fff; border-radius: 8px; overflow: hidden; }
+  th, td { padding: 7px 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+  th { background: #f1f5f9; color: #475569; font-weight: 600; width: 190px; }
+  kbd {
+    display: inline-block;
+    background: #1e293b; color: #f1f5f9;
+    border-radius: 5px; padding: 1px 7px;
+    font: 12px 'Segoe UI', sans-serif;
+    margin: 0 1px;
+  }
+  .tip {
+    background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px;
+    padding: 10px 14px; font-size: 13px; margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+  <h1>📌 Guide SshotPin</h1>
+  <div class="sub">Rouvrez-le à tout moment via la barre système → ❓ Guide et raccourcis.</div>
+
+  <h2>Raccourcis globaux</h2>
+  <table>
+    <tr><th><span data-hk="capture">—</span></th><td>Capture de zone</td></tr>
+    <tr><th><span data-hk="pin">—</span></th><td>Épingler l'image copiée à l'écran</td></tr>
+    <tr><th><span data-hk="zoom">—</span></th><td>Zoomer / dézoomer l'écran</td></tr>
+    <tr><th><span data-hk="draw">—</span></th><td>Dessiner à l'écran</td></tr>
+    <tr><th><span data-hk="timer">—</span></th><td>Minuteur</td></tr>
+    <tr><th><span data-hk="cover">—</span></th><td>Cache</td></tr>
+  </table>
+  <div class="tip">
+    Si un raccourci ne convient pas, modifiez-le ou effacez-le via barre système → <b>⚙️ Réglages</b>.
+    Les actions effacées restent accessibles via la barre rapide.
+  </div>
+
+  <h2>📸 Capture de zone</h2>
+  <table>
+    <tr><th>Glisser</th><td>Sélectionnez la zone à capturer</td></tr>
+    <tr><th>Tirez un point bleu</th><td>Redimensionner la sélection</td></tr>
+    <tr><th>Glissez à l'intérieur</th><td>Déplacer la sélection</td></tr>
+    <tr><th>Boutons d'outils</th><td>✏️Stylo ↗Flèche ▭Rect ◯Ellipse 🖍Surligneur 🔲Mosaïque ①Numéros</td></tr>
+    <tr><th>↩ / <kbd>Ctrl</kbd>+<kbd>Z</kbd> / clic droit</th><td>Annuler le dessin</td></tr>
+    <tr><th><kbd>Entrée</kbd> ou 📌</th><td>Épingler à l'écran</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+<kbd>C</kbd> / <kbd>Ctrl</kbd>+<kbd>S</kbd></th><td>Copier / enregistrer en PNG</td></tr>
+    <tr><th>Bouton 🙈</th><td>Recouvrir la zone sélectionnée</td></tr>
+    <tr><th><kbd>Esc</kbd></th><td>Désélectionner l'outil ; encore une fois pour annuler</td></tr>
+  </table>
+  <div class="tip">Idéal pour capturer un document et ajouter une flèche avant de le montrer. Choisissez un outil, dessinez dans la zone puis <kbd>Entrée</kbd>.</div>
+
+  <h2>📌 Épingles — images collées à l'écran</h2>
+  <table>
+    <tr><th>Glisser</th><td>Déplacer</td></tr>
+    <tr><th>Tirez un coin</th><td>Redimensionner (ratio conservé)</td></tr>
+    <tr><th>Molette</th><td>Zoomer / dézoomer</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+molette</th><td>Opacité</td></tr>
+    <tr><th>Double-clic</th><td>Replier / déplier</td></tr>
+    <tr><th>Bouton ✕ · clic molette · <kbd>Échap</kbd></th><td>Fermer (✕ apparaît en haut à droite au survol)</td></tr>
+    <tr><th><kbd>0</kbd></th><td>Taille et opacité d'origine</td></tr>
+    <tr><th><kbd>1</kbd> / <kbd>2</kbd></th><td>Rotation 90° horaire / antihoraire</td></tr>
+    <tr><th><kbd>3</kbd> / <kbd>4</kbd></th><td>Miroir horizontal / vertical</td></tr>
+    <tr><th>Clic droit</th><td>Couleur de bordure, zoom et opacité, clic traversant</td></tr>
+  </table>
+  <div class="tip">Avec le <b>clic traversant</b>, vous utilisez les programmes en dessous pendant que l'épingle reste au-dessus. Désactivez-le via barre système → « Désactiver tous les clics traversants ».</div>
+
+  <h2>🔍 Zoom · ✏️ Dessin</h2>
+  <table>
+    <tr><th>Barre du bas</th><td>Couleur, épaisseur, effacer, tableaux, épingler, copier, enregistrer — tout à la souris</td></tr>
+    <tr><th>Molette · <kbd>↑</kbd><kbd>↓</kbd> · <kbd>+</kbd><kbd>−</kbd></th><td>Zoomer / dézoomer (la vue suit la souris)</td></tr>
+    <tr><th>Glisser</th><td>Stylo</td></tr>
+    <tr><th><kbd>Maj</kbd>+glisser</th><td>Ligne droite</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+glisser</th><td>Rectangle</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+<kbd>Maj</kbd>+glisser</th><td>Flèche</td></tr>
+    <tr><th><kbd>Tab</kbd>+glisser</th><td>Ellipse</td></tr>
+    <tr><th><kbd>Alt</kbd>+clic</th><td>Numéros d'étape ①②③</td></tr>
+    <tr><th>🔲 ou <kbd>M</kbd></th><td>Mosaïque — activez et glissez pour masquer</td></tr>
+    <tr><th>🔴 ou <kbd>L</kbd></th><td>Pointeur laser — les traits s'effacent</td></tr>
+    <tr><th><kbd>F5</kbd></th><td>Recapturer l'écran en gardant zoom et dessins</td></tr>
+    <tr><th><kbd>R</kbd> <kbd>G</kbd> <kbd>B</kbd> <kbd>O</kbd> <kbd>Y</kbd> <kbd>P</kbd></th><td>Rouge · vert · bleu · orange · jaune · rose</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+molette</th><td>Épaisseur du stylo</td></tr>
+    <tr><th><kbd>W</kbd> / <kbd>K</kbd></th><td>Tableau blanc / noir</td></tr>
+    <tr><th>Clic droit / <kbd>Ctrl</kbd>+<kbd>Z</kbd></th><td>Annuler un trait</td></tr>
+    <tr><th><kbd>E</kbd></th><td>Tout effacer</td></tr>
+    <tr><th><kbd>Enter</kbd></th><td>Épingler la vue actuelle</td></tr>
+    <tr><th><kbd>Ctrl</kbd>+<kbd>C</kbd> / <kbd>Ctrl</kbd>+<kbd>S</kbd></th><td>Copier / enregistrer</td></tr>
+    <tr><th><kbd>Esc</kbd></th><td>Quitter le mode immédiatement</td></tr>
+  </table>
+
+  <h2>🙈 Cache</h2>
+  <table>
+    <tr><th>Glisser</th><td>Sélectionnez la zone à couvrir ; créée au relâchement</td></tr>
+    <tr><th>Clic</th><td>Révéler ↔ recouvrir</td></tr>
+    <tr><th>Glisser</th><td>Déplacer le cache</td></tr>
+    <tr><th>Clic droit</th><td>Changer la couleur (marine · vert tableau · gris · jaune)</td></tr>
+    <tr><th>Bouton ✕ · clic molette · <kbd>Échap</kbd></th><td>Fermer (✕ apparaît en haut à droite au survol)</td></tr>
+  </table>
+
+  <h2>⏱️ Minuteur</h2>
+  <table>
+    <tr><th>Boutons 1·3·5·10·15 min</th><td>Démarre aussitôt avec cette durée</td></tr>
+    <tr><th>Clic sur l'heure</th><td>Saisissez-la — <b>5:30</b> ou <b>10</b></td></tr>
+    <tr><th>Molette / boutons ±30 s</th><td>Ajuster par pas de 30 s</td></tr>
+    <tr><th><kbd>Espace</kbd> ou ▶</th><td>Démarrer / pause</td></tr>
+    <tr><th><kbd>Esc</kbd></th><td>Fermer</td></tr>
+  </table>
+
+  <h2>Et plus</h2>
+  <table>
+    <tr><th>🕘 Captures récentes</th><td>Conserve les 24 dernières. Cliquez pour réépingler</td></tr>
+    <tr><th>Barre rapide</th><td>Déplacez avec la poignée ⠿, masquez avec ✕ (réactivable via le tray)</td></tr>
+    <tr><th>Double-clic sur l'icône du tray</th><td>Capture de zone</td></tr>
+    <tr><th>Clic droit sur l'icône du tray</th><td>Menu complet — masquer/fermer les épingles, mises à jour, quitter</td></tr>
+    <tr><th>⚙️ Réglages</th><td>Raccourcis, dossier, enregistrement rapide, barre, démarrage auto, langue</td></tr>
+  </table>
+
+<script>
+  // 실제로 지정된 단축키를 그대로 보여준다 (플랫폼·사용자 설정에 따라 다름)
+  function pretty(accel) {
+    if (!accel) return 'Non défini';
+    return accel
+      .replace('CommandOrControl', 'Ctrl')
+      .replace('Control', 'Ctrl')
+      .replace('Command', 'Cmd')
+      .replace('Option', 'Alt')
+      .split('+')
+      .map((k) => `<kbd>${k}</kbd>`)
+      .join('+');
+  }
+  window.api.onHelpState(({ hotkeys }) => {
+    for (const el of document.querySelectorAll('[data-hk]')) {
+      el.innerHTML = pretty(hotkeys[el.dataset.hk]);
+    }
+  });
+</script>
+</body>
+</html>
