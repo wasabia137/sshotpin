@@ -2,13 +2,13 @@
   "name": "sshotpin",
   "productName": "스샷핀",
   "version": "0.8.1",
-  "description": "스샷핀 (SshotPin)",
+  "description": "스샷핀 (Sshot-Pin)",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
     "dist": "electron-builder --win --x64"
   },
-  "author": "SshotPin (sshot-pin.web.app)",
+  "author": "Sshot-Pin (sshot-pin.web.app)",
   "license": "MIT",
   "devDependencies": {
     "electron": "^36.0.0",
@@ -82,7 +82,7 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "SshotPin",
+      "shortcutName": "Sshot-Pin",
       "installerLanguages": [
         "ko_KR",
         "en_US",
@@ -96,7 +96,7 @@
       ],
       "multiLanguageInstaller": true
     },
-    "copyright": "Copyright (c) 2026 SshotPin (sshot-pin.web.app)"
+    "copyright": "Copyright (c) 2026 Sshot-Pin (sshot-pin.web.app)"
   },
   "dependencies": {
     "electron-updater": "^6.8.9"
