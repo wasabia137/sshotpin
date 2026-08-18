@@ -130,6 +130,9 @@
     <tr><th>⚙️ 设置</th><td>快捷键、保存文件夹、快速保存、快捷栏、开机启动、语言</td></tr>
   </table>
 
+
+  <div class="tip" style="margin-top:22px; text-align:center">SshotPin 对你有帮助吗?<a href="#" id="supportLink"><b>☕ 请开发者喝杯咖啡</b></a></div>
+
 <script>
   // 실제로 지정된 단축키를 그대로 보여준다 (플랫폼·사용자 설정에 따라 다름)
   function pretty(accel) {
@@ -147,6 +150,12 @@
     for (const el of document.querySelectorAll('[data-hk]')) {
       el.innerHTML = pretty(hotkeys[el.dataset.hk]);
     }
+  });
+
+  // 후원 링크 — 기본 브라우저로 연다
+  document.getElementById('supportLink').addEventListener('click', (e) => {
+    e.preventDefault();
+    window.api.openSupport();
   });
 </script>
 </body>

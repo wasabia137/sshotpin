@@ -35,6 +35,7 @@ contextBridge.exposeInMainWorld('api', {
   openSaveDir: () => ipcRenderer.send('settings-open-dir'),
   openHelpFromSettings: () => ipcRenderer.send('settings-open-help'),
   openLogs: () => ipcRenderer.send('settings-open-logs'),
+  openSupport: () => ipcRenderer.send('open-support'),
   onUpdateState: (cb) => ipcRenderer.on('update-state', (e, d) => cb(d)),
   checkUpdate: () => ipcRenderer.send('update-check'),
   restartForUpdate: () => ipcRenderer.send('update-restart'),

@@ -130,6 +130,9 @@
     <tr><th>⚙️ Einstellungen</th><td>Kürzel, Ordner, Schnellspeichern, Leiste, Autostart, Sprache</td></tr>
   </table>
 
+
+  <div class="tip" style="margin-top:22px; text-align:center">Hilft Ihnen SshotPin? <a href="#" id="supportLink"><b>☕ Mit einem Kaffee unterstützen</b></a></div>
+
 <script>
   // 실제로 지정된 단축키를 그대로 보여준다 (플랫폼·사용자 설정에 따라 다름)
   function pretty(accel) {
@@ -147,6 +150,12 @@
     for (const el of document.querySelectorAll('[data-hk]')) {
       el.innerHTML = pretty(hotkeys[el.dataset.hk]);
     }
+  });
+
+  // 후원 링크 — 기본 브라우저로 연다
+  document.getElementById('supportLink').addEventListener('click', (e) => {
+    e.preventDefault();
+    window.api.openSupport();
   });
 </script>
 </body>

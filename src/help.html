@@ -130,6 +130,9 @@
     <tr><th>⚙️ 설정</th><td>단축키, 저장 폴더, 바로 저장, 퀵바·자동 실행</td></tr>
   </table>
 
+
+  <div class="tip" style="margin-top:22px; text-align:center">스샷핀이 도움이 되었나요? <a href="#" id="supportLink"><b>☕ 커피 한 잔으로 응원하기</b></a></div>
+
 <script>
   // 실제로 지정된 단축키를 그대로 보여준다 (플랫폼·사용자 설정에 따라 다름)
   function pretty(accel) {
@@ -147,6 +150,12 @@
     for (const el of document.querySelectorAll('[data-hk]')) {
       el.innerHTML = pretty(hotkeys[el.dataset.hk]);
     }
+  });
+
+  // 후원 링크 — 기본 브라우저로 연다
+  document.getElementById('supportLink').addEventListener('click', (e) => {
+    e.preventDefault();
+    window.api.openSupport();
   });
 </script>
 </body>

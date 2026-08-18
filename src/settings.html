@@ -138,6 +138,7 @@
   <footer>
     <button class="mini" id="openHelp">❓ 사용법·단축키 보기</button>
     <button class="mini" id="openLogs" title="문의할 때 이 파일을 첨부하면 됩니다">🧾 오류 기록 열기</button>
+    <button class="mini" id="btnSupport">☕ 개발자 후원하기</button>
     <div style="margin-top:14px; display:flex; align-items:center; gap:10px; flex-wrap:wrap">
       <button class="mini" id="btnUpdate">⬆️ 업데이트 확인</button>
       <button class="mini" id="btnRestart" style="display:none">🔄 지금 다시 시작</button>
@@ -302,6 +303,8 @@
   document.getElementById('resetDir').addEventListener('click', () => window.api.resetSaveDir());
   document.getElementById('openHelp').addEventListener('click', () => window.api.openHelpFromSettings());
   document.getElementById('openLogs').addEventListener('click', () => window.api.openLogs());
+  document.getElementById('btnSupport').addEventListener('click', () => window.api.openSupport());
+  document.getElementById('btnSupport').textContent = T('☕ 개발자 후원하기');
 
   // ----- 업데이트 -----
   const btnUpdate = document.getElementById('btnUpdate');

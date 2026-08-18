@@ -16,6 +16,10 @@ let lang = 'ko';
 let tr = I18N.translator('ko');
 ipcMain.on('get-locale', (e) => { e.returnValue = lang; });
 
+// 후원 페이지 — 설정·도움말의 ☕ 버튼에서 연다
+const SUPPORT_URL = 'https://buymeacoffee.com/kkunggabba';
+ipcMain.on('open-support', () => shell.openExternal(SUPPORT_URL));
+
 const isMac = process.platform === 'darwin';
 
 // macOS 26에서 화면 캡처 목록을 관리하는 스레드가 스스로 죽는 일이 있었다
