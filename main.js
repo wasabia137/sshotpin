@@ -1596,7 +1596,10 @@ function rebuildTrayMenu() {
       click: (item) => app.setLoginItemSettings({ openAtLogin: item.checked }),
     },
     { type: 'separator' },
-    { label: tr('업데이트 확인'), click: checkUpdatesManually },
+    ...(updateState.status === 'ready'
+      ? [{ label: tr('🔄 새 버전 준비됨 — 다시 시작'), click: restartForUpdate }]
+      : []),
+    { label: tr('업데이트 확인'), click: () => checkUpdates(false) },
     { label: `Sshot-Pin v${app.getVersion()}`, enabled: false },
     { label: tr('종료'), click: () => app.quit() },
   ]);
@@ -1616,6 +1619,60 @@ function createTray() {
   tray.on('double-click', () => startCapture('capture'));
 }
 
+// ---------- 시작 알림 ----------
+
+// 트레이 상주 프로그램이라 창이 뜨지 않는다. 윈도우에서는 트레이 아이콘마저
+// 숨김 영역으로 들어가 버려서, 실행됐는지 알 길이 없다는 말을 자주 듣는다.
+// 시작할 때 4초쯤 떴다 사라지는 알림을 트레이 근처에 띄운다.
+let toastWin = null;
+function showStartupToast() {
+  if (toastWin) return;
+  const wa = screen.getPrimaryDisplay().workArea;
+  const W = 560, H = 66;   // 알약은 글자에 맞춰 줄고, 남는 자리는 투명하게 비운다
+  toastWin = new BrowserWindow({
+    x: wa.x + wa.width - W - 16,
+    // 트레이가 있는 쪽에 붙인다 — 맥은 위, 윈도우는 아래
+    y: isMac ? wa.y + 16 : wa.y + wa.height - H - 16,
+    width: W, height: H,
+    useContentSize: true,
+    frame: false,
+    transparent: true,
+    resizable: false,
+    skipTaskbar: true,
+    hasShadow: false,
+    focusable: false,   // 시작하자마자 다른 창의 포커스를 뺏지 않음
+    show: false,
+    webPreferences: { preload: path.join(__dirname, 'preload.js') },
+  });
+  toastWin.setAlwaysOnTop(true, 'screen-saver');
+  // 빈 자리까지 클릭을 삼키면 트레이 근처를 4초간 못 누른다
+  toastWin.setIgnoreMouseEvents(true);
+  // 바로 뒤에 캡처를 하더라도 이 알림이 찍히지 않게
+  try { toastWin.setContentProtection(true); } catch (e) { /* 통하지 않는 환경은 그대로 */ }
+  toastWin.loadFile(path.join(__dirname, 'src', 'toast.html'));
+  toastWin.webContents.on('did-finish-load', () => {
+    if (!toastWin || toastWin.isDestroyed()) return;
+    toastWin.webContents.send('toast-data', {
+      title: tr('스샷핀 실행 중'),
+      sub: tr('{c} 캡처 · {p} 핀 · 나머지는 트레이 아이콘에', {
+        c: accelLabel(settings.hotkeys.capture),
+        p: accelLabel(settings.hotkeys.pin),
+      }),
+    });
+  });
+  toastWin.once('ready-to-show', () => toastWin.showInactive());
+  toastWin.on('closed', () => { toastWin = null; });
+}
+
+// 'Control+Shift+1' 같은 내부 표기를 사람이 읽는 표기로
+function accelLabel(accel) {
+  return String(accel || '').replace('CommandOrControl', 'Ctrl').replace('Control', 'Ctrl');
+}
+
+ipcMain.on('toast-close', () => {
+  if (toastWin && !toastWin.isDestroyed()) toastWin.close();
+});
+
 // ---------- 업데이트 ----------
 
 // 업데이트 진행 상황을 설정 창에도 보여준다
@@ -1627,56 +1684,86 @@ function setUpdateState(status, text) {
   }
 }
 
-function checkUpdatesManually() {
-  if (!app.isPackaged) {
-    setUpdateState('idle', tr('개발 모드에서는 업데이트를 확인할 수 없습니다.'));
-    return;
-  }
+// electron-updater는 한 번만 불러와 리스너를 붙인다. 확인할 때마다 다시
+// 붙이면 알림이 두 번, 세 번 뜬다.
+let updater = null;
+let updaterSilent = false;   // 자동(정기) 확인이면 조용히 — 실패를 알리지 않는다
+
+function getUpdater() {
+  if (updater) return updater;
   let autoUpdater;
   try {
     ({ autoUpdater } = require('electron-updater'));
   } catch (e) {
-    setUpdateState('error', tr('업데이트 기능을 불러오지 못했습니다.'));
-    return;
-  }
-  // 리스너를 지우지 않으면 확인할 때마다 쌓여 알림이 여러 번 뜬다
-  for (const ev of ['update-available', 'update-not-available', 'error',
-                    'download-progress', 'update-downloaded']) {
-    autoUpdater.removeAllListeners(ev);
+    log('업데이트 모듈을 불러오지 못했습니다', e.message);
+    return null;
   }
   autoUpdater.autoDownload = true;
-  setUpdateState('checking', tr('새 버전을 확인하는 중…'));
+  autoUpdater.autoInstallOnAppQuit = true;
 
-  autoUpdater.once('update-available', (info) =>
+  autoUpdater.on('update-available', (info) =>
     setUpdateState('downloading', tr('새 버전 v{v}을 내려받는 중… 0%', { v: info.version })));
   autoUpdater.on('download-progress', (p) =>
     setUpdateState('downloading', tr('내려받는 중… {p}%', { p: Math.round(p.percent) })));
-  autoUpdater.once('update-not-available', () =>
+  autoUpdater.on('update-not-available', () =>
     setUpdateState('latest', tr('지금이 최신 버전입니다.')));
-  autoUpdater.once('update-downloaded', (info) => {
+  autoUpdater.on('update-downloaded', (info) => {
     setUpdateState('ready', tr('v{v} 준비 완료 — 다시 시작하면 적용됩니다.', { v: info.version }));
     notify(tr('새 버전 v{v}을 받았습니다. 다시 시작하면 적용됩니다.', { v: info.version }));
+    // 알림을 놓쳐도 트레이 메뉴에 "다시 시작해서 업데이트"가 남는다
+    rebuildTrayMenu();
   });
-  autoUpdater.once('error', (err) => {
-    const net = /net::|ENOTFOUND|ETIMEDOUT|EAI_AGAIN/.test(String(err && err.message));
+  autoUpdater.on('error', (err) => {
+    const msg = String((err && err.message) || err);
+    log('업데이트 실패', msg);
+    if (updaterSilent) { setUpdateState('idle', ''); return; }
+    const net = /net::|ENOTFOUND|ETIMEDOUT|EAI_AGAIN/.test(msg);
     setUpdateState('error', net
       ? tr('인터넷에 연결되어 있는지 확인해주세요.')
       : tr('업데이트 확인에 실패했습니다. 잠시 후 다시 시도해주세요.'));
   });
 
+  updater = autoUpdater;
+  return updater;
+}
+
+function checkUpdates(silent) {
+  if (!app.isPackaged) {
+    if (!silent) setUpdateState('idle', tr('개발 모드에서는 업데이트를 확인할 수 없습니다.'));
+    return;
+  }
+  // 이미 받아둔 게 있으면 다시 받을 필요가 없다
+  if (updateState.status === 'ready' || updateState.status === 'downloading') return;
+  const autoUpdater = getUpdater();
+  if (!autoUpdater) {
+    if (!silent) setUpdateState('error', tr('업데이트 기능을 불러오지 못했습니다.'));
+    return;
+  }
+  updaterSilent = !!silent;
+  setUpdateState('checking', silent ? '' : tr('새 버전을 확인하는 중…'));
   autoUpdater.checkForUpdates().catch(() => { /* error 리스너가 처리 */ });
 }
 
-// 설정 창의 "지금 다시 시작" 버튼
-ipcMain.on('update-restart', () => {
+// 트레이 상주 프로그램은 몇 주씩 켜둔 채 쓴다 — 시작할 때 한 번만 보면
+// 그 뒤로 나온 버전을 영영 못 받는다. 여섯 시간마다 조용히 다시 본다.
+const UPDATE_INTERVAL = 6 * 60 * 60 * 1000;
+function startUpdateWatch() {
+  if (!app.isPackaged) return;
+  setTimeout(() => checkUpdates(true), 5000);
+  setInterval(() => checkUpdates(true), UPDATE_INTERVAL);
+}
+
+function restartForUpdate() {
   try {
-    const { autoUpdater } = require('electron-updater');
-    autoUpdater.quitAndInstall();
+    getUpdater().quitAndInstall();
   } catch (e) {
     notify(tr('다시 시작하지 못했습니다. 프로그램을 직접 종료한 뒤 다시 실행해주세요.'));
   }
-});
-ipcMain.on('update-check', () => checkUpdatesManually());
+}
+
+// 설정 창의 "지금 다시 시작" 버튼
+ipcMain.on('update-restart', restartForUpdate);
+ipcMain.on('update-check', () => checkUpdates(false));
 
 // ---------- 첫 실행 ----------
 
@@ -1708,8 +1795,8 @@ const gotLock = app.requestSingleInstanceLock();
 if (!gotLock) {
   app.quit();
 } else {
-  app.on('second-instance', () =>
-    notify(tr('스샷핀이 이미 실행 중입니다. ({c} 캡처 / {p} 핀)', { c: settings.hotkeys.capture, p: settings.hotkeys.pin })));
+  // 다시 실행했다는 건 켜져 있는지 몰랐다는 뜻이다 — 시작 알림을 그대로 띄운다
+  app.on('second-instance', () => showStartupToast());
 
   app.whenReady().then(() => {
     app.setAppUserModelId('com.sshotpin.app');
@@ -1729,6 +1816,9 @@ if (!gotLock) {
       notify(tr('단축키가 바뀌었습니다. 캡처 {c}, 핀 {p}', { c: settings.hotkeys.capture, p: settings.hotkeys.pin }));
     }
 
+    // 첫 실행에는 도움말 창이 뜨므로 실행됐는지 굳이 알릴 필요가 없다
+    if (settings.firstRunDone) showStartupToast();
+
     ensureInApplicationsFolder().then(() => firstRunFlow());
 
     // 오버레이 예열·업데이트 확인은 첫 화면(퀵바·도움말)이 뜬 뒤로 미룬다.
@@ -1740,18 +1830,7 @@ if (!gotLock) {
     }, 1500);
 
     // 자동 업데이트 (설치 버전에서만) — GitHub Releases 확인
-    if (app.isPackaged) {
-      setTimeout(() => {
-        try {
-          const { autoUpdater } = require('electron-updater');
-          autoUpdater.on('error', () => { /* 네트워크 오류 등은 조용히 무시 */ });
-          autoUpdater.checkForUpdatesAndNotify({
-            title: tr('스샷핀 업데이트'),
-            body: tr('새 버전이 다운로드됐습니다. 프로그램을 다시 시작하면 적용됩니다.'),
-          });
-        } catch (e) { /* 업데이트 실패는 조용히 무시 */ }
-      }, 5000);
-    }
+    startUpdateWatch();
 
     log(`스샷핀 v${app.getVersion()} 시작 — 단축키 ${JSON.stringify(settings.hotkeys)}`);
   });

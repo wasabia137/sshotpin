@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; user-select: none; background: transparent; }
+  /* 창은 넉넉하게 잡아두고 알약만 글자 길이에 맞춘다 — 언어마다 길이가 제각각이라
+     창 너비를 맞추려 들면 어딘가는 반드시 잘린다. 오른쪽에 붙여 트레이 쪽을 향하게. */
+  body { display: flex; align-items: center; justify-content: flex-end; }
+  #box {
+    max-width: 100%; height: 100%;
+    display: inline-flex; align-items: center; gap: 11px;
+    padding: 0 14px;
+    background: rgba(15, 23, 42, .93);
+    border: 1px solid rgba(148, 163, 184, .4);
+    border-radius: 16px;
+    font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', -apple-system, sans-serif;
+    /* 뜰 때 살짝 올라오고, 사라질 때 다시 내려간다 */
+    opacity: 0; transform: translateY(8px);
+    transition: opacity .22s ease-out, transform .22s ease-out;
+  }
+  body.on #box { opacity: 1; transform: none; }
+  body.off #box { opacity: 0; transform: translateY(8px); transition-duration: .45s; }
+  #icon { font-size: 24px; line-height: 1; }
+  #txt { min-width: 0; }
+  #title { color: #f1f5f9; font-size: 14px; font-weight: 700; }
+  #title, #sub { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #sub { color: #94a3b8; font-size: 11.5px; margin-top: 3px; }
+</style>
+</head>
+<body>
+  <div id="box">
+    <div id="icon">📌</div>
+    <div id="txt">
+      <div id="title">스샷핀 실행 중</div>
+      <div id="sub"></div>
+    </div>
+  </div>
+
+<script>
+  window.api.onToastData(({ title, sub }) => {
+    document.getElementById('title').textContent = title;
+    document.getElementById('sub').textContent = sub;
+  });
+
+  // 뜨는 애니메이션은 첫 그림 뒤에 시작해야 눈에 보인다
+  requestAnimationFrame(() => document.body.classList.add('on'));
+
+  let closing = false;
+  function close() {
+    if (closing) return;
+    closing = true;
+    document.body.classList.remove('on');
+    document.body.classList.add('off');
+    setTimeout(() => window.api.toastClose(), 460);
+  }
+  setTimeout(close, 4200);
+</script>
+</body>
+</html>

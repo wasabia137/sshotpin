@@ -22,6 +22,10 @@ contextBridge.exposeInMainWorld('api', {
   quickbarAction: (action) => ipcRenderer.send('quickbar-action', action),
   onQuickbarState: (cb) => ipcRenderer.on('quickbar-state', (e, d) => cb(d)),
 
+  // 시작 알림 (잠깐 떴다 사라지는 실행 표시)
+  onToastData: (cb) => ipcRenderer.on('toast-data', (e, d) => cb(d)),
+  toastClose: () => ipcRenderer.send('toast-close'),
+
   // 사용법 창
   onHelpState: (cb) => ipcRenderer.on('help-state', (e, d) => cb(d)),
 
