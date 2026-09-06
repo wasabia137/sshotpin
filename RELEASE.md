@@ -39,14 +39,3 @@ HTML에 적힌 다운로드 링크는 `version.json`을 못 읽었을 때만 쓰
 - **맥** — Squirrel.Mac은 내려받은 번들을 **지금 깔린 앱의 경로 이름 그대로** 덮어쓴다.
   그래서 기존 사용자의 앱은 파일 이름이 `SshotPin.app`으로 남고, 내용만 새것이 된다.
   새로 받는 사람만 `Sshot-Pin.app`이 된다. 동작에는 문제가 없다.
-
-## 아직 한국어로 남아 있는 값
-
-9개 언어를 지원하지만 아래는 모든 언어권 사용자에게 한국어로 보인다.
-바꾸려면 위의 이름 변경과 같은 주의가 필요하다.
-
-| 위치 | 값 | 어디에 보이나 |
-|---|---|---|
-| `build.win.executableName` | `스샷핀` | 윈도우 작업 관리자, exe 파일 이름 |
-| `build.mac.extendInfo.CFBundleDisplayName` | `스샷핀` | 맥 메뉴 막대, Finder |
-| `build.dmg.title` | `스샷핀` | 맥에서 DMG를 열었을 때 창 제목 |

@@ -214,9 +214,14 @@ async function saveImageDialog(dataURL, parentWin) {
   // 빠른 저장: 대화상자 없이 지정 폴더에 바로 저장
   if (settings.quickSave) {
     try {
-      const target = path.join(currentSaveDir(), fileName);
-      fs.writeFileSync(target, img.toPNG());
-      notify(`${tr('저장했습니다')}: ${fileName}`);
+      // 같은 초에 두 번 저장해도 앞 파일을 덮어쓰지 않게 번호를 붙인다
+      const dir = currentSaveDir();
+      let name = fileName, n = 2;
+      while (fs.existsSync(path.join(dir, name))) {
+        name = fileName.replace(/\.png$/, `_${n++}.png`);
+      }
+      fs.writeFileSync(path.join(dir, name), img.toPNG());
+      notify(`${tr('저장했습니다')}: ${name}`);
       return;
     } catch (e) {
       notify(tr('빠른 저장에 실패했습니다. 저장 위치를 다시 선택해주세요.'));
@@ -264,8 +269,12 @@ async function grabDisplay(display) {
       setTimeout(() => reject(new Error(tr('화면을 읽는 데 너무 오래 걸립니다'))), 8000)),
   ]);
   const tSources = Date.now() - t0;
-  const source =
-    sources.find((s) => String(s.display_id) === String(display.id)) || sources[0];
+  let source = sources.find((s) => String(s.display_id) === String(display.id));
+  if (!source) {
+    // 듀얼 모니터에서 엉뚱한 화면이 찍혔다는 문의가 오면 여기서 원인을 짚는다
+    log(`grabDisplay: display_id ${display.id}를 못 찾음 — 목록 [${sources.map((s) => s.display_id || '?').join(', ')}], 첫 화면으로 대체`);
+    source = sources[0];
+  }
   if (!source || source.thumbnail.isEmpty()) return null;
   const size = source.thumbnail.getSize();
   const t1 = Date.now();
@@ -378,7 +387,10 @@ function takeOverlay(kind, display) {
   const win = warm[kind];
   if (!win) return null;
   const b = display.bounds;
-  win.setBounds({ x: b.x, y: b.y, width: b.width, height: b.height });
+  // 창은 주 모니터 크기로 미리 만들어진다. resizable:false 창은 윈도우에서
+  // setBounds로 크기가 안 바뀌는 일이 있어(핀과 같은 이유) 강제로 맞춘다.
+  // 해상도가 다른 프로젝터 쪽에서 열어도 화면을 끝까지 덮어야 한다.
+  setBoundsForce(win, { x: b.x, y: b.y, width: b.width, height: b.height });
   return win;
 }
 
@@ -872,7 +884,7 @@ async function toggleOverlay(mode) { // 'zoom' | 'draw'
   try {
     const display = cursorDisplay();
     await hideQuickbarForGrab();
-    let dataURL;
+    let shot;
     try {
       shot = await grabDisplay(display);
     } catch (err) {
@@ -1280,6 +1292,9 @@ function createPin(dataURL, w, h, x, y) {
     sendTransform(st);
     win.show();
   });
+  // 핀을 모두 숨겨둔 채 새 핀을 만들면 그 핀은 보여야 한다 — 방금 만든 것을
+  // 숨기면 "안 된다"로 보인다. 대신 숨김 상태를 풀어 메뉴 표시를 맞춘다.
+  if (pinsHidden) pinsHidden = false;
   win.webContents.on('context-menu', () => popupPinMenu(id));
   win.on('closed', () => { pins.delete(id); pinResizeOrigins.delete(id); rebuildTrayMenu(); });
   rebuildTrayMenu();
@@ -1800,7 +1815,7 @@ if (!gotLock) {
 
   app.whenReady().then(() => {
     app.setAppUserModelId('com.sshotpin.app');
-    // 표시 언어 확정: 설정에서 골랐으면 그 언어, 아니면 OS 언어 (ko/en/ja 외에는 en)
+    // 표시 언어 확정: 설정에서 골랐으면 그 언어, 아니면 OS 언어 (지원하지 않는 언어는 en)
     lang = I18N.resolve(settings.language || app.getLocale());
     tr = I18N.translator(lang);
     createTray();

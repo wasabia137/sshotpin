@@ -109,8 +109,11 @@
     timeEl.style.fontSize = alarmed ? '34px' : '52px';
   }
 
+  // 알람마다 새로 만들면 오디오 스레드가 하나씩 쌓인다 — 하나를 만들어 계속 쓴다
+  let ac = null;
   function beep(times) {
-    const ac = new AudioContext();
+    if (!ac) ac = new AudioContext();
+    if (ac.state === 'suspended') ac.resume();
     for (let i = 0; i < times; i++) {
       const osc = ac.createOscillator();
       const gain = ac.createGain();
