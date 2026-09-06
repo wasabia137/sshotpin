@@ -3,17 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>윈도우 캡처 도구로 되는 것과 안 되는 것</title>
-<meta name="description" content="윈도우 캡처 도구가 잘하는 일과 못하는 일을 나눠 봤습니다. 찍어서 띄워두기, 화면 확대, 지금 보이는 화면에 그리기가 왜 안 되는지와 둘을 같이 쓰는 방법입니다.">
-<meta name="keywords" content="Win+Shift+S, 윈도우 캡처 도구, 캡처 도구 사용법, 스니핑 툴, 윈도우 기본 캡처, 캡처 도구 대신">
+<title>단축키가 안 먹을 때 확인할 것</title>
+<meta name="description" content="캡처 단축키가 작동하지 않을 때 보는 글입니다. 다른 프로그램과의 충돌을 확인하고 키를 바꾸는 법, 한글 입력 상태에서 등록이 안 되는 이유, 맥에서 캡처 키가 다른 까닭까지 담았습니다.">
+<meta name="keywords" content="단축키 충돌, 캡처 단축키 안됨, 스크린샷 단축키 안될 때, 전역 단축키, 화면 캡처 오류, 단축키 변경">
 <meta name="author" content="스샷핀(Sshot-Pin)">
-<link rel="canonical" href="https://sshot-pin.web.app/guide/windows-snipping-tool/">
+<link rel="canonical" href="https://sshot-pin.web.app/guide/hotkey-not-working/">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="스샷핀(Sshot-Pin)">
 <meta property="og:locale" content="ko_KR">
-<meta property="og:url" content="https://sshot-pin.web.app/guide/windows-snipping-tool/">
-<meta property="og:title" content="윈도우 캡처 도구로 되는 것과 안 되는 것">
-<meta property="og:description" content="윈도우 캡처 도구가 잘하는 일과 못하는 일을 나눠 봤습니다. 찍어서 띄워두기, 화면 확대, 지금 보이는 화면에 그리기가 왜 안 되는지와 둘을 같이 쓰는 방법입니다.">
+<meta property="og:url" content="https://sshot-pin.web.app/guide/hotkey-not-working/">
+<meta property="og:title" content="단축키가 안 먹을 때 확인할 것">
+<meta property="og:description" content="캡처 단축키가 작동하지 않을 때 보는 글입니다. 다른 프로그램과의 충돌을 확인하고 키를 바꾸는 법, 한글 입력 상태에서 등록이 안 되는 이유, 맥에서 캡처 키가 다른 까닭까지 담았습니다.">
 <meta property="og:image" content="https://sshot-pin.web.app/og.png">
 <meta name="robots" content="index, follow">
 <link rel="alternate" type="application/rss+xml" title="스샷핀 가이드" href="https://sshot-pin.web.app/rss.xml">
@@ -90,8 +90,8 @@
   footer { border-top: 1px solid var(--line); margin-top: 46px; padding: 22px 0 40px;
            color: var(--muted); font-size: 13px; text-align: center; }
 </style>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"윈도우 캡처 도구로 되는 것과 안 되는 것","description":"윈도우 캡처 도구가 잘하는 일과 못하는 일을 나눠 봤습니다. 찍어서 띄워두기, 화면 확대, 지금 보이는 화면에 그리기가 왜 안 되는지와 둘을 같이 쓰는 방법입니다.","inLanguage":"ko","datePublished":"2026-09-06","dateModified":"2026-09-06","author":{"@type":"Organization","name":"스샷핀(Sshot-Pin)","url":"https://sshot-pin.web.app/"},"publisher":{"@type":"Organization","name":"스샷핀(Sshot-Pin)","url":"https://sshot-pin.web.app/"},"mainEntityOfPage":"https://sshot-pin.web.app/guide/windows-snipping-tool/","image":"https://sshot-pin.web.app/og.png"}</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"스샷핀","item":"https://sshot-pin.web.app/"},{"@type":"ListItem","position":2,"name":"가이드","item":"https://sshot-pin.web.app/guide/"},{"@type":"ListItem","position":3,"name":"윈도우 캡처 도구로 되는 것과 안 되는 것","item":"https://sshot-pin.web.app/guide/windows-snipping-tool/"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"단축키가 안 먹을 때 확인할 것","description":"캡처 단축키가 작동하지 않을 때 보는 글입니다. 다른 프로그램과의 충돌을 확인하고 키를 바꾸는 법, 한글 입력 상태에서 등록이 안 되는 이유, 맥에서 캡처 키가 다른 까닭까지 담았습니다.","inLanguage":"ko","datePublished":"2026-09-06","dateModified":"2026-09-06","author":{"@type":"Organization","name":"스샷핀(Sshot-Pin)","url":"https://sshot-pin.web.app/"},"publisher":{"@type":"Organization","name":"스샷핀(Sshot-Pin)","url":"https://sshot-pin.web.app/"},"mainEntityOfPage":"https://sshot-pin.web.app/guide/hotkey-not-working/","image":"https://sshot-pin.web.app/og.png"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"스샷핀","item":"https://sshot-pin.web.app/"},{"@type":"ListItem","position":2,"name":"가이드","item":"https://sshot-pin.web.app/guide/"},{"@type":"ListItem","position":3,"name":"단축키가 안 먹을 때 확인할 것","item":"https://sshot-pin.web.app/guide/hotkey-not-working/"}]}</script>
 </head>
 <body>
 <div class="topbar">
@@ -103,59 +103,65 @@
 </div>
 <div class="wrap">
   <div class="crumb"><a href="https://sshot-pin.web.app/">스샷핀</a> › <a href="https://sshot-pin.web.app/guide/">가이드</a></div>
-  <h1>윈도우 캡처 도구로 되는 것과 안 되는 것</h1>
-  <p class="lead">찍어서 붙여넣는 게 목적이라면 Win+Shift+S로 충분해요. 막히는 곳은 따로 있어요.</p>
+  <h1>단축키가 안 먹을 때 확인할 것</h1>
+  <p class="lead">눌러도 아무 일이 없다면 원인은 대개 셋 중 하나예요.</p>
   <div class="meta">2026-09-06 작성</div>
-  <p>윈도우 캡처 도구는 잘 만든 기능이에요. 아무것도 깔지 않아도 <kbd>Win</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> 한 번이면 영역을 골라 찍고, 화살표까지 그릴 수 있으니까요.<br>
-찍어서 어딘가에 붙여넣는 게 목적이라면 이걸로 충분해요. ✂️</p>
+  <p>단축키를 눌렀는데 아무 일도 안 일어나요. 원인은 대개 셋 중 하나예요.<br>
+다른 프로그램이 그 키를 먼저 가져갔거나, 한글 입력 상태에서 키를 지정했거나, 스샷핀이 아예 안 켜져 있는 경우고요. 🔑</p>
 
-<h2>캡처 도구로 되는 것</h2>
+<h2>먼저 스샷핀이 켜져 있는지 보세요</h2>
 
+<p>스샷핀은 창으로 뜨지 않아요. 그래서 껐는지 켰는지 헷갈리기 쉬워요.</p>
+
+<p>윈도우는 작업표시줄 오른쪽 끝, 맥은 메뉴 막대 오른쪽에 아이콘이 있는지 보세요. 윈도우에서는 <b>숨은 아이콘 표시(∧)</b> 안에 들어가 있을 수도 있어요.<br>
+아이콘이 없으면 꺼진 거예요. 다시 실행하면 오른쪽 구석에 실행 알림이 잠깐 떠요.</p>
+
+<div class="note">컴퓨터를 켤 때마다 자동으로 실행되게 하려면 트레이 아이콘 우클릭 → <b>컴퓨터 시작 시 자동 실행</b>을 켜 두세요.</div>
+
+<h2>다른 프로그램이 그 키를 쓰고 있어요</h2>
+
+<p>전역 단축키는 먼저 잡은 프로그램이 가져가요. 스샷핀이 등록에 실패하면 <u>시작할 때 알림으로 알려줘요.</u> "단축키 충돌"이라고 뜨고 어떤 키가 문제인지 적혀 있고요.</p>
+
+<p>설정 창을 열면 더 자세히 나와요. 트레이 아이콘 우클릭 → <b>⚙️ 설정</b>으로 가면 작동하지 않는 단축키가 노란 칸에 표시돼요.</p>
+
+<p>고치는 방법은 두 가지예요.</p>
 <ul>
-  <li>영역·창·전체 화면·자유형 중에 골라 찍기</li>
-  <li>3초·10초 지연 캡처 — 메뉴를 펼쳐놓은 상태를 찍을 때 써요</li>
-  <li>펜, 형광펜, 지우개, 자로 표시하기</li>
-  <li>찍은 뒤 잘라내기와 저장</li>
-  <li>윈도우 11에서는 화면 녹화까지</li>
+  <li><b>다른 키로 바꾸기</b> — 그 칸을 클릭하고 원하는 키를 누르면 바로 바뀌어요.</li>
+  <li><b>비우기</b> — 그 단축키를 쓰지 않고 퀵 실행바나 트레이 메뉴로만 실행해요.</li>
 </ul>
 
-<p>기능이 적지 않아요. 캡처와 간단한 표시까지는 여기서 끝나요.</p>
+<p>자주 부딪히는 상대는 화상회의 프로그램, 게임 런처, 그래픽카드 프로그램이에요. 이런 것들이 <kbd>Ctrl</kbd>+숫자를 가져가는 경우가 많아요.</p>
 
-<h2>캡처 도구로 안 되는 것</h2>
+<h2>한글 입력 상태에서는 키가 안 잡혀요</h2>
 
-<p>막히는 지점은 화면을 <b>놓고 설명해야 할 때</b>부터예요.</p>
+<p>설정에서 단축키를 바꿀 때 한글 입력이 켜져 있으면 키가 자모로 들어와 등록이 안 돼요. "이 키는 단축키로 쓸 수 없어요"라는 알림이 떠요.</p>
 
-<table>
-  <tr><th>찍은 것을 띄워두기</th><td>편집 창을 닫으면 그림도 사라져요. 참고할 표를 옆에 두고 다른 창에서 작업할 수 없어요.</td></tr>
-  <tr><th>여러 장 다루기</th><td>클립보드는 한 장뿐이라, 다음 걸 찍는 순간 앞의 것이 없어져요.</td></tr>
-  <tr><th>화면 확대</th><td>돋보기는 따로 있지만 화면 전체가 움직여서 발표 중에 쓰기 어려워요.</td></tr>
-  <tr><th>지금 보이는 화면에 그리기</th><td>펜은 찍은 그림 안에서만 돼요. 웹페이지나 엑셀을 띄운 채로는 못 그려요.</td></tr>
-  <tr><th>가려뒀다 공개하기</th><td>정답을 덮어두고 나중에 여는 식으로는 못 써요.</td></tr>
-</table>
+<p><kbd>한/영</kbd>을 눌러 영문 입력으로 바꾸고 다시 시도하세요. 🙂</p>
 
-<h2>둘을 같이 쓰면 돼요</h2>
+<h2>맥은 캡처 단축키가 달라요</h2>
 
-<p>스샷핀을 깔아도 <kbd>Win</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>는 그대로 살아 있어요. 단축키가 겹치지 않게 <kbd>Ctrl</kbd>+<kbd>F1</kbd>을 쓰거든요.<br>
-그래서 하던 대로 캡처 도구를 쓰시다가, 띄워두거나 확대하거나 그려야 할 때만 스샷핀을 꺼내면 돼요.</p>
+<p>맥에서 <kbd>Ctrl</kbd>+<kbd>F1</kbd>을 눌러도 안 되는 게 정상이에요. 그 키는 맥이 시스템 기능(전체 키보드 접근)으로 이미 쓰고 있어서, 등록해도 스샷핀까지 오지 않아요. F키 설정에 따라 밝기 조절로 가버리기도 하고요.</p>
 
-<p>쓰임을 나눠 보면 이렇게 돼요.</p>
+<p>그래서 맥은 처음부터 다른 키를 써요.</p>
 
 <table>
-  <tr><th>찍어서 붙여넣기</th><td>캡처 도구로 충분해요</td></tr>
-  <tr><th>찍어서 띄워두고 작업하기</th><td>스샷핀 <kbd>Ctrl</kbd>+<kbd>F1</kbd> → <kbd>Enter</kbd></td></tr>
-  <tr><th>작은 글씨를 크게 보여주기</th><td>스샷핀 <kbd>Ctrl</kbd>+<kbd>1</kbd></td></tr>
-  <tr><th>화면에 표시하며 설명하기</th><td>스샷핀 <kbd>Ctrl</kbd>+<kbd>2</kbd></td></tr>
-  <tr><th>화면 녹화</th><td>캡처 도구나 게임 바(<kbd>Win</kbd>+<kbd>G</kbd>)를 쓰세요. 스샷핀은 녹화를 안 해요</td></tr>
+  <tr><th>영역 캡처</th><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>1</kbd></td></tr>
+  <tr><th>복사해둔 이미지 붙이기</th><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>2</kbd></td></tr>
+  <tr><th>가리개</th><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>3</kbd></td></tr>
+  <tr><th>확대 · 판서 · 타이머</th><td><kbd>Ctrl</kbd>+<kbd>1</kbd> · <kbd>Ctrl</kbd>+<kbd>2</kbd> · <kbd>Ctrl</kbd>+<kbd>3</kbd></td></tr>
 </table>
 
-<div class="note">맥에서도 마찬가지예요. <kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>4</kbd>는 그대로 두고, 스샷핀은 <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>1</kbd>을 써요.</div>
+<h2>맥에서 캡처가 빈 화면으로 나온다면</h2>
 
-<h2>깔기 전에 알아두면 좋은 것</h2>
+<p>이건 단축키 문제가 아니라 <b>화면 기록 권한</b> 문제예요. 맥은 화면을 읽는 프로그램을 사용자가 직접 허락하게 해뒀거든요.</p>
 
-<p>스샷핀은 유료 코드 서명 인증서를 붙이지 않았어요. 그래서 윈도우에서 설치할 때 "PC를 보호했습니다" 안내가 뜰 수 있어요.<br>
-내려받은 파일을 우클릭해 속성에서 "차단 해제"를 체크하고 실행하면 안 떠요. 이미 떴다면 추가 정보 → 실행을 누르시면 돼요.</p>
+<p>스샷핀이 그걸 알아채면 알림을 띄우고 시스템 설정의 해당 자리를 대신 열어줘요. 목록에서 스샷핀을 켜주시면 바로 돼요. 자세한 순서는 <a href="/guide/mac-screen-permission/">맥에서 캡처가 안 될 때</a>에 적어뒀어요.</p>
 
-<p>맥용은 애플 공증까지 마쳤기 때문에 경고 없이 열려요. 🙂</p>
+<h2>그래도 안 되면</h2>
+
+<p>단축키를 아예 안 쓰고도 모든 기능을 쓸 수 있어요. 트레이 아이콘을 우클릭하면 전체 메뉴가 나오고, 설정에서 <b>퀵 실행바 표시</b>를 켜면 화면에 떠 있는 버튼바로 클릭해서 실행해요.</p>
+
+<p>문제가 반복되면 트레이 → <b>⚙️ 설정 → 🧾 오류 기록 열기</b>로 기록 파일을 열어 문의에 붙여주세요. 어떤 단축키가 왜 실패했는지 그 안에 적혀 있어요.</p>
   <div class="cta">
   <h3>스샷핀으로 해보기</h3>
   <p>캡처를 화면 맨 위에 고정해두고, 확대하고, 그 위에 바로 그립니다. 윈도우·맥 무료.</p>
@@ -164,14 +170,14 @@
   <div class="more">
     <h2>이어서 읽기</h2>
     <ul>
-      <li><a href="https://sshot-pin.web.app/guide/hotkey-not-working/">단축키가 안 먹을 때 확인할 것</a><br>
-          <span class="d">캡처 단축키가 작동하지 않을 때 보는 글입니다. 다른 프로그램과의 충돌을 확인하고 키를 바꾸는 법, 한글 입력 상태에서 등록이 안 되는 이유, 맥에서 캡처 키가 다른 까닭까지 담았습니다.</span></li>
       <li><a href="https://sshot-pin.web.app/guide/dual-monitor/">모니터 두 대에서 화면 캡처하기</a><br>
           <span class="d">듀얼 모니터에서 원하는 화면을 캡처하고 확대하는 법입니다. 노트북과 프로젝터를 함께 쓸 때 흔한 실수, 붙여둔 그림을 모니터 사이로 옮기는 법, 퀵 실행바 자리까지 담았습니다.</span></li>
       <li><a href="https://sshot-pin.web.app/guide/online-class/">화상 수업에서 화면 공유하며 설명하기</a><br>
           <span class="d">줌·구글 미트·팀즈로 화면을 공유할 때 쓰는 방법입니다. 공유 화면에 무엇이 찍히고 무엇이 안 찍히는지, 화살표와 확대로 짚는 법, 개인정보를 미리 가리는 순서까지 담았습니다.</span></li>
       <li><a href="https://sshot-pin.web.app/guide/mac-screen-permission/">맥에서 캡처가 안 될 때 — 화면 기록 권한</a><br>
           <span class="d">맥에서 캡처가 빈 화면으로 나올 때 보는 글입니다. 시스템 설정에서 화면 기록 권한을 켜는 순서, 목록에 앱이 안 보일 때, 허락했는데 자꾸 다시 묻는 이유까지 담았습니다.</span></li>
+      <li><a href="https://sshot-pin.web.app/guide/capture-shortcuts/">윈도우·맥 화면 캡처 단축키, 이것만 알면 돼요</a><br>
+          <span class="d">PrtSc, Alt+PrtSc, Win+Shift+S부터 맥의 Cmd+Shift+3·4·5까지 화면 캡처 단축키를 모았습니다. PrtSc가 안 눌릴 때 볼 것과, 기본 키만으로는 안 되는 네 가지도 함께 정리했습니다.</span></li>
     </ul>
   </div>
 </div>

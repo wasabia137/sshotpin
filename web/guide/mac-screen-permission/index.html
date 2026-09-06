@@ -3,17 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>캡처한 이미지는 어디로 가고, 어떻게 바꾸나요</title>
-<meta name="description" content="윈도우 스크린샷 폴더와 맥 바탕화면 기본값, 저장 위치를 바꾸는 법, 묻지 않고 바로 저장하게 하는 설정과 파일 이름 규칙까지 정리했습니다.">
-<meta name="keywords" content="스크린샷 저장 위치, 캡처 저장 폴더, 스크린샷 폴더 변경, 캡처 파일 어디에, 바로 저장, 캡처 파일 이름">
+<title>맥에서 캡처가 안 될 때 — 화면 기록 권한</title>
+<meta name="description" content="맥에서 캡처가 빈 화면으로 나올 때 보는 글입니다. 시스템 설정에서 화면 기록 권한을 켜는 순서, 목록에 앱이 안 보일 때, 허락했는데 자꾸 다시 묻는 이유까지 담았습니다.">
+<meta name="keywords" content="맥 화면 기록 권한, 맥북 캡처 안됨, 맥 스크린샷 검은 화면, 개인정보 보호 및 보안, 맥 캡처 프로그램, App Translocation">
 <meta name="author" content="스샷핀(Sshot-Pin)">
-<link rel="canonical" href="https://sshot-pin.web.app/guide/save-location/">
+<link rel="canonical" href="https://sshot-pin.web.app/guide/mac-screen-permission/">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="스샷핀(Sshot-Pin)">
 <meta property="og:locale" content="ko_KR">
-<meta property="og:url" content="https://sshot-pin.web.app/guide/save-location/">
-<meta property="og:title" content="캡처한 이미지는 어디로 가고, 어떻게 바꾸나요">
-<meta property="og:description" content="윈도우 스크린샷 폴더와 맥 바탕화면 기본값, 저장 위치를 바꾸는 법, 묻지 않고 바로 저장하게 하는 설정과 파일 이름 규칙까지 정리했습니다.">
+<meta property="og:url" content="https://sshot-pin.web.app/guide/mac-screen-permission/">
+<meta property="og:title" content="맥에서 캡처가 안 될 때 — 화면 기록 권한">
+<meta property="og:description" content="맥에서 캡처가 빈 화면으로 나올 때 보는 글입니다. 시스템 설정에서 화면 기록 권한을 켜는 순서, 목록에 앱이 안 보일 때, 허락했는데 자꾸 다시 묻는 이유까지 담았습니다.">
 <meta property="og:image" content="https://sshot-pin.web.app/og.png">
 <meta name="robots" content="index, follow">
 <link rel="alternate" type="application/rss+xml" title="스샷핀 가이드" href="https://sshot-pin.web.app/rss.xml">
@@ -90,8 +90,8 @@
   footer { border-top: 1px solid var(--line); margin-top: 46px; padding: 22px 0 40px;
            color: var(--muted); font-size: 13px; text-align: center; }
 </style>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"캡처한 이미지는 어디로 가고, 어떻게 바꾸나요","description":"윈도우 스크린샷 폴더와 맥 바탕화면 기본값, 저장 위치를 바꾸는 법, 묻지 않고 바로 저장하게 하는 설정과 파일 이름 규칙까지 정리했습니다.","inLanguage":"ko","datePublished":"2026-09-06","dateModified":"2026-09-06","author":{"@type":"Organization","name":"스샷핀(Sshot-Pin)","url":"https://sshot-pin.web.app/"},"publisher":{"@type":"Organization","name":"스샷핀(Sshot-Pin)","url":"https://sshot-pin.web.app/"},"mainEntityOfPage":"https://sshot-pin.web.app/guide/save-location/","image":"https://sshot-pin.web.app/og.png"}</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"스샷핀","item":"https://sshot-pin.web.app/"},{"@type":"ListItem","position":2,"name":"가이드","item":"https://sshot-pin.web.app/guide/"},{"@type":"ListItem","position":3,"name":"캡처한 이미지는 어디로 가고, 어떻게 바꾸나요","item":"https://sshot-pin.web.app/guide/save-location/"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"맥에서 캡처가 안 될 때 — 화면 기록 권한","description":"맥에서 캡처가 빈 화면으로 나올 때 보는 글입니다. 시스템 설정에서 화면 기록 권한을 켜는 순서, 목록에 앱이 안 보일 때, 허락했는데 자꾸 다시 묻는 이유까지 담았습니다.","inLanguage":"ko","datePublished":"2026-09-06","dateModified":"2026-09-06","author":{"@type":"Organization","name":"스샷핀(Sshot-Pin)","url":"https://sshot-pin.web.app/"},"publisher":{"@type":"Organization","name":"스샷핀(Sshot-Pin)","url":"https://sshot-pin.web.app/"},"mainEntityOfPage":"https://sshot-pin.web.app/guide/mac-screen-permission/","image":"https://sshot-pin.web.app/og.png"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"스샷핀","item":"https://sshot-pin.web.app/"},{"@type":"ListItem","position":2,"name":"가이드","item":"https://sshot-pin.web.app/guide/"},{"@type":"ListItem","position":3,"name":"맥에서 캡처가 안 될 때 — 화면 기록 권한","item":"https://sshot-pin.web.app/guide/mac-screen-permission/"}]}</script>
 </head>
 <body>
 <div class="topbar">
@@ -103,55 +103,57 @@
 </div>
 <div class="wrap">
   <div class="crumb"><a href="https://sshot-pin.web.app/">스샷핀</a> › <a href="https://sshot-pin.web.app/guide/">가이드</a></div>
-  <h1>캡처한 이미지는 어디로 가고, 어떻게 바꾸나요</h1>
-  <p class="lead">윈도우와 맥은 찍은 화면을 서로 다른 곳에 넣어요.</p>
+  <h1>맥에서 캡처가 안 될 때 — 화면 기록 권한</h1>
+  <p class="lead">맥은 화면을 읽는 프로그램을 사용자가 직접 허락하게 해뒀어요.</p>
   <div class="meta">2026-09-06 작성</div>
-  <p>윈도우와 맥은 찍은 화면을 서로 다른 곳에 넣어요. 윈도우는 사진 폴더 안쪽, 맥은 바탕화면이거든요.<br>
-게다가 어떤 단축키로 찍었느냐에 따라 파일이 아예 안 생기기도 해요. 📁</p>
+  <p>맥은 화면을 읽는 프로그램을 사용자가 직접 허락하게 해뒀어요. 스샷핀도 예외가 아니라, 처음 캡처할 때 한 번 허락을 받아야 해요.<br>
+이걸 모르면 캡처가 빈 화면으로 나오거나 아무 일도 안 일어난 것처럼 보여요. 🔒</p>
 
-<h2>윈도우는 키마다 가는 곳이 달라요</h2>
+<h2>처음 캡처할 때 물어봐요</h2>
 
-<table>
-  <tr><th><kbd>Win</kbd>+<kbd>PrtSc</kbd></th><td><code>사진 › 스크린샷</code> 폴더에 PNG로 들어가요. 파일이 생기는 건 이 키뿐이에요.</td></tr>
-  <tr><th><kbd>PrtSc</kbd> · <kbd>Alt</kbd>+<kbd>PrtSc</kbd></th><td>클립보드에만 담겨요. 붙여넣지 않고 다른 걸 복사하면 사라져요.</td></tr>
-  <tr><th><kbd>Win</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd></th><td>클립보드에 담기고, 오른쪽 아래 알림을 눌러 편집 창을 열면 거기서 저장할 수 있어요.</td></tr>
-</table>
+<p>설치하고 처음 <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>1</kbd>을 누르면 맥이 화면 기록 권한을 물어봐요. 허용하면 그다음부터는 묻지 않고요.</p>
 
-<p>스크린샷 폴더 위치를 옮기고 싶으면 그 폴더에서 우클릭 → 속성 → 위치 탭에서 바꾸면 돼요. 윈도우가 그다음부터 새 위치에 넣어줘요.</p>
+<p>이 창을 실수로 닫았거나 "허용 안 함"을 눌렀다면 아래 방법으로 켜면 돼요.</p>
 
-<h2>맥은 바탕화면이 기본이에요</h2>
+<h2>시스템 설정에서 켜는 법</h2>
 
-<p><kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>5</kbd>를 누르면 도구막대가 뜨고, 거기 <b>옵션</b>에서 저장 위치를 고를 수 있어요. 바탕화면, 도큐멘트, 클립보드 중에서 고르거나 다른 폴더를 지정하면 돼요.<br>
-바탕화면이 스크린샷으로 뒤덮이는 게 싫으시면 여기서 한 번만 바꿔두시면 돼요.</p>
+<ol>
+  <li><b>시스템 설정</b>을 열어요</li>
+  <li><b>개인정보 보호 및 보안</b> → <b>화면 및 시스템 오디오 기록</b>으로 가요</li>
+  <li>목록에서 <b>Sshot-Pin</b>을 찾아 스위치를 켜요</li>
+  <li>맥이 앱을 다시 시작할지 물어보면 <b>종료 후 다시 열기</b>를 눌러요</li>
+</ol>
 
-<div class="note">맥은 단축키에 <kbd>Ctrl</kbd>을 더하면 파일 대신 클립보드로 가요. <kbd>Ctrl</kbd>+<kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>4</kbd>처럼요.</div>
+<div class="note">스샷핀에서 캡처를 눌렀을 때 권한이 없으면 알림을 띄우고 이 설정 자리를 대신 열어줘요. 직접 찾아가지 않으셔도 돼요.</div>
 
-<h2>스샷핀은 클립보드가 먼저예요</h2>
+<h2>목록에 스샷핀이 아예 없다면</h2>
 
-<p>영역을 고르는 순간 클립보드에 들어가요. 대부분은 어디에 붙여넣고 끝나기 때문에 파일을 만들지 않는 편이 깔끔하거든요.<br>
-파일로 남기고 싶을 때만 <kbd>Ctrl</kbd>+<kbd>S</kbd>를 누르면 돼요.</p>
+<p>목록은 한 번이라도 화면을 읽으려고 시도한 앱만 올라가요. 그러니 스샷핀에서 <b>캡처를 한 번 눌러 보세요.</b> 그 시도 자체가 등록 신호예요.</p>
 
-<h3>물어보지 않고 바로 저장하게 하려면</h3>
+<p>누른 뒤에 다시 설정을 열면 목록에 나타나 있을 거예요.</p>
 
-<p>저장할 때마다 위치를 묻는 창이 뜨는 게 번거로우면 설정에서 바꿀 수 있어요. 트레이 아이콘을 우클릭하고 <b>⚙️ 설정</b>을 여세요.</p>
+<h2>허락했는데 다시 물어본다면</h2>
 
-<ul>
-  <li><b>저장 폴더</b>에서 원하는 폴더를 골라요. 비워두면 사진 폴더로 가요.</li>
-  <li><b>바로 저장</b>을 켜면 창을 띄우지 않고 그 폴더에 바로 떨어져요.</li>
-  <li><b>열기</b> 버튼을 누르면 그 폴더가 탐색기나 파인더로 열려요.</li>
-</ul>
+<p>이건 대개 <u>앱이 응용 프로그램 폴더 밖에 있어서</u> 생기는 일이에요.</p>
 
-<p>파일 이름은 <code>Sshot-Pin_20260906_143022.png</code> 꼴이에요. 날짜와 시각이라 순서대로 정렬되고요.<br>
-같은 초에 두 번 저장하면 뒤에 <code>_2</code>, <code>_3</code>이 붙어요. 앞 파일을 덮어쓰지 않아요. 👍</p>
+<p>맥에는 App Translocation이라는 장치가 있어요. 내려받은 앱을 응용 프로그램 폴더 밖에서 실행하면, 맥이 그 앱을 매번 다른 임시 폴더로 옮겨 실행해요. 맥이 보기에는 <b>매번 다른 앱</b>이니 권한도 매번 새로 받아야 하고요.</p>
 
-<div class="note">지정해둔 폴더를 옮기거나 지우면 스샷핀이 사진 폴더로 되돌아가 저장해요. 저장이 통째로 실패하지는 않아요.</div>
+<p>그래서 스샷핀은 처음 실행할 때 응용 프로그램 폴더로 옮길지 물어봐요. <b>옮기기</b>를 누르시면 이 문제가 사라져요.<br>
+이미 지나쳤다면 다운로드 폴더의 <code>Sshot-Pin.app</code>을 <b>응용 프로그램</b> 폴더로 직접 끌어다 놓고 거기서 실행하세요. 👍</p>
 
-<h2>저장 안 해도 최근 24개는 남아 있어요</h2>
+<h2>DMG 안에서 바로 실행하면 안 돼요</h2>
 
-<p>찍기만 하고 저장을 안 했더라도 없어지지 않아요. 트레이 메뉴의 <b>🕘 최근 캡처</b>를 열면 최근 24개가 그림으로 남아 있어요.</p>
+<p>내려받은 DMG를 열면 창이 하나 뜨는데, 그 안에서 바로 실행하는 분이 많아요. 그러면 위와 같은 이유로 권한이 계속 초기화돼요.</p>
 
-<p>그림을 클릭하면 화면에 다시 붙고, 아래 버튼으로 복사하거나 그때 저장할 수도 있어요. 스물네 개를 넘으면 오래된 것부터 지워지고요.<br>
-전부 지우고 싶으면 그 창의 <b>전체 삭제</b>를 누르면 돼요. 이미 저장했거나 붙여둔 그림은 그대로 남아요.</p>
+<p>DMG 창 안의 앱을 <b>응용 프로그램 폴더로 끌어다 놓은 뒤</b>, DMG를 꺼내고 응용 프로그램 폴더에서 실행하세요.</p>
+
+<h2>알아두면 좋은 것</h2>
+
+<p>화면 기록 권한은 프로그램이 스스로 켤 수 없어요. 맥의 보안 정책이라 사용자가 직접 켜야 하고, 어떤 프로그램이든 마찬가지고요.</p>
+
+<p>스샷핀은 이 권한으로 화면을 읽어 캡처·확대·판서를 해요. 읽은 화면은 내보내지 않아요 — 클립보드에 넣거나 지정한 폴더에 저장할 뿐이고요.</p>
+
+<p>맥용은 애플 공증까지 마쳤기 때문에 여는 단계에서 "악성 코드" 경고는 뜨지 않아요. 🙂</p>
   <div class="cta">
   <h3>스샷핀으로 해보기</h3>
   <p>캡처를 화면 맨 위에 고정해두고, 확대하고, 그 위에 바로 그립니다. 윈도우·맥 무료.</p>
@@ -166,8 +168,8 @@
           <span class="d">듀얼 모니터에서 원하는 화면을 캡처하고 확대하는 법입니다. 노트북과 프로젝터를 함께 쓸 때 흔한 실수, 붙여둔 그림을 모니터 사이로 옮기는 법, 퀵 실행바 자리까지 담았습니다.</span></li>
       <li><a href="https://sshot-pin.web.app/guide/online-class/">화상 수업에서 화면 공유하며 설명하기</a><br>
           <span class="d">줌·구글 미트·팀즈로 화면을 공유할 때 쓰는 방법입니다. 공유 화면에 무엇이 찍히고 무엇이 안 찍히는지, 화살표와 확대로 짚는 법, 개인정보를 미리 가리는 순서까지 담았습니다.</span></li>
-      <li><a href="https://sshot-pin.web.app/guide/mac-screen-permission/">맥에서 캡처가 안 될 때 — 화면 기록 권한</a><br>
-          <span class="d">맥에서 캡처가 빈 화면으로 나올 때 보는 글입니다. 시스템 설정에서 화면 기록 권한을 켜는 순서, 목록에 앱이 안 보일 때, 허락했는데 자꾸 다시 묻는 이유까지 담았습니다.</span></li>
+      <li><a href="https://sshot-pin.web.app/guide/capture-shortcuts/">윈도우·맥 화면 캡처 단축키, 이것만 알면 돼요</a><br>
+          <span class="d">PrtSc, Alt+PrtSc, Win+Shift+S부터 맥의 Cmd+Shift+3·4·5까지 화면 캡처 단축키를 모았습니다. PrtSc가 안 눌릴 때 볼 것과, 기본 키만으로는 안 되는 네 가지도 함께 정리했습니다.</span></li>
     </ul>
   </div>
 </div>

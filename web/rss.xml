@@ -6,7 +6,35 @@
     <atom:link href="https://sshot-pin.web.app/rss.xml" rel="self" type="application/rss+xml"/>
     <description>윈도우·맥 화면 캡처 단축키, 스크린샷을 화면에 고정하는 법, 화면 확대와 판서까지. 발표와 수업, 원격 지원에서 쓰는 요령을 모았습니다.</description>
     <language>ko</language>
-    <lastBuildDate>Sun, 06 Sep 2026 10:52:22 GMT</lastBuildDate>
+    <lastBuildDate>Sun, 06 Sep 2026 11:02:20 GMT</lastBuildDate>
+    <item>
+      <title>단축키가 안 먹을 때 확인할 것</title>
+      <link>https://sshot-pin.web.app/guide/hotkey-not-working/</link>
+      <guid isPermaLink="true">https://sshot-pin.web.app/guide/hotkey-not-working/</guid>
+      <description>캡처 단축키가 작동하지 않을 때 보는 글입니다. 다른 프로그램과의 충돌을 확인하고 키를 바꾸는 법, 한글 입력 상태에서 등록이 안 되는 이유, 맥에서 캡처 키가 다른 까닭까지 담았습니다.</description>
+      <pubDate>Sun, 06 Sep 2026 00:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>모니터 두 대에서 화면 캡처하기</title>
+      <link>https://sshot-pin.web.app/guide/dual-monitor/</link>
+      <guid isPermaLink="true">https://sshot-pin.web.app/guide/dual-monitor/</guid>
+      <description>듀얼 모니터에서 원하는 화면을 캡처하고 확대하는 법입니다. 노트북과 프로젝터를 함께 쓸 때 흔한 실수, 붙여둔 그림을 모니터 사이로 옮기는 법, 퀵 실행바 자리까지 담았습니다.</description>
+      <pubDate>Sun, 06 Sep 2026 00:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>화상 수업에서 화면 공유하며 설명하기</title>
+      <link>https://sshot-pin.web.app/guide/online-class/</link>
+      <guid isPermaLink="true">https://sshot-pin.web.app/guide/online-class/</guid>
+      <description>줌·구글 미트·팀즈로 화면을 공유할 때 쓰는 방법입니다. 공유 화면에 무엇이 찍히고 무엇이 안 찍히는지, 화살표와 확대로 짚는 법, 개인정보를 미리 가리는 순서까지 담았습니다.</description>
+      <pubDate>Sun, 06 Sep 2026 00:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>맥에서 캡처가 안 될 때 — 화면 기록 권한</title>
+      <link>https://sshot-pin.web.app/guide/mac-screen-permission/</link>
+      <guid isPermaLink="true">https://sshot-pin.web.app/guide/mac-screen-permission/</guid>
+      <description>맥에서 캡처가 빈 화면으로 나올 때 보는 글입니다. 시스템 설정에서 화면 기록 권한을 켜는 순서, 목록에 앱이 안 보일 때, 허락했는데 자꾸 다시 묻는 이유까지 담았습니다.</description>
+      <pubDate>Sun, 06 Sep 2026 00:00:00 GMT</pubDate>
+    </item>
     <item>
       <title>윈도우·맥 화면 캡처 단축키, 이것만 알면 돼요</title>
       <link>https://sshot-pin.web.app/guide/capture-shortcuts/</link>
