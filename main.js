@@ -9,6 +9,7 @@ const {
 } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
 const I18N = require('./src/i18n');
 
 // 표시 언어 — whenReady에서 설정·OS 언어로 확정된다. ko면 tr()은 원문 그대로.
@@ -46,6 +47,28 @@ ipcMain.on('open-support', () => {
 })();
 
 const isMac = process.platform === 'darwin';
+
+// ---------- 자동 실행(부팅과 함께 켜짐) 판별 ----------
+// 부팅 직후에는 바탕화면·작업표시줄이 아직 자리를 잡는 중이라, 실행 안내를 바로
+// 띄우면 사용자가 화면을 보기도 전에 사라진다. 그래서 "아무 안내도 없이 어느새
+// 트레이에만 생겼다"로 보인다. 자동 실행일 때는 안내를 늦게, 더 오래 보여준다.
+const AUTOSTART_ARG = '--autostart';
+
+// 자동 실행을 켤 때 표시를 함께 남긴다 — 다음 부팅에서 이 인자로 구분한다
+function setOpenAtLogin(on) {
+  app.setLoginItemSettings(on
+    ? { openAtLogin: true, args: [AUTOSTART_ARG] }
+    : { openAtLogin: false });
+}
+
+function launchedAtLogin() {
+  try {
+    if (isMac && app.getLoginItemSettings().wasOpenedAtLogin) return true;
+  } catch (e) { /* 아래 방법으로 판단 */ }
+  if (process.argv.includes(AUTOSTART_ARG)) return true;
+  // 예전 버전에서 등록한 자동 실행에는 표시가 없다 — 부팅 직후면 자동 실행으로 본다
+  try { return os.uptime() < 150; } catch (e) { return false; }
+}
 
 // macOS 26에서 화면 캡처 목록을 관리하는 스레드가 스스로 죽는 일이 있었다
 // (DesktopMediaListCaptureThread 크래시, 캡처가 끝난 뒤에도 발생).
@@ -160,6 +183,7 @@ const defaultSettings = {
   hotkeys: { ...DEFAULT_HOTKEYS },
   saveDir: '',        // 빈 값이면 사진 폴더
   quickSave: false,   // true면 대화상자 없이 바로 저장
+  autostartTagged: false,  // 자동 실행 등록에 --autostart 표시를 넣었는지
 };
 let settings = { ...defaultSettings };
 let hotkeysMigrated = false;   // 예전 F1/F2/F3 기본값에서 자동 변경됐는지
@@ -1160,7 +1184,7 @@ ipcMain.on('settings-set-flag', (e, { key, value }) => {
   } else if (key === 'quickbarVisible') {
     setQuickbarVisible(!!value);
   } else if (key === 'openAtLogin') {
-    app.setLoginItemSettings({ openAtLogin: !!value });
+    setOpenAtLogin(!!value);
     rebuildTrayMenu();
   } else if (key === 'language') {
     settings.language = value || '';
@@ -1608,7 +1632,7 @@ function rebuildTrayMenu() {
       label: tr('컴퓨터 시작 시 자동 실행'),
       type: 'checkbox',
       checked: login.openAtLogin,
-      click: (item) => app.setLoginItemSettings({ openAtLogin: item.checked }),
+      click: (item) => setOpenAtLogin(item.checked),
     },
     { type: 'separator' },
     ...(updateState.status === 'ready'
@@ -1638,10 +1662,11 @@ function createTray() {
 
 // 트레이 상주 프로그램이라 창이 뜨지 않는다. 윈도우에서는 트레이 아이콘마저
 // 숨김 영역으로 들어가 버려서, 실행됐는지 알 길이 없다는 말을 자주 듣는다.
-// 시작할 때 4초쯤 떴다 사라지는 알림을 트레이 근처에 띄운다.
+// 시작할 때 잠깐 떴다 사라지는 알림을 트레이 근처에 띄운다.
 let toastWin = null;
-function showStartupToast() {
+function showStartupToast(opts = {}) {
   if (toastWin) return;
+  const atLogin = !!opts.atLogin;
   const wa = screen.getPrimaryDisplay().workArea;
   const W = 560, H = 66;   // 알약은 글자에 맞춰 줄고, 남는 자리는 투명하게 비운다
   toastWin = new BrowserWindow({
@@ -1660,7 +1685,8 @@ function showStartupToast() {
     webPreferences: { preload: path.join(__dirname, 'preload.js') },
   });
   toastWin.setAlwaysOnTop(true, 'screen-saver');
-  // 빈 자리까지 클릭을 삼키면 트레이 근처를 4초간 못 누른다
+  // 빈 자리까지 클릭을 삼키면 트레이 근처를 그동안 못 누른다.
+  // 렌더러가 알약 너비를 알려오면 창을 그 크기로 줄이고 클릭을 다시 받는다.
   toastWin.setIgnoreMouseEvents(true);
   // 바로 뒤에 캡처를 하더라도 이 알림이 찍히지 않게
   try { toastWin.setContentProtection(true); } catch (e) { /* 통하지 않는 환경은 그대로 */ }
@@ -1673,6 +1699,8 @@ function showStartupToast() {
         c: accelLabel(settings.hotkeys.capture),
         p: accelLabel(settings.hotkeys.pin),
       }),
+      // 부팅과 함께 켜졌으면 더 오래 둔다 — 사용자가 화면을 보기 시작할 때까지
+      hold: atLogin ? 7000 : 4200,
     });
   });
   toastWin.once('ready-to-show', () => toastWin.showInactive());
@@ -1683,6 +1711,25 @@ function showStartupToast() {
 function accelLabel(accel) {
   return String(accel || '').replace('CommandOrControl', 'Ctrl').replace('Control', 'Ctrl');
 }
+
+// 알약 너비를 받아 창을 알약 크기로 줄인다. 남는 빈 자리가 사라지므로
+// 트레이 근처 클릭을 삼키지 않고, 알약 자체는 눌러서 사용법을 열 수 있다.
+ipcMain.on('toast-measured', (e, width) => {
+  if (!toastWin || toastWin.isDestroyed()) return;
+  const b = toastWin.getBounds();
+  const w = clamp(Math.round(width) + 2, 160, b.width);
+  // 글이 길어 알약이 창을 가득 채웠다면 줄일 자리가 없다. 그대로 두면 빈 자리가
+  // 아니라 창 전체가 클릭을 삼키므로, 이럴 때는 클릭 통과를 유지한다.
+  if (w >= b.width - 8) return;
+  setBoundsForce(toastWin, { x: b.x + (b.width - w), y: b.y, width: w, height: b.height });
+  toastWin.setIgnoreMouseEvents(false);
+});
+
+// 알약을 누르면 사용법을 연다 — "이게 뭐지" 하고 눌러볼 곳이 있어야 한다
+ipcMain.on('toast-open-help', () => {
+  openHelp();
+  if (toastWin && !toastWin.isDestroyed()) toastWin.close();
+});
 
 ipcMain.on('toast-close', () => {
   if (toastWin && !toastWin.isDestroyed()) toastWin.close();
@@ -1799,7 +1846,7 @@ async function firstRunFlow() {
     cancelId: 1,
   });
   if (response === 0) {
-    app.setLoginItemSettings({ openAtLogin: true });
+    setOpenAtLogin(true);
     rebuildTrayMenu();
   }
 }
@@ -1821,6 +1868,16 @@ if (!gotLock) {
     createTray();
     if (settings.quickbarVisible) createQuickbar();
 
+    // 예전 버전에서 등록한 자동 실행에는 --autostart 표시가 없다. 한 번만
+    // 다시 등록해 넣어주면 다음 부팅부터 자동 실행인지 정확히 알 수 있다.
+    if (!settings.autostartTagged) {
+      try {
+        if (app.getLoginItemSettings().openAtLogin) setOpenAtLogin(true);
+      } catch (e) { log('자동 실행 표시 갱신 실패', e.message); }
+      settings.autostartTagged = true;
+      saveSettings();
+    }
+
     const failures = registerHotkeys();
     if (failures.length) {
       notify(tr('단축키 충돌: {list} — 트레이 → ⚙️ 설정에서 바꿀 수 있어요.', { list: failures.join(', ') }));
@@ -1831,8 +1888,18 @@ if (!gotLock) {
       notify(tr('단축키가 바뀌었습니다. 캡처 {c}, 핀 {p}', { c: settings.hotkeys.capture, p: settings.hotkeys.pin }));
     }
 
-    // 첫 실행에는 도움말 창이 뜨므로 실행됐는지 굳이 알릴 필요가 없다
-    if (settings.firstRunDone) showStartupToast();
+    // 첫 실행에는 도움말 창이 뜨므로 실행됐는지 굳이 알릴 필요가 없다.
+    // 부팅과 함께 켜진 경우에는 데스크톱이 자리를 잡을 때까지 기다렸다 띄운다.
+    // 지금 띄우면 사용자가 화면을 보기도 전에 사라져 "안내가 없다"가 된다.
+    if (settings.firstRunDone) {
+      const atLogin = launchedAtLogin();
+      let up = 0;
+      try { up = os.uptime(); } catch (e) { /* 모르면 기본 대기 */ }
+      // 부팅 20초쯤 지난 시점을 목표로 하되, 너무 이르지도 너무 늦지도 않게
+      const delay = atLogin ? clamp(Math.round((20 - up) * 1000), 4000, 15000) : 0;
+      if (delay) setTimeout(() => showStartupToast({ atLogin: true }), delay);
+      else showStartupToast({ atLogin });
+    }
 
     ensureInApplicationsFolder().then(() => firstRunFlow());
 

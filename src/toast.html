@@ -18,8 +18,13 @@
     font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', -apple-system, sans-serif;
     /* 뜰 때 살짝 올라오고, 사라질 때 다시 내려간다 */
     opacity: 0; transform: translateY(8px);
-    transition: opacity .22s ease-out, transform .22s ease-out;
+    transition: opacity .22s ease-out, transform .22s ease-out, background .12s;
+    cursor: pointer;
   }
+  /* 창이 알약 크기로 줄어든 뒤에만 클릭이 닿는다 — 그때 눌러볼 곳임을 보인다 */
+  #box:hover { background: rgba(30, 41, 59, .97); }
+  #go { color: #64748b; font-size: 17px; line-height: 1; margin-left: -3px; }
+  #box:hover #go { color: #cbd5e1; }
   body.on #box { opacity: 1; transform: none; }
   body.off #box { opacity: 0; transform: translateY(8px); transition-duration: .45s; }
   #icon { font-size: 24px; line-height: 1; }
@@ -36,13 +41,29 @@
       <div id="title">스샷핀 실행 중</div>
       <div id="sub"></div>
     </div>
+    <div id="go">›</div>
   </div>
 
 <script>
-  window.api.onToastData(({ title, sub }) => {
+  const box = document.getElementById('box');
+  // 안내 내용이 오지 않는 예외 상황에서도 알림이 남아 있지 않게 하는 안전장치
+  let holdTimer = setTimeout(close, 12000);
+
+  window.api.onToastData(({ title, sub, hold }) => {
     document.getElementById('title').textContent = title;
     document.getElementById('sub').textContent = sub;
+    // 글자가 채워진 뒤의 알약 너비를 알려준다. 메인이 창을 이 크기로 줄여야
+    // 남는 빈 자리가 트레이 근처의 클릭을 삼키지 않는다.
+    requestAnimationFrame(() => {
+      const w = Math.ceil(box.getBoundingClientRect().width);
+      if (w > 0) window.api.toastMeasured(w);
+    });
+    clearTimeout(holdTimer);
+    holdTimer = setTimeout(close, hold || 4200);
   });
+
+  // 눌러보면 사용법이 열린다 — 그냥 스쳐 지나가는 알림으로 끝나지 않게
+  box.addEventListener('click', () => window.api.toastOpenHelp());
 
   // 뜨는 애니메이션은 첫 그림 뒤에 시작해야 눈에 보인다
   requestAnimationFrame(() => document.body.classList.add('on'));
@@ -55,7 +76,6 @@
     document.body.classList.add('off');
     setTimeout(() => window.api.toastClose(), 460);
   }
-  setTimeout(close, 4200);
 </script>
 </body>
 </html>

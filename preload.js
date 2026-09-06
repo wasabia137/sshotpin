@@ -25,6 +25,9 @@ contextBridge.exposeInMainWorld('api', {
   // 시작 알림 (잠깐 떴다 사라지는 실행 표시)
   onToastData: (cb) => ipcRenderer.on('toast-data', (e, d) => cb(d)),
   toastClose: () => ipcRenderer.send('toast-close'),
+  // 알약 너비를 알려 창을 그 크기로 줄인다 (빈 자리가 클릭을 삼키지 않게)
+  toastMeasured: (w) => ipcRenderer.send('toast-measured', w),
+  toastOpenHelp: () => ipcRenderer.send('toast-open-help'),
 
   // 사용법 창
   onHelpState: (cb) => ipcRenderer.on('help-state', (e, d) => cb(d)),
