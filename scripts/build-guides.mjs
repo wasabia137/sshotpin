@@ -120,6 +120,9 @@ function head({ title, description, keywords, url }) {
   gtag('js', new Date());
   gtag('config', '${GA}');
 </script>
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4886665901652063"
+     crossorigin="anonymous"></script>
 <style>${STYLE}</style>`;
 }
 
