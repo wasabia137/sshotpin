@@ -125,7 +125,7 @@ process.on('uncaughtException', (err) => {
     if (Notification.isSupported()) {
       new Notification({
         title: tr('스샷핀 오류'),
-        body: tr('문제가 생겼지만 계속 실행됩니다. 반복되면 설정에서 로그를 확인해주세요.'),
+        body: tr('문제가 생겼지만 계속 실행돼요. 반복되면 설정에서 로그를 확인해주세요.'),
         silent: true,
       }).show();
     }
@@ -249,10 +249,10 @@ async function saveImageDialog(dataURL, parentWin) {
         name = fileName.replace(/\.png$/, `_${n++}.png`);
       }
       fs.writeFileSync(path.join(dir, name), img.toPNG());
-      notify(`${tr('저장했습니다')}: ${name}`);
+      notify(`${tr('저장했어요')}: ${name}`);
       return;
     } catch (e) {
-      notify(tr('빠른 저장에 실패했습니다. 저장 위치를 다시 선택해주세요.'));
+      notify(tr('바로 저장에 실패했어요. 저장 위치를 다시 골라주세요.'));
       // 실패하면 아래 대화상자로 진행
     }
   }
@@ -264,7 +264,7 @@ async function saveImageDialog(dataURL, parentWin) {
   });
   if (canceled || !filePath) return;
   fs.writeFileSync(filePath, img.toPNG());
-  notify(`${tr('저장했습니다')}: ${path.basename(filePath)}`);
+  notify(`${tr('저장했어요')}: ${path.basename(filePath)}`);
 }
 
 // 프로그램에 의한 크기 변경 (resizable:false 창도 확실히 동작하도록 감쌈)
@@ -294,7 +294,7 @@ async function grabDisplay(display) {
   const sources = await Promise.race([
     job,
     new Promise((_, reject) =>
-      setTimeout(() => reject(new Error(tr('화면을 읽는 데 너무 오래 걸립니다'))), 8000)),
+      setTimeout(() => reject(new Error(tr('화면을 읽는 데 너무 오래 걸려요'))), 8000)),
   ]);
   const tSources = Date.now() - t0;
   let source = sources.find((s) => String(s.display_id) === String(display.id));
@@ -378,7 +378,7 @@ function fullscreenOverlayWindow(display) {
   win.webContents.on('render-process-gone', (e, details) => {
     log(`overlay 렌더러 사망: ${JSON.stringify(details)}`);
     if (!win.isDestroyed()) win.close();
-    notify(tr('화면 창에 문제가 생겨 닫았습니다. 다시 시도해주세요.'));
+    notify(tr('화면 창에 문제가 생겨 닫았어요. 다시 시도해주세요.'));
   });
   win.on('unresponsive', () => log('overlay 응답 없음'));
   win.on('closed', () => log('overlay 닫힘'));
@@ -552,7 +552,7 @@ ipcMain.on('history-pin', (e, id) => {
       display.bounds.y + (display.bounds.height - h) / 2);
   } catch (err) {
     log('history 핀 실패', err.message);
-    notify(tr('이 캡처를 불러오지 못했습니다.'));
+    notify(tr('이 캡처를 불러오지 못했어요.'));
   }
 });
 
@@ -561,8 +561,8 @@ ipcMain.on('history-copy', (e, id) => {
   if (!item) return;
   try {
     clipboard.writeImage(nativeImage.createFromDataURL(historyDataURL(item)));
-    notify(tr('클립보드에 복사했습니다.'));
-  } catch (err) { notify(tr('복사에 실패했습니다.')); }
+    notify(tr('클립보드에 복사했어요.'));
+  } catch (err) { notify(tr('복사하지 못했어요.')); }
 });
 
 ipcMain.on('history-save', (e, id) => {
@@ -584,7 +584,7 @@ ipcMain.on('history-clear', async () => {
     type: 'question',
     title: tr('최근 캡처 전체 삭제'),
     message: tr('저장된 최근 캡처를 모두 삭제할까요?'),
-    detail: tr('이미 저장하거나 붙여둔 이미지는 영향을 받지 않습니다.'),
+    detail: tr('이미 저장하거나 붙여둔 이미지는 그대로 남아요.'),
     buttons: [tr('모두 삭제'), tr('취소')],
     defaultId: 1,
     cancelId: 1,
@@ -689,7 +689,7 @@ ipcMain.on('quickbar-action', (e, action) => {
   else if (action === 'settings') openSettings();
   else if (action === 'hide') {
     setQuickbarVisible(false);
-    notify(tr('퀵 실행바를 숨겼습니다. 트레이 메뉴에서 다시 켤 수 있습니다.'));
+    notify(tr('퀵 실행바를 숨겼어요. 트레이 메뉴에서 다시 켤 수 있어요.'));
   }
 });
 
@@ -722,14 +722,14 @@ async function startCapture(mode = 'capture') { // 'capture' | 'cover'
     } catch (err) {
       log('캡처 실패', err.message);
       if (!screenAccessGranted()) guideScreenAccess();
-      else notify(`${tr('화면을 읽지 못했습니다.')} ${err.message}`);
+      else notify(`${tr('화면을 읽지 못했어요.')} ${err.message}`);
       reshowQuickbar();
       return;
     }
     if (!shot) {
       log('캡처 실패 — 빈 화면');
       if (!screenAccessGranted()) guideScreenAccess();
-      else notify(tr('화면을 캡처하지 못했습니다. 잠시 후 다시 시도해주세요.'));
+      else notify(tr('화면을 캡처하지 못했어요. 잠시 뒤에 다시 시도해주세요.'));
       reshowQuickbar();
       return;
     }
@@ -737,7 +737,7 @@ async function startCapture(mode = 'capture') { // 'capture' | 'cover'
     captureDisplay = { ...display.bounds };
     log(`capture: 화면 읽음 (${display.bounds.width}x${display.bounds.height} scale=${display.scaleFactor})`);
     captureWin = takeOverlay('capture', display);
-    if (!captureWin) { notify(tr('캡처 창을 열지 못했습니다.')); reshowQuickbar(); return; }
+    if (!captureWin) { notify(tr('캡처 창을 열지 못했어요.')); reshowQuickbar(); return; }
     showOverlayWhenReady(captureWin, 'capture-init', { shot, mode });
     // 유난히 느릴 때만 기록해 둔다 (평소엔 로그를 더럽히지 않게)
     captureWin.once('show', () => {
@@ -770,7 +770,7 @@ function guideScreenAccess() {
   const now = Date.now();
   if (now - screenGuideShownAt < 5000) return;
   screenGuideShownAt = now;
-  notify(tr('화면 기록 권한을 허용해주세요. 목록에서 스샷핀을 켜면 바로 됩니다.'));
+  notify(tr('화면 기록 권한을 허용해주세요. 목록에서 스샷핀을 켜면 바로 돼요.'));
   shell.openExternal(
     'x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture');
 }
@@ -788,7 +788,7 @@ async function ensureInApplicationsFolder() {
     type: 'question',
     title: 'Sshot-Pin',
     message: tr('스샷핀을 응용 프로그램 폴더로 옮길까요?'),
-    detail: tr('지금 위치에서 실행하면 맥이 앱을 임시 폴더로 옮겨 화면 기록 권한이 매번 초기화됩니다.\n옮겨두면 권한을 한 번만 허용하면 계속 유지됩니다.'),
+    detail: tr('지금 위치에서 실행하면 맥이 앱을 임시 폴더로 옮겨 화면 기록 권한이 매번 초기화돼요.\n옮겨두면 권한을 한 번만 허용하면 계속 유지돼요.'),
     buttons: [tr('옮기기 (추천)'), tr('나중에')],
     defaultId: 0,
     cancelId: 1,
@@ -799,7 +799,7 @@ async function ensureInApplicationsFolder() {
     app.moveToApplicationsFolder();
   } catch (e) {
     log('응용 프로그램 폴더 이동 실패', e.message);
-    notify(tr('옮기지 못했습니다. 스샷핀을 응용 프로그램 폴더로 직접 끌어다 놓아주세요.'));
+    notify(tr('옮기지 못했어요. 스샷핀을 응용 프로그램 폴더로 직접 끌어다 놓아주세요.'));
   }
 }
 
@@ -825,7 +825,7 @@ ipcMain.on('capture-finish', (e, payload) => {
   const { action, dataURL, rect } = payload;
   if (action === 'copy') {
     clipboard.writeImage(nativeImage.createFromDataURL(dataURL));
-    notify(tr('클립보드에 복사했습니다.'));
+    notify(tr('클립보드에 복사했어요.'));
   } else if (action === 'save') {
     saveImageDialog(dataURL);
   } else if (action === 'pin') {
@@ -918,20 +918,20 @@ async function toggleOverlay(mode) { // 'zoom' | 'draw'
     } catch (err) {
       log('확대·판서 실패', err.message);
       if (!screenAccessGranted()) guideScreenAccess();
-      else notify(`${tr('화면을 읽지 못했습니다.')} ${err.message}`);
+      else notify(`${tr('화면을 읽지 못했어요.')} ${err.message}`);
       reshowQuickbar();
       return;
     }
     if (!shot) {
       if (!screenAccessGranted()) guideScreenAccess();
-      else notify(tr('화면을 캡처하지 못했습니다. 잠시 후 다시 시도해주세요.'));
+      else notify(tr('화면을 캡처하지 못했어요. 잠시 뒤에 다시 시도해주세요.'));
       reshowQuickbar();
       return;
     }
 
     overlayDisplay = { ...display.bounds };
     overlayWin = takeOverlay('overlay', display);
-    if (!overlayWin) { notify(tr('화면 창을 열지 못했습니다.')); reshowQuickbar(); return; }
+    if (!overlayWin) { notify(tr('화면 창을 열지 못했어요.')); reshowQuickbar(); return; }
     // 확대는 마우스 위치를 중심으로 시작해야 한다 (ZoomIt과 동일)
     const cur = screen.getCursorScreenPoint();
     showOverlayWhenReady(overlayWin, 'overlay-init', {
@@ -968,7 +968,7 @@ ipcMain.on('overlay-refresh', async (e) => {
       win.show();
       win.focus();
     }
-    if (!shot) notify(tr('화면을 다시 읽지 못했습니다.'));
+    if (!shot) notify(tr('화면을 다시 읽지 못했어요.'));
   } finally {
     overlayRefreshBusy = false;
   }
@@ -992,7 +992,7 @@ ipcMain.on('overlay-finish', (e, payload) => {
   const { action, dataURL, w, h } = payload;
   if (action === 'copy') {
     clipboard.writeImage(nativeImage.createFromDataURL(dataURL));
-    notify(tr('클립보드에 복사했습니다.'));
+    notify(tr('클립보드에 복사했어요.'));
   } else if (action === 'save') {
     closeSender();
     saveImageDialog(dataURL);
@@ -1159,7 +1159,7 @@ ipcMain.on('settings-set-hotkey', (e, { key, accel }) => {
   if (!HOTKEY_ACTIONS[key]) return;
   // 빈 값('사용 안 함')은 허용, 그 외에는 ASCII 액셀러레이터만 저장
   if (accel && !isValidAccelerator(accel)) {
-    notify(tr('이 키는 단축키로 쓸 수 없습니다. 한글 입력을 끄고 다시 시도해주세요.'));
+    notify(tr('이 키는 단축키로 쓸 수 없어요. 한글 입력을 끄고 다시 시도해주세요.'));
     sendSettingsState();
     return;
   }
@@ -1169,7 +1169,7 @@ ipcMain.on('settings-set-hotkey', (e, { key, accel }) => {
   sendSettingsState();
   broadcastHotkeys();
   if (accel && failures.some((f) => f.includes(accel))) {
-    notify(tr('"{a}" 단축키를 사용할 수 없습니다. 다른 프로그램이 이미 쓰고 있을 수 있어요.', { a: accel }));
+    notify(tr('"{a}" 단축키를 쓸 수 없어요. 다른 프로그램이 이미 쓰고 있을 수 있어요.', { a: accel }));
   }
 });
 
@@ -1227,7 +1227,7 @@ ipcMain.on('settings-open-logs', () => {
     if (!fs.existsSync(logPath)) fs.writeFileSync(logPath, '');
     shell.showItemInFolder(logPath);
   } catch (e) {
-    notify(tr('로그 폴더를 열지 못했습니다.'));
+    notify(tr('로그 폴더를 열지 못했어요.'));
   }
 });
 
@@ -1333,7 +1333,7 @@ function pinFromClipboard() {
   const img = clipboard.readImage();
   if (img.isEmpty()) {
     const hk = settings.hotkeys.pin;
-    notify(tr('클립보드에 이미지가 없습니다.') + (hk ? tr(' (이미지를 복사한 뒤 {hk})', { hk }) : ''));
+    notify(tr('클립보드에 이미지가 없어요.') + (hk ? tr(' (이미지를 복사한 뒤 {hk})', { hk }) : ''));
     return;
   }
   const cursor = screen.getCursorScreenPoint();
@@ -1357,7 +1357,7 @@ function popupPinMenu(id) {
     { label: tr('저장…'), accelerator: 'Ctrl+S', click: () => pinSave(id) },
     { type: 'separator' },
     {
-      label: tr('크기 ({p}%) — 모퉁이를 끌어도 됩니다', { p: Math.round(p.scale * 100) }),
+      label: tr('크기 ({p}%) — 모퉁이를 끌어도 돼요', { p: Math.round(p.scale * 100) }),
       submenu: [33, 50, 100, 150, 200].map((pct) => ({
         label: `${pct}%`,
         type: 'radio', checked: Math.round(p.scale * 100) === pct,
@@ -1413,7 +1413,7 @@ function pinCopy(id) {
   const p = pins.get(id);
   if (!p) return;
   clipboard.writeImage(nativeImage.createFromDataURL(p.dataURL));
-  notify(tr('클립보드에 복사했습니다.'));
+  notify(tr('클립보드에 복사했어요.'));
 }
 
 function pinSave(id) {
@@ -1537,7 +1537,7 @@ function pinSetClickThrough(id, on) {
   if (!p) return;
   p.clickThrough = on;
   p.win.setIgnoreMouseEvents(on);
-  if (on) notify(tr('클릭 통과 모드 — 트레이 메뉴에서 해제할 수 있습니다.'));
+  if (on) notify(tr('클릭 통과 모드 — 트레이 메뉴에서 끌 수 있어요.'));
   rebuildTrayMenu();
 }
 
@@ -1772,10 +1772,10 @@ function getUpdater() {
   autoUpdater.on('download-progress', (p) =>
     setUpdateState('downloading', tr('내려받는 중… {p}%', { p: Math.round(p.percent) })));
   autoUpdater.on('update-not-available', () =>
-    setUpdateState('latest', tr('지금이 최신 버전입니다.')));
+    setUpdateState('latest', tr('지금이 최신 버전이에요.')));
   autoUpdater.on('update-downloaded', (info) => {
-    setUpdateState('ready', tr('v{v} 준비 완료 — 다시 시작하면 적용됩니다.', { v: info.version }));
-    notify(tr('새 버전 v{v}을 받았습니다. 다시 시작하면 적용됩니다.', { v: info.version }));
+    setUpdateState('ready', tr('v{v} 준비 완료 — 다시 시작하면 적용돼요.', { v: info.version }));
+    notify(tr('새 버전 v{v}을 받았어요. 다시 시작하면 적용돼요.', { v: info.version }));
     // 알림을 놓쳐도 트레이 메뉴에 "다시 시작해서 업데이트"가 남는다
     rebuildTrayMenu();
   });
@@ -1786,7 +1786,7 @@ function getUpdater() {
     const net = /net::|ENOTFOUND|ETIMEDOUT|EAI_AGAIN/.test(msg);
     setUpdateState('error', net
       ? tr('인터넷에 연결되어 있는지 확인해주세요.')
-      : tr('업데이트 확인에 실패했습니다. 잠시 후 다시 시도해주세요.'));
+      : tr('업데이트를 확인하지 못했어요. 잠시 뒤에 다시 시도해주세요.'));
   });
 
   updater = autoUpdater;
@@ -1795,14 +1795,14 @@ function getUpdater() {
 
 function checkUpdates(silent) {
   if (!app.isPackaged) {
-    if (!silent) setUpdateState('idle', tr('개발 모드에서는 업데이트를 확인할 수 없습니다.'));
+    if (!silent) setUpdateState('idle', tr('개발 모드에서는 업데이트를 확인할 수 없어요.'));
     return;
   }
   // 이미 받아둔 게 있으면 다시 받을 필요가 없다
   if (updateState.status === 'ready' || updateState.status === 'downloading') return;
   const autoUpdater = getUpdater();
   if (!autoUpdater) {
-    if (!silent) setUpdateState('error', tr('업데이트 기능을 불러오지 못했습니다.'));
+    if (!silent) setUpdateState('error', tr('업데이트 기능을 불러오지 못했어요.'));
     return;
   }
   updaterSilent = !!silent;
@@ -1823,7 +1823,7 @@ function restartForUpdate() {
   try {
     getUpdater().quitAndInstall();
   } catch (e) {
-    notify(tr('다시 시작하지 못했습니다. 프로그램을 직접 종료한 뒤 다시 실행해주세요.'));
+    notify(tr('다시 시작하지 못했어요. 프로그램을 직접 종료한 뒤 다시 실행해주세요.'));
   }
 }
 
@@ -1844,7 +1844,7 @@ async function firstRunFlow() {
     type: 'question',
     title: 'Sshot-Pin',
     message: tr('컴퓨터를 켤 때 스샷핀을 자동으로 실행할까요?'),
-    detail: tr('자동 실행을 켜두면 부팅 후 바로 {c}(캡처), {p}(핀)을 쓸 수 있습니다.\n트레이 메뉴에서 언제든 바꿀 수 있습니다.', { c: settings.hotkeys.capture, p: settings.hotkeys.pin }),
+    detail: tr('자동 실행을 켜두면 부팅 후 바로 {c}(캡처), {p}(핀)을 쓸 수 있어요.\n트레이 메뉴에서 언제든 바꿀 수 있어요.', { c: settings.hotkeys.capture, p: settings.hotkeys.pin }),
     buttons: [tr('자동 실행 켜기 (추천)'), tr('나중에')],
     defaultId: 0,
     cancelId: 1,
@@ -1889,7 +1889,7 @@ if (!gotLock) {
     if (hotkeysMigrated) {
       saveSettings();
       log('단축키를 새 기본값으로 자동 변경', JSON.stringify(settings.hotkeys));
-      notify(tr('단축키가 바뀌었습니다. 캡처 {c}, 핀 {p}', { c: settings.hotkeys.capture, p: settings.hotkeys.pin }));
+      notify(tr('단축키가 바뀌었어요. 캡처 {c}, 핀 {p}', { c: settings.hotkeys.capture, p: settings.hotkeys.pin }));
     }
 
     // 첫 실행에는 도움말 창이 뜨므로 실행됐는지 굳이 알릴 필요가 없다.

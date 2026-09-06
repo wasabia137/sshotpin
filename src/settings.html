@@ -61,7 +61,7 @@
 </head>
 <body>
   <h1>⚙️ 스샷핀 설정</h1>
-  <div class="sub">바꾸면 바로 적용됩니다.</div>
+  <div class="sub">바꾸면 바로 적용돼요.</div>
 
   <h2 id="secLang">언어</h2>
   <div class="card">
@@ -86,8 +86,8 @@
   <div class="card" id="hotkeys"></div>
   <div id="failWrap"></div>
   <div class="tip">
-    칸을 클릭하고 원하는 키를 누르면 바뀝니다. <b>비우기</b>를 누르면 그 단축키는 쓰지 않고
-    퀵 실행바나 트레이 메뉴로만 실행합니다.
+    칸을 클릭하고 원하는 키를 누르면 바뀌어요. <b>비우기</b>를 누르면 그 단축키는 쓰지 않고
+    퀵 실행바나 트레이 메뉴로만 실행해요.
   </div>
   <footer style="margin-top:12px">
     <button class="mini" id="resetKeys">단축키 기본값으로 되돌리기</button>
@@ -100,7 +100,7 @@
         <input type="checkbox" id="quickSave">
         <span>
           바로 저장 (저장 위치를 묻지 않음)
-          <div class="desc">끄면 저장할 때마다 위치를 물어봅니다.</div>
+          <div class="desc">끄면 저장할 때마다 위치를 물어봐요.</div>
         </span>
       </label>
     </div>
@@ -120,7 +120,7 @@
         <input type="checkbox" id="quickbarVisible">
         <span>
           퀵 실행바 표시
-          <div class="desc">화면에 떠 있는 버튼바. 단축키 없이 클릭으로 실행합니다.</div>
+          <div class="desc">화면에 떠 있는 버튼바. 단축키 없이 클릭으로 실행해요.</div>
         </span>
       </label>
     </div>
@@ -129,7 +129,7 @@
         <input type="checkbox" id="openAtLogin">
         <span>
           컴퓨터 시작 시 자동 실행
-          <div class="desc">부팅하면 자동으로 켜집니다.</div>
+          <div class="desc">부팅하면 자동으로 켜져요.</div>
         </span>
       </label>
     </div>
@@ -137,7 +137,7 @@
 
   <footer>
     <button class="mini" id="openHelp">❓ 사용법·단축키 보기</button>
-    <button class="mini" id="openLogs" title="문의할 때 이 파일을 첨부하면 됩니다">🧾 오류 기록 열기</button>
+    <button class="mini" id="openLogs" title="문의할 때 이 파일을 첨부하면 돼요">🧾 오류 기록 열기</button>
     <button class="mini" id="btnSupport">☕ 개발자 후원하기</button>
     <div style="margin-top:14px; display:flex; align-items:center; gap:10px; flex-wrap:wrap">
       <button class="mini" id="btnUpdate">⬆️ 업데이트 확인</button>
@@ -278,7 +278,7 @@
 
     const fw = document.getElementById('failWrap');
     fw.innerHTML = state.failures && state.failures.length
-      ? `<div class="warn">${T('⚠️ 이 단축키는 다른 프로그램이 이미 쓰고 있어 작동하지 않습니다: <b>{list}</b><br>위 칸을 눌러 다른 키로 바꿔주세요.', { list: state.failures.join(', ') })}</div>`
+      ? `<div class="warn">${T('⚠️ 이 단축키는 다른 프로그램이 이미 쓰고 있어 작동하지 않아요: <b>{list}</b><br>위 칸을 눌러 다른 키로 바꿔주세요.', { list: state.failures.join(', ') })}</div>`
       : '';
   }
 
@@ -321,7 +321,7 @@
 
   btnUpdate.addEventListener('click', () => {
     if (!navigator.onLine) {
-      updateMsg.textContent = T('인터넷에 연결되어 있지 않습니다.');
+      updateMsg.textContent = T('인터넷에 연결되어 있지 않아요.');
       return;
     }
     btnUpdate.disabled = true;

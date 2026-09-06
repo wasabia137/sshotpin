@@ -58,7 +58,7 @@
     <h1>🕘 최근 캡처</h1>
     <button class="mini" id="clearBtn">전체 삭제</button>
   </header>
-  <div class="sub">그림을 클릭하면 화면에 다시 붙습니다. 최근 24개까지 보관합니다.</div>
+  <div class="sub">그림을 클릭하면 화면에 다시 붙어요. 최근 24개까지 보관해요.</div>
 
   <div id="list"></div>
 
@@ -85,7 +85,7 @@
 
   window.api.onHistoryState(({ items }) => {
     if (!items.length) {
-      list.innerHTML = `<div class="empty">${T('아직 캡처한 것이 없습니다.<br>퀵 실행바의 📸 로 화면을 찍어보세요.')}</div>`;
+      list.innerHTML = `<div class="empty">${T('아직 캡처한 것이 없어요.<br>퀵 실행바의 📸 로 화면을 찍어보세요.')}</div>`;
       return;
     }
     list.className = 'grid';
@@ -94,7 +94,7 @@
       const el = document.createElement('div');
       el.className = 'item';
       el.innerHTML = `
-        <div class="thumb" title="${T('클릭하면 화면에 붙입니다')}">
+        <div class="thumb" title="${T('클릭하면 화면에 붙여요')}">
           ${it.thumb ? `<img src="${it.thumb}" alt="">` : `<span style="color:#94a3b8">${T('미리보기 없음')}</span>`}
         </div>
         <div class="meta">
