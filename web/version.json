@@ -1,7 +1,7 @@
 {
-  "version": "0.10.1",
+  "version": "0.10.2",
   "releaseDate": "2026-09-06",
-  "win": "https://github.com/wasabia137/sshotpin/releases/latest/download/Sshot-Pin-Setup-0.10.1.exe",
-  "macArm": "https://github.com/wasabia137/sshotpin/releases/latest/download/Sshot-Pin-0.10.1-mac-arm64.dmg",
-  "macX64": "https://github.com/wasabia137/sshotpin/releases/latest/download/Sshot-Pin-0.10.1-mac-x64.dmg"
+  "win": "https://github.com/wasabia137/sshotpin/releases/latest/download/Sshot-Pin-Setup-0.10.2.exe",
+  "macArm": "https://github.com/wasabia137/sshotpin/releases/latest/download/Sshot-Pin-0.10.2-mac-arm64.dmg",
+  "macX64": "https://github.com/wasabia137/sshotpin/releases/latest/download/Sshot-Pin-0.10.2-mac-x64.dmg"
 }
