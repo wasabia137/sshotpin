@@ -66,8 +66,12 @@ function launchedAtLogin() {
     if (isMac && app.getLoginItemSettings().wasOpenedAtLogin) return true;
   } catch (e) { /* 아래 방법으로 판단 */ }
   if (process.argv.includes(AUTOSTART_ARG)) return true;
-  // 예전 버전에서 등록한 자동 실행에는 표시가 없다 — 부팅 직후면 자동 실행으로 본다
-  try { return os.uptime() < 150; } catch (e) { return false; }
+  // 예전 버전에서 등록한 자동 실행에는 위 표시가 없다. 자동 실행이 켜져 있는데
+  // 부팅한 지 얼마 안 됐다면 자동 실행으로 본다. (자동 실행이 꺼져 있다면
+  // 부팅 직후라도 사용자가 직접 켠 것이므로 안내를 미루지 않는다)
+  try {
+    return app.getLoginItemSettings().openAtLogin && os.uptime() < 150;
+  } catch (e) { return false; }
 }
 
 // macOS 26에서 화면 캡처 목록을 관리하는 스레드가 스스로 죽는 일이 있었다
