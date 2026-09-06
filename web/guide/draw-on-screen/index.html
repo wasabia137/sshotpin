@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>화면 위에 바로 그리며 설명하기</title>
+<meta name="description" content="웹페이지든 엑셀이든 화면 위에 바로 그리는 판서 방법입니다. 직선·사각형·화살표·순서 번호 단축키, 칠판 모드와 레이저 포인터, 모자이크로 가리는 법까지 담았습니다.">
+<meta name="keywords" content="판서 프로그램, 화면에 그리기, 화면 판서, 전자칠판, 수업 판서, 화면 위에 필기, 발표 표시 도구">
+<meta name="author" content="스샷핀(Sshot-Pin)">
+<link rel="canonical" href="https://sshot-pin.web.app/guide/draw-on-screen/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="스샷핀(Sshot-Pin)">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:url" content="https://sshot-pin.web.app/guide/draw-on-screen/">
+<meta property="og:title" content="화면 위에 바로 그리며 설명하기">
+<meta property="og:description" content="웹페이지든 엑셀이든 화면 위에 바로 그리는 판서 방법입니다. 직선·사각형·화살표·순서 번호 단축키, 칠판 모드와 레이저 포인터, 모자이크로 가리는 법까지 담았습니다.">
+<meta property="og:image" content="https://sshot-pin.web.app/og.png">
+<meta name="robots" content="index, follow">
+<link rel="icon" type="image/png" href="https://sshot-pin.web.app/icon.png">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9XBNQ9KQQQ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-9XBNQ9KQQQ');
+</script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --muted: #64748b;
+    --line: #e2e8f0; --blue: #2563eb; --chip: #f1f5f9;
+    --key-top: #ffffff; --key-bot: #eef2f7; --key-line: #cbd5e1;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --muted: #94a3b8;
+      --line: #334155; --blue: #3b82f6; --chip: #334155;
+      --key-top: #3b4a61; --key-bot: #27354a; --key-line: #475569;
+    }
+  }
+  body {
+    font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', -apple-system, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 0 20px; }
+  .topbar { border-bottom: 1px solid var(--line); padding: 14px 0; margin-bottom: 30px; }
+  .topbar .wrap { display: flex; align-items: center; gap: 10px; }
+  .topbar img { width: 26px; height: 26px; }
+  .topbar a { color: var(--text); text-decoration: none; font-weight: 700; }
+  .topbar .sp { margin-left: auto; }
+  .topbar .sp a { color: var(--blue); font-weight: 600; font-size: 14px; }
+  .crumb { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+  .crumb a { color: var(--muted); }
+  h1 { font-size: 30px; line-height: 1.35; letter-spacing: -.02em; margin-bottom: 12px; }
+  .lead { color: var(--muted); font-size: 16px; margin-bottom: 8px; }
+  .meta { color: var(--muted); font-size: 13px; margin-bottom: 34px; }
+  h2 { font-size: 20px; margin: 38px 0 12px; padding-left: 11px; border-left: 4px solid var(--blue); }
+  h3 { font-size: 16px; margin: 24px 0 6px; }
+  p { margin-bottom: 14px; }
+  ul, ol { margin: 0 0 16px 20px; }
+  li { margin-bottom: 6px; }
+  a { color: var(--blue); }
+  table { width: 100%; border-collapse: collapse; font-size: 14.5px; margin-bottom: 18px;
+          background: var(--card); border-radius: 10px; overflow: hidden; }
+  th, td { padding: 9px 13px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { background: var(--chip); color: var(--muted); font-weight: 600; white-space: nowrap; }
+  tr:last-child td { border-bottom: 0; }
+  kbd {
+    display: inline-block; padding: 1px 7px; margin: 0 1px; font-size: 12.5px;
+    background: linear-gradient(180deg, var(--key-top), var(--key-bot));
+    border: 1px solid var(--key-line); border-bottom-width: 2px; border-radius: 5px;
+  }
+  .note { background: var(--chip); border-radius: 10px; padding: 13px 16px; margin-bottom: 18px; font-size: 14.5px; }
+  .cta { background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+         padding: 22px; margin: 40px 0 10px; }
+  .cta h3 { margin-top: 0; font-size: 17px; }
+  .cta p { font-size: 14.5px; color: var(--muted); margin-bottom: 14px; }
+  .cta a.btn { display: inline-block; background: var(--blue); color: #fff; text-decoration: none;
+               font-weight: 700; padding: 10px 20px; border-radius: 999px; font-size: 15px; }
+  .more { margin: 34px 0 0; }
+  .more h2 { margin-top: 0; }
+  .more ul { list-style: none; margin-left: 0; }
+  .more li { margin-bottom: 9px; }
+  .more .d { color: var(--muted); font-size: 13.5px; }
+  footer { border-top: 1px solid var(--line); margin-top: 46px; padding: 22px 0 40px;
+           color: var(--muted); font-size: 13px; text-align: center; }
+</style>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"화면 위에 바로 그리며 설명하기","description":"웹페이지든 엑셀이든 화면 위에 바로 그리는 판서 방법입니다. 직선·사각형·화살표·순서 번호 단축키, 칠판 모드와 레이저 포인터, 모자이크로 가리는 법까지 담았습니다.","inLanguage":"ko","datePublished":"2026-09-06","dateModified":"2026-09-06","author":{"@type":"Organization","name":"스샷핀(Sshot-Pin)","url":"https://sshot-pin.web.app/"},"publisher":{"@type":"Organization","name":"스샷핀(Sshot-Pin)","url":"https://sshot-pin.web.app/"},"mainEntityOfPage":"https://sshot-pin.web.app/guide/draw-on-screen/","image":"https://sshot-pin.web.app/og.png"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"스샷핀","item":"https://sshot-pin.web.app/"},{"@type":"ListItem","position":2,"name":"가이드","item":"https://sshot-pin.web.app/guide/"},{"@type":"ListItem","position":3,"name":"화면 위에 바로 그리며 설명하기","item":"https://sshot-pin.web.app/guide/draw-on-screen/"}]}</script>
+</head>
+<body>
+<div class="topbar">
+  <div class="wrap">
+    <img src="https://sshot-pin.web.app/icon.png" alt="">
+    <a href="https://sshot-pin.web.app/">스샷핀 Sshot-Pin</a>
+    <span class="sp"><a href="https://sshot-pin.web.app/">내려받기 →</a></span>
+  </div>
+</div>
+<div class="wrap">
+  <div class="crumb"><a href="https://sshot-pin.web.app/">스샷핀</a> › <a href="https://sshot-pin.web.app/guide/">가이드</a></div>
+  <h1>화면 위에 바로 그리며 설명하기</h1>
+  <p class="lead">지금 보이는 화면이 무엇이든 그 위에 동그라미와 화살표를 얹을 수 있어요.</p>
+  <div class="meta">2026-09-06 작성</div>
+  <p>파워포인트에도 발표 중에 화면에 그리는 펜이 있어요. 슬라이드를 벗어나는 순간 못 쓴다는 게 문제죠.<br>
+웹페이지를 띄우거나 엑셀 표를 열면 그 펜은 사라져요. ✏️</p>
+
+<h2>화면 위에 그린다는 게 무슨 뜻이냐면</h2>
+
+<p>프로그램마다 표시하는 방법을 따로 찾아야 한다면 수업 중에는 못 써요. 학생을 앞에 두고 메뉴를 뒤질 수는 없으니까요.</p>
+
+<p>화면 위에 그리는 도구는 <u>지금 보이는 화면이 무엇이든</u> 그 위에 유리판을 한 장 덮고 거기에 그리는 방식이에요. 아래에 뭐가 있든 상관없어요.</p>
+
+<h2><kbd>Ctrl</kbd>+<kbd>2</kbd>를 누르면 바로 그릴 수 있어요</h2>
+
+<p>누르는 순간 화면이 사진처럼 굳고, 그 위에 마우스로 그리면 돼요. 아래 프로그램은 건드려지지 않으니 실수로 뭘 누를 걱정이 없고요.</p>
+
+<table>
+  <tr><th>드래그</th><td>펜으로 그려요</td></tr>
+  <tr><th><kbd>Shift</kbd>+드래그</th><td>곧은 직선을 그어요</td></tr>
+  <tr><th><kbd>Ctrl</kbd>+드래그</th><td>사각형으로 감싸요</td></tr>
+  <tr><th><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+드래그</th><td>화살표를 그려요</td></tr>
+  <tr><th><kbd>Tab</kbd>+드래그</th><td>동그라미를 그려요</td></tr>
+  <tr><th><kbd>Alt</kbd>+클릭</th><td>①②③ 순서 번호를 찍어요</td></tr>
+</table>
+
+<p>색은 <kbd>R</kbd> 빨강, <kbd>G</kbd> 초록, <kbd>B</kbd> 파랑, <kbd>O</kbd> 주황, <kbd>Y</kbd> 노랑, <kbd>P</kbd> 분홍이에요. 영어 앞 글자라 외우기 쉬워요.<br>
+굵기는 <kbd>Ctrl</kbd>+휠로 바꾸고요.</p>
+
+<h3>①②③으로 순서를 찍어둘 수 있어요</h3>
+
+<p><kbd>Alt</kbd>+클릭으로 찍는 ①②③ 말이에요. 누를 때마다 번호가 하나씩 올라가요.<br>
+"먼저 여기, 그다음 여기, 마지막으로 여기" 하면서 세 군데를 찍어두면 말로 길게 설명할 걸 한 번에 보여줄 수 있어요. 절차를 알려줄 때 특히 편해요. 👍</p>
+
+<h2>지우고 다시 그리는 게 편해야 해요</h2>
+
+<table>
+  <tr><th>우클릭 · <kbd>Ctrl</kbd>+<kbd>Z</kbd></th><td>방금 그은 한 획만 지워요</td></tr>
+  <tr><th><kbd>E</kbd></th><td>그린 걸 전부 지워요</td></tr>
+  <tr><th><kbd>Esc</kbd></th><td>판서를 끝내고 원래 화면으로 돌아가요</td></tr>
+</table>
+
+<p>설명하다 보면 선이 엉키기 마련이라 <kbd>E</kbd>를 자주 쓰게 돼요. 한 번 누르면 깨끗해지니까 부담 없이 그으셔도 돼요.</p>
+
+<h2>칠판 모드와 레이저 포인터도 있어요</h2>
+
+<p><kbd>W</kbd>를 누르면 화면이 하얗게, <kbd>K</kbd>를 누르면 까맣게 덮여요. 아래 화면이 안 보이니까 잠깐 칠판처럼 쓸 수 있어요.<br>
+설명하다가 갑자기 그림을 그려가며 이야기해야 할 때 요긴하답니다.</p>
+
+<p><kbd>L</kbd>은 레이저 포인터예요. 그으면 빨간 선이 남았다가 잠시 뒤 저절로 사라져요.<br>
+지울 필요가 없어서 "여기, 여기, 여기" 하고 훑을 때 써요. 지나간 자리가 남지 않으니 화면이 안 지저분해져요. 🔴</p>
+
+<h2>가려야 할 것이 화면에 있을 때</h2>
+
+<p><kbd>M</kbd>을 누르고 드래그하면 그 부분이 모자이크로 덮여요. 학생 이름이나 계좌번호가 화면에 있을 때 그 자리에서 바로 가릴 수 있어요.<br>
+화면 공유를 켜둔 채로도 되니까, 미리 편집해둘 필요가 없어요.</p>
+
+<div class="note">칠판 모드에서는 모자이크가 단색으로 덮여요. 흰 화면이나 검은 화면에는 가릴 그림 자체가 없으니까요.</div>
+
+<h2>그린 걸 남기고 싶으면</h2>
+
+<p>다 그린 다음에 <kbd>Ctrl</kbd>+<kbd>S</kbd>를 누르면 파일로 저장되고, <kbd>Ctrl</kbd>+<kbd>C</kbd>면 복사돼요.<br>
+<kbd>Enter</kbd>를 누르면 지금 화면이 핀이 되어 화면에 붙어요. 방금 설명한 걸 옆에 띄워두고 다음 이야기로 넘어갈 수 있는 거죠.</p>
+
+<h3>덧붙이자면</h3>
+
+<p>판서 중에 아래 화면이 바뀌어도 스샷핀은 처음 찍은 그림을 계속 보여줘요. 다음 장으로 넘겼다면 <kbd>F5</kbd>를 눌러 주세요.<br>
+그려둔 것은 그대로 두고 배경만 새 화면으로 바뀌어요.</p>
+  <div class="cta">
+  <h3>스샷핀으로 해보기</h3>
+  <p>캡처를 화면 맨 위에 고정해두고, 확대하고, 그 위에 바로 그립니다. 윈도우·맥 무료.</p>
+  <a class="btn" href="https://sshot-pin.web.app/">내려받기</a>
+</div>
+  <div class="more">
+    <h2>이어서 읽기</h2>
+    <ul>
+      <li><a href="https://sshot-pin.web.app/guide/capture-shortcuts/">윈도우·맥 화면 캡처 단축키, 이것만 알면 돼요</a><br>
+          <span class="d">PrtSc, Alt+PrtSc, Win+Shift+S부터 맥의 Cmd+Shift+3·4·5까지 화면 캡처 단축키를 모았습니다. PrtSc가 안 눌릴 때 볼 것과, 기본 키만으로는 안 되는 네 가지도 함께 정리했습니다.</span></li>
+      <li><a href="https://sshot-pin.web.app/guide/pin-screenshot-on-top/">스크린샷을 화면 맨 위에 붙여두는 법</a><br>
+          <span class="d">참고할 자료를 스크린샷으로 찍어 화면 맨 위에 띄워두는 방법입니다. 윈도우에 이 기능이 없는 이유와, 붙여둔 뒤 크기·투명도·클릭 통과를 다루는 법까지 담았습니다.</span></li>
+      <li><a href="https://sshot-pin.web.app/guide/zoom-screen/">발표와 수업에서 화면 확대하기</a><br>
+          <span class="d">윈도우 돋보기와 무엇이 다른지, 마우스 자리를 중심으로 40배까지 확대하는 법, 확대한 채로 그리고 화면만 새로 바꾸는 F5까지. ZoomIt을 쓰시던 분을 위한 비교도 담았습니다.</span></li>
+    </ul>
+  </div>
+</div>
+<footer>
+  <div class="wrap">
+    화면 캡처 · 고정 · 확대 · 판서 · 가리개 · 모자이크 · 타이머<br>
+    <a href="https://sshot-pin.web.app/">스샷핀 홈</a> ·
+    <a href="https://sshot-pin.web.app/guide/">가이드</a> ·
+    <a href="https://sshot-pin.web.app/privacy.html">개인정보처리방침</a> ·
+    <a href="https://github.com/wasabia137/sshotpin" rel="noopener">GitHub</a>
+  </div>
+</footer>
+</body>
+</html>

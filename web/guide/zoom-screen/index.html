@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>발표와 수업에서 화면 확대하기</title>
+<meta name="description" content="윈도우 돋보기와 무엇이 다른지, 마우스 자리를 중심으로 40배까지 확대하는 법, 확대한 채로 그리고 화면만 새로 바꾸는 F5까지. ZoomIt을 쓰시던 분을 위한 비교도 담았습니다.">
+<meta name="keywords" content="화면 확대 프로그램, 화면 돋보기, ZoomIt 대안, 줌잇, 발표 화면 확대, 수업 화면 확대, 프레젠테이션 도구">
+<meta name="author" content="스샷핀(Sshot-Pin)">
+<link rel="canonical" href="https://sshot-pin.web.app/guide/zoom-screen/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="스샷핀(Sshot-Pin)">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:url" content="https://sshot-pin.web.app/guide/zoom-screen/">
+<meta property="og:title" content="발표와 수업에서 화면 확대하기">
+<meta property="og:description" content="윈도우 돋보기와 무엇이 다른지, 마우스 자리를 중심으로 40배까지 확대하는 법, 확대한 채로 그리고 화면만 새로 바꾸는 F5까지. ZoomIt을 쓰시던 분을 위한 비교도 담았습니다.">
+<meta property="og:image" content="https://sshot-pin.web.app/og.png">
+<meta name="robots" content="index, follow">
+<link rel="icon" type="image/png" href="https://sshot-pin.web.app/icon.png">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9XBNQ9KQQQ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-9XBNQ9KQQQ');
+</script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --muted: #64748b;
+    --line: #e2e8f0; --blue: #2563eb; --chip: #f1f5f9;
+    --key-top: #ffffff; --key-bot: #eef2f7; --key-line: #cbd5e1;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --muted: #94a3b8;
+      --line: #334155; --blue: #3b82f6; --chip: #334155;
+      --key-top: #3b4a61; --key-bot: #27354a; --key-line: #475569;
+    }
+  }
+  body {
+    font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', -apple-system, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 0 20px; }
+  .topbar { border-bottom: 1px solid var(--line); padding: 14px 0; margin-bottom: 30px; }
+  .topbar .wrap { display: flex; align-items: center; gap: 10px; }
+  .topbar img { width: 26px; height: 26px; }
+  .topbar a { color: var(--text); text-decoration: none; font-weight: 700; }
+  .topbar .sp { margin-left: auto; }
+  .topbar .sp a { color: var(--blue); font-weight: 600; font-size: 14px; }
+  .crumb { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+  .crumb a { color: var(--muted); }
+  h1 { font-size: 30px; line-height: 1.35; letter-spacing: -.02em; margin-bottom: 12px; }
+  .lead { color: var(--muted); font-size: 16px; margin-bottom: 8px; }
+  .meta { color: var(--muted); font-size: 13px; margin-bottom: 34px; }
+  h2 { font-size: 20px; margin: 38px 0 12px; padding-left: 11px; border-left: 4px solid var(--blue); }
+  h3 { font-size: 16px; margin: 24px 0 6px; }
+  p { margin-bottom: 14px; }
+  ul, ol { margin: 0 0 16px 20px; }
+  li { margin-bottom: 6px; }
+  a { color: var(--blue); }
+  table { width: 100%; border-collapse: collapse; font-size: 14.5px; margin-bottom: 18px;
+          background: var(--card); border-radius: 10px; overflow: hidden; }
+  th, td { padding: 9px 13px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { background: var(--chip); color: var(--muted); font-weight: 600; white-space: nowrap; }
+  tr:last-child td { border-bottom: 0; }
+  kbd {
+    display: inline-block; padding: 1px 7px; margin: 0 1px; font-size: 12.5px;
+    background: linear-gradient(180deg, var(--key-top), var(--key-bot));
+    border: 1px solid var(--key-line); border-bottom-width: 2px; border-radius: 5px;
+  }
+  .note { background: var(--chip); border-radius: 10px; padding: 13px 16px; margin-bottom: 18px; font-size: 14.5px; }
+  .cta { background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+         padding: 22px; margin: 40px 0 10px; }
+  .cta h3 { margin-top: 0; font-size: 17px; }
+  .cta p { font-size: 14.5px; color: var(--muted); margin-bottom: 14px; }
+  .cta a.btn { display: inline-block; background: var(--blue); color: #fff; text-decoration: none;
+               font-weight: 700; padding: 10px 20px; border-radius: 999px; font-size: 15px; }
+  .more { margin: 34px 0 0; }
+  .more h2 { margin-top: 0; }
+  .more ul { list-style: none; margin-left: 0; }
+  .more li { margin-bottom: 9px; }
+  .more .d { color: var(--muted); font-size: 13.5px; }
+  footer { border-top: 1px solid var(--line); margin-top: 46px; padding: 22px 0 40px;
+           color: var(--muted); font-size: 13px; text-align: center; }
+</style>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"발표와 수업에서 화면 확대하기","description":"윈도우 돋보기와 무엇이 다른지, 마우스 자리를 중심으로 40배까지 확대하는 법, 확대한 채로 그리고 화면만 새로 바꾸는 F5까지. ZoomIt을 쓰시던 분을 위한 비교도 담았습니다.","inLanguage":"ko","datePublished":"2026-09-06","dateModified":"2026-09-06","author":{"@type":"Organization","name":"스샷핀(Sshot-Pin)","url":"https://sshot-pin.web.app/"},"publisher":{"@type":"Organization","name":"스샷핀(Sshot-Pin)","url":"https://sshot-pin.web.app/"},"mainEntityOfPage":"https://sshot-pin.web.app/guide/zoom-screen/","image":"https://sshot-pin.web.app/og.png"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"스샷핀","item":"https://sshot-pin.web.app/"},{"@type":"ListItem","position":2,"name":"가이드","item":"https://sshot-pin.web.app/guide/"},{"@type":"ListItem","position":3,"name":"발표와 수업에서 화면 확대하기","item":"https://sshot-pin.web.app/guide/zoom-screen/"}]}</script>
+</head>
+<body>
+<div class="topbar">
+  <div class="wrap">
+    <img src="https://sshot-pin.web.app/icon.png" alt="">
+    <a href="https://sshot-pin.web.app/">스샷핀 Sshot-Pin</a>
+    <span class="sp"><a href="https://sshot-pin.web.app/">내려받기 →</a></span>
+  </div>
+</div>
+<div class="wrap">
+  <div class="crumb"><a href="https://sshot-pin.web.app/">스샷핀</a> › <a href="https://sshot-pin.web.app/guide/">가이드</a></div>
+  <h1>발표와 수업에서 화면 확대하기</h1>
+  <p class="lead">뒷자리에서 안 보이는 작은 글씨를, 보고 있는 자리를 중심으로 크게 키워요.</p>
+  <div class="meta">2026-09-06 작성</div>
+  <p>교실 맨 앞자리와 맨 뒷자리는 화면까지 거리가 두 배 넘게 차이 나요.<br>
+앞에서 또렷한 그래프 눈금이 뒤에서는 뭉개져 보이는 게 그래서고요. 🔍</p>
+
+<h2>돋보기와 확대는 다른 일이에요</h2>
+
+<p>윈도우에도 돋보기가 있어요. <kbd>Win</kbd>+<kbd>+</kbd>를 누르면 켜지고요.<br>
+그런데 이건 화면을 통째로 키우는 거라 발표용으로는 좀 불편해요. 마우스를 조금만 움직여도 화면이 확 쓸려 다니고, 어디를 보고 있는지 듣는 사람이 놓치기 쉬워요.</p>
+
+<p>발표에서 필요한 건 <u>보고 있는 지점을 중심으로 부드럽게 커지고, 손을 떼면 그대로 멈춰 있는</u> 확대예요.</p>
+
+<h2>스샷핀은 마우스 자리를 중심으로 커져요</h2>
+
+<p><kbd>Ctrl</kbd>+<kbd>1</kbd>을 누르면 지금 마우스가 있는 곳을 가운데에 두고 2배로 미끄러지듯 커져요.<br>
+화면을 새로 찍어서 보여주는 방식이라, 확대해놓고 마우스를 움직여도 아래 프로그램이 반응하지 않아요. 발표 중에 실수로 뭘 누를 걱정이 없어요.</p>
+
+<table>
+  <tr><th>휠 · <kbd>↑</kbd><kbd>↓</kbd> · <kbd>+</kbd><kbd>−</kbd></th><td>배율을 바꿔요. 8배까지 커져요</td></tr>
+  <tr><th><kbd>Ctrl</kbd>+휠</th><td>8배를 넘어 <b>40배</b>까지 파고들어요</td></tr>
+  <tr><th>마우스 이동</th><td>보고 싶은 쪽으로 화면이 따라와요</td></tr>
+  <tr><th>드래그</th><td>확대한 채로 그 위에 그려요</td></tr>
+  <tr><th><kbd>F5</kbd></th><td>화면을 다시 찍어요. 배율과 그린 것은 그대로 두고 배경만 새로 바꿔요</td></tr>
+  <tr><th><kbd>Esc</kbd> · 우클릭</th><td>원래 화면으로 돌아가요</td></tr>
+</table>
+
+<p>40배는 생각보다 자주 써요. 그래프 눈금이나 각주 글씨처럼 8배로는 모자란 것들이 있거든요.<br>
+확대 모드에는 도구모음이 없어서 지금 몇 배인지 알기 어려운데, 배율을 바꾸는 동안 오른쪽 위에 숫자가 잠깐 떠요.</p>
+
+<h3>화면이 바뀌었으면 F5를 누르세요</h3>
+
+<p>확대한 상태에서 아래 화면이 바뀌어도 스샷핀은 처음 찍은 그림을 계속 보여줘요. 사진이니까요.<br>
+다음 장으로 넘긴 뒤에 <kbd>F5</kbd>를 누르면 배율과 그려둔 것은 그대로 둔 채 배경만 새 화면으로 바뀌어요. 확대를 껐다 켜지 않아도 돼요. 👌</p>
+
+<h2>ZoomIt을 쓰시던 분이라면</h2>
+
+<p>마이크로소프트 ZoomIt과 쓰임새가 비슷해요. 단축키도 <kbd>Ctrl</kbd>+<kbd>1</kbd>로 같게 맞춰뒀어요. 쓰시던 손버릇 그대로 쓰시면 돼요.</p>
+
+<p>다른 것도 있어요. ZoomIt은 8배가 끝인데 여기는 40배까지 들어가요.<br>
+확대한 화면을 <kbd>Enter</kbd>로 눌러 그대로 핀으로 붙여둘 수 있고요.<br>
+그리고 화면 전체가 한국어를 비롯한 아홉 개 언어로 나와요.</p>
+
+<div class="note">확대 중에 <kbd>Ctrl</kbd>+<kbd>C</kbd>를 누르면 지금 보이는 화면이 복사되고, <kbd>Ctrl</kbd>+<kbd>S</kbd>를 누르면 파일로 저장돼요. 확대해서 잘 보이는 상태 그대로 남길 수 있어요.</div>
+
+<h2>수업에서는 이렇게 써요</h2>
+
+<p>교과서 지문의 한 문단만 크게 띄워놓고 같이 읽거나, 지도의 작은 지명을 확대해서 짚어주는 식으로 써요.<br>
+확대한 채로 드래그하면 바로 밑줄이 그어지니까 "여기요"라고 말하면서 동그라미를 칠 수 있고요. ✏️</p>
+
+<p>다 보여준 다음에는 <kbd>Esc</kbd> 한 번이면 원래 화면으로 돌아와요. 우클릭을 하면 배율이 서서히 줄면서 닫혀서, 화면이 갑자기 튀지 않아요.</p>
+  <div class="cta">
+  <h3>스샷핀으로 해보기</h3>
+  <p>캡처를 화면 맨 위에 고정해두고, 확대하고, 그 위에 바로 그립니다. 윈도우·맥 무료.</p>
+  <a class="btn" href="https://sshot-pin.web.app/">내려받기</a>
+</div>
+  <div class="more">
+    <h2>이어서 읽기</h2>
+    <ul>
+      <li><a href="https://sshot-pin.web.app/guide/capture-shortcuts/">윈도우·맥 화면 캡처 단축키, 이것만 알면 돼요</a><br>
+          <span class="d">PrtSc, Alt+PrtSc, Win+Shift+S부터 맥의 Cmd+Shift+3·4·5까지 화면 캡처 단축키를 모았습니다. PrtSc가 안 눌릴 때 볼 것과, 기본 키만으로는 안 되는 네 가지도 함께 정리했습니다.</span></li>
+      <li><a href="https://sshot-pin.web.app/guide/pin-screenshot-on-top/">스크린샷을 화면 맨 위에 붙여두는 법</a><br>
+          <span class="d">참고할 자료를 스크린샷으로 찍어 화면 맨 위에 띄워두는 방법입니다. 윈도우에 이 기능이 없는 이유와, 붙여둔 뒤 크기·투명도·클릭 통과를 다루는 법까지 담았습니다.</span></li>
+      <li><a href="https://sshot-pin.web.app/guide/draw-on-screen/">화면 위에 바로 그리며 설명하기</a><br>
+          <span class="d">웹페이지든 엑셀이든 화면 위에 바로 그리는 판서 방법입니다. 직선·사각형·화살표·순서 번호 단축키, 칠판 모드와 레이저 포인터, 모자이크로 가리는 법까지 담았습니다.</span></li>
+    </ul>
+  </div>
+</div>
+<footer>
+  <div class="wrap">
+    화면 캡처 · 고정 · 확대 · 판서 · 가리개 · 모자이크 · 타이머<br>
+    <a href="https://sshot-pin.web.app/">스샷핀 홈</a> ·
+    <a href="https://sshot-pin.web.app/guide/">가이드</a> ·
+    <a href="https://sshot-pin.web.app/privacy.html">개인정보처리방침</a> ·
+    <a href="https://github.com/wasabia137/sshotpin" rel="noopener">GitHub</a>
+  </div>
+</footer>
+</body>
+</html>
