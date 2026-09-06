@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>내려받는 중 — 스샷핀(Sshot-Pin)</title>
+<meta name="description" content="스샷핀 설치파일을 내려받습니다. 설치할 때 뜨는 경고를 없애는 법과 첫 실행 단축키를 함께 안내합니다.">
+<!-- 목적지가 아니라 거쳐 가는 자리다. 색인되면 알맹이 없는 페이지가 하나 늘 뿐이라 뺀다.
+     follow 는 남겨 이 페이지의 링크는 따라가게 한다. -->
+<meta name="robots" content="noindex, follow">
+<link rel="canonical" href="https://sshot-pin.web.app/download.html">
+<link rel="icon" type="image/png" href="/icon.png">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #f8fafc; --card: #fff; --text: #1e293b; --muted: #64748b;
+    --line: #e2e8f0; --blue: #2563eb; --chip: #f1f5f9;
+    --key-top: #fff; --key-bot: #eef2f7; --key-line: #cbd5e1;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --muted: #94a3b8;
+      --line: #334155; --blue: #3b82f6; --chip: #334155;
+      --key-top: #3b4a61; --key-bot: #27354a; --key-line: #475569;
+    }
+  }
+  body {
+    font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', -apple-system, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 680px; margin: 0 auto; padding: 0 20px; }
+  .topbar { border-bottom: 1px solid var(--line); padding: 14px 0; }
+  .topbar .wrap { display: flex; align-items: center; gap: 10px; }
+  .topbar img { width: 26px; height: 26px; }
+  .topbar a { color: var(--text); text-decoration: none; font-weight: 700; }
+
+  .hero { text-align: center; padding: 44px 0 8px; }
+  h1 { font-size: 26px; letter-spacing: -.02em; margin-bottom: 10px; }
+  .file {
+    display: inline-block; background: var(--chip); border-radius: 10px;
+    padding: 8px 16px; font-size: 14px; color: var(--muted); margin-bottom: 22px;
+  }
+  .file b { color: var(--text); }
+  #count {
+    font-size: 15px; color: var(--muted); min-height: 30px;
+  }
+  #count b { color: var(--blue); font-size: 22px; }
+  .go {
+    display: none; margin-top: 6px;
+  }
+  .go a {
+    display: inline-block; background: var(--blue); color: #fff; text-decoration: none;
+    font-weight: 700; padding: 12px 26px; border-radius: 999px; font-size: 16px;
+  }
+  .go small { display: block; color: var(--muted); margin-top: 10px; font-size: 13px; }
+
+  /* 광고 자리 — 다운로드 버튼과 확실히 떨어뜨린다. 버튼처럼 보이게 두면
+     잘못 누르게 되고, 그건 애드센스가 계정을 정지시키는 대표 사유다. */
+  .adwrap { margin: 40px 0; padding-top: 26px; border-top: 1px solid var(--line); }
+  .adlabel { font-size: 12px; color: var(--muted); text-align: center; margin-bottom: 8px; }
+  .adbox {
+    min-height: 100px; display: flex; align-items: center; justify-content: center;
+    background: var(--chip); border-radius: 10px; color: var(--muted); font-size: 13px;
+  }
+
+  h2 { font-size: 18px; margin: 34px 0 10px; padding-left: 11px; border-left: 4px solid var(--blue); }
+  p { margin-bottom: 12px; }
+  ol { margin: 0 0 16px 22px; }
+  li { margin-bottom: 8px; }
+  a { color: var(--blue); }
+  kbd {
+    display: inline-block; padding: 1px 7px; margin: 0 1px; font-size: 12.5px;
+    background: linear-gradient(180deg, var(--key-top), var(--key-bot));
+    border: 1px solid var(--key-line); border-bottom-width: 2px; border-radius: 5px;
+  }
+  .note { background: var(--chip); border-radius: 10px; padding: 13px 16px; margin-bottom: 16px; font-size: 14.5px; }
+  footer { border-top: 1px solid var(--line); margin-top: 44px; padding: 22px 0 40px;
+           color: var(--muted); font-size: 13px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="wrap">
+    <img src="/icon.png" alt="">
+    <a href="/">스샷핀 Sshot-Pin</a>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="hero">
+    <h1 id="h1">내려받기를 준비하고 있어요</h1>
+    <div class="file" id="file">파일을 확인하는 중…</div>
+    <div id="count"></div>
+    <div class="go" id="go">
+      <a id="link" href="#" rel="noopener">직접 내려받기</a>
+      <small id="gonote">시작되지 않으면 위 버튼을 눌러 주세요.</small>
+    </div>
+  </div>
+
+  <div class="adwrap">
+    <div class="adlabel" id="adlabel">광고</div>
+    <div class="adbox" id="adbox">광고 자리</div>
+  </div>
+
+  <div id="guide-ko">
+    <h2>설치할 때 경고가 뜨면</h2>
+    <p><b>윈도우</b> — 스샷핀은 유료 코드 서명 인증서를 붙이지 않아서 "Windows의 PC 보호"라는 파란 창이 뜰 수 있어요. 내려받은 파일에 이것만 해두면 안 떠요.</p>
+    <ol>
+      <li>내려받은 <code>Sshot-Pin-Setup.exe</code>를 <b>우클릭 → 속성</b></li>
+      <li>아래쪽 <b>"차단 해제"에 체크</b>하고 확인</li>
+      <li>두 번 클릭해서 설치</li>
+    </ol>
+    <p>이미 경고가 떴다면 <b>추가 정보 → 실행</b>을 누르면 돼요.</p>
+    <p><b>맥</b> — 애플 공증까지 마쳐서 경고 없이 열려요. 다만 응용 프로그램 폴더로 옮겨두시는 게 좋아요. 다른 자리에서 실행하면 맥이 앱을 임시 폴더로 옮겨 화면 기록 권한이 매번 초기화되거든요.</p>
+
+    <h2>설치하면 이렇게 시작해요</h2>
+    <p>스샷핀은 창으로 뜨지 않고 트레이 아이콘에 머물러요. 설치가 끝나면 사용법 창이 한 번 열리고, 그다음부터는 단축키로 씁니다.</p>
+    <div class="note">
+      윈도우 — <kbd>Ctrl</kbd>+<kbd>F1</kbd> 영역 캡처 · <kbd>Ctrl</kbd>+<kbd>1</kbd> 화면 확대 · <kbd>Ctrl</kbd>+<kbd>2</kbd> 판서<br>
+      맥 — <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>1</kbd> 영역 캡처 · <kbd>Ctrl</kbd>+<kbd>1</kbd> 확대 · <kbd>Ctrl</kbd>+<kbd>2</kbd> 판서
+    </div>
+    <p>영역을 고른 뒤 <kbd>Enter</kbd>를 누르면 그 자리에 붙어요. 나머지 기능은 <a href="/guide/">가이드</a>에 정리해 뒀어요.</p>
+  </div>
+
+  <div id="guide-en" style="display:none">
+    <h2>If Windows shows a warning</h2>
+    <p>Sshot-Pin is not signed with a paid code-signing certificate, so Windows may show a "Windows protected your PC" screen. This clears it:</p>
+    <ol>
+      <li>Right-click the downloaded <code>Sshot-Pin-Setup.exe</code> and choose <b>Properties</b></li>
+      <li>Tick <b>Unblock</b> at the bottom, then OK</li>
+      <li>Double-click to install</li>
+    </ol>
+    <p>If the warning already appeared, choose <b>More info → Run anyway</b>.</p>
+    <p><b>macOS</b> — the app is signed and notarized, so it opens without a warning. Move it into the Applications folder: running it from elsewhere makes macOS relaunch it from a temporary path, which resets the screen-recording permission every time.</p>
+
+    <h2>After installing</h2>
+    <p>Sshot-Pin has no main window — it lives in the tray. The help window opens once after installation, then you use the shortcuts.</p>
+    <div class="note">
+      Windows — <kbd>Ctrl</kbd>+<kbd>F1</kbd> capture · <kbd>Ctrl</kbd>+<kbd>1</kbd> zoom · <kbd>Ctrl</kbd>+<kbd>2</kbd> draw<br>
+      macOS — <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>1</kbd> capture · <kbd>Ctrl</kbd>+<kbd>1</kbd> zoom · <kbd>Ctrl</kbd>+<kbd>2</kbd> draw
+    </div>
+    <p>Pick a region and press <kbd>Enter</kbd> to pin it where it is.</p>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <a href="/">스샷핀 홈</a> · <a href="/guide/">가이드</a> · <a href="/privacy.html">개인정보처리방침</a>
+  </div>
+</footer>
+
+<script>
+  // 파일 주소는 version.json 하나만 본다 — 홈과 같은 규칙이다.
+  // 이름을 여기서 조립하면 이름 규칙이 바뀔 때 이 페이지만 404가 된다.
+  var P = new URLSearchParams(location.search);
+  var os = P.get('os') || 'win';
+  var lang = P.get('lang') || (navigator.language || 'ko').slice(0, 2);
+  var EN = lang !== 'ko';
+
+  var T = EN ? {
+    h1: 'Getting your download ready', wait: 'Starting in', sec: 's',
+    go: 'Download now', note: 'If it does not start, use the button above.',
+    started: 'Download started', ad: 'Advertisement', adbox: 'Ad space', fail: 'Could not find the file. '
+  } : {
+    h1: '내려받기를 준비하고 있어요', wait: '', sec: '초 뒤에 시작돼요',
+    go: '직접 내려받기', note: '시작되지 않으면 위 버튼을 눌러 주세요.',
+    started: '내려받기가 시작됐어요', ad: '광고', adbox: '광고 자리', fail: '파일을 찾지 못했어요. '
+  };
+
+  if (EN) {
+    document.documentElement.lang = 'en';
+    document.getElementById('guide-ko').style.display = 'none';
+    document.getElementById('guide-en').style.display = '';
+  }
+  document.getElementById('h1').textContent = T.h1;
+  document.getElementById('link').textContent = T.go;
+  document.getElementById('gonote').textContent = T.note;
+  document.getElementById('adlabel').textContent = T.ad;
+  document.getElementById('adbox').textContent = T.adbox;
+
+  var countEl = document.getElementById('count');
+  var goEl = document.getElementById('go');
+  var linkEl = document.getElementById('link');
+  var fileEl = document.getElementById('file');
+
+  fetch('/version.json', { cache: 'no-store' })
+    .then(function (r) { return r.ok ? r.json() : Promise.reject(); })
+    .then(function (v) {
+      var url = os === 'mac-arm' ? v.macArm : os === 'mac-x64' ? v.macX64 : v.win;
+      if (!url) return Promise.reject();
+      var name = url.split('/').pop();
+      fileEl.innerHTML = '<b>' + name + '</b> · v' + v.version;
+      linkEl.href = url;
+      start(url);
+    })
+    .catch(function () {
+      fileEl.textContent = T.fail;
+      countEl.textContent = '';
+      linkEl.href = 'https://github.com/wasabia137/sshotpin/releases/latest';
+      goEl.style.display = 'block';
+    });
+
+  function start(url) {
+    var n = 5;
+    countEl.innerHTML = EN ? (T.wait + ' <b>' + n + '</b>' + T.sec) : ('<b>' + n + '</b>' + T.sec);
+    var t = setInterval(function () {
+      n -= 1;
+      if (n > 0) {
+        countEl.innerHTML = EN ? (T.wait + ' <b>' + n + '</b>' + T.sec) : ('<b>' + n + '</b>' + T.sec);
+        return;
+      }
+      clearInterval(t);
+      countEl.textContent = T.started;
+      goEl.style.display = 'block';
+      location.href = url;   // 실제 내려받기 시작
+    }, 1000);
+  }
+</script>
+</body>
+</html>

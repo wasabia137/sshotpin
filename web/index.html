@@ -498,14 +498,14 @@
         <h1><span class="l">화면을 찍고,</span> <span class="l grad">붙여두고,</span> <span class="l">그 위에 그린다</span></h1>
         <p class="sub">캡처를 화면 맨 위에 고정해두는 도구. 창을 바꿔도 사라지지 않아요.</p>
     <div class="dl-row">
-      <a class="dl" id="dlBtn" href="https://github.com/wasabia137/sshotpin/releases/latest/download/Sshot-Pin-Setup-0.10.2.exe">
+      <a class="dl" id="dlBtn" href="https://sshot-pin.web.app/download.html?os=win&lang=ko">
         ⬇ 윈도우용 다운로드
       </a>
       <div class="dl-mac-wrap">
         <button class="dl dl-mac" id="dlMacBtn" type="button">⬇ 맥용 다운로드</button>
         <div class="dl-menu" id="dlMacMenu">
-          <a id="dlMacArm" href="https://github.com/wasabia137/sshotpin/releases/latest/download/Sshot-Pin-0.10.2-mac-arm64.dmg">Apple Silicon <small>M1~M4</small></a>
-          <a id="dlMacX64" href="https://github.com/wasabia137/sshotpin/releases/latest/download/Sshot-Pin-0.10.2-mac-x64.dmg">Intel</a>
+          <a id="dlMacArm" href="https://sshot-pin.web.app/download.html?os=mac-arm&lang=ko">Apple Silicon <small>M1~M4</small></a>
+          <a id="dlMacX64" href="https://sshot-pin.web.app/download.html?os=mac-x64&lang=ko">Intel</a>
         </div>
       </div>
     </div>
@@ -733,7 +733,7 @@
 
     <div class="trust">
         <div class="trust-item"><span>🌍</span><span><b>9개 언어</b> 지원</span></div>
-        <div class="trust-item"><span>🆓</span><span>완전 <b>무료</b> · 광고 없음</span></div>
+        <div class="trust-item"><span>🆓</span><span>완전 <b>무료</b></span></div>
         <div class="trust-item"><span>🔓</span><span><b>오픈소스</b></span></div>
         <div class="trust-item"><span>🔄</span><span><b>자동 업데이트</b></span></div>
     </div>
@@ -1343,7 +1343,7 @@
   <section id="support">
     <div class="eyebrow">후원</div>
     <h2>☕ 개발자 응원하기</h2>
-    <p class="lead">스샷핀이 도움이 되었다면 커피 한 잔으로 응원해주세요. 광고 없이 무료로 유지하는 데 큰 힘이 돼요.</p>
+    <p class="lead">스샷핀이 도움이 되었다면 커피 한 잔으로 응원해주세요. 무료로 유지하는 데 큰 힘이 돼요.</p>
     <div style="display:flex;align-items:center;gap:26px;flex-wrap:wrap">
       <img src="kakaopay-qr.png" alt="카카오페이 송금 QR" width="180" height="180" loading="lazy"
            style="border-radius:14px;border:1px solid var(--line);background:#fff;padding:8px">
@@ -1357,7 +1357,7 @@
   <section id="sponsors" hidden>
     <div class="eyebrow">후원</div>
     <h2>후원해주신 분들</h2>
-    <p class="lead">스샷핀을 무료로, 광고 없이 유지하는 데 힘을 보태주셨어요. 고맙습니다.</p>
+    <p class="lead">스샷핀을 무료로 유지하는 데 힘을 보태주셨어요. 고맙습니다.</p>
     <div class="sp-list" id="spList"></div>
   </section>
 
@@ -1407,10 +1407,8 @@
     .then((v) => {
       if (!v.version) return;
       document.getElementById('ver').textContent = 'v' + v.version;
-      const link = (id, url) => { if (url) document.getElementById(id).href = url; };
-      link('dlBtn', v.win);
-      link('dlMacArm', v.macArm);
-      link('dlMacX64', v.macX64);
+      /* 내려받기는 대기 페이지를 거친다. 실제 파일 주소는 그 페이지가 version.json 을
+         다시 읽어 정한다 — 이름 규칙이 바뀌어도 여기를 고칠 일이 없다. */
     })
     .catch(() => { /* 없으면 문서에 적힌 기본 링크를 그대로 쓴다 */ });
 

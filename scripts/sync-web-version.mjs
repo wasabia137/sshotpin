@@ -41,7 +41,7 @@ console.log(`web/version.json 갱신 — v${version}`);
 for (const k of ['win', 'macArm', 'macX64']) console.log(`  ${k}: ${out[k].slice(base.length)}`);
 
 // HTML에 박혀 있는 값도 같이 맞춘다.
-// 다운로드 링크는 version.json을 못 읽었을 때 쓰는 예비값이고, JSON-LD의
+// JSON-LD의
 // softwareVersion·downloadUrl은 검색엔진이 읽는다. 손으로 고치면 9개 언어 중
 // 하나는 반드시 빠지므로 여기서 함께 처리한다.
 const LANGS = ['', 'en', 'ja', 'zh', 'es', 'fr', 'de', 'pt', 'ru'];
@@ -52,9 +52,9 @@ for (const lang of LANGS) {
   let after = before
     .replace(/"softwareVersion": "[^"]*"/, `"softwareVersion": "${version}"`)
     .replace(/"downloadUrl": "[^"]*"/, `"downloadUrl": "${out.win}"`)
-    .replace(/(id="dlBtn" href=")[^"]*/, `$1${out.win}`)
-    .replace(/(id="dlMacArm" href=")[^"]*/, `$1${out.macArm}`)
-    .replace(/(id="dlMacX64" href=")[^"]*/, `$1${out.macX64}`)
+    /* 다운로드 버튼은 이제 대기 페이지(download.html)로 간다. 실제 파일 주소는 그
+       페이지가 version.json 을 읽어 정하므로 여기서 덮어쓰면 안 된다 — 덮어쓰면
+       대기 페이지를 건너뛰고 파일로 바로 가버린다. */
     .replace(/(<span id="ver">)[^<]*/, `$1v${version}`);
   if (after !== before) { writeFileSync(file, after); touched++; }
 }

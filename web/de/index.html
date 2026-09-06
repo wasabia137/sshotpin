@@ -477,14 +477,14 @@
         <h1><span class="l">Aufnehmen,</span> <span class="l grad">vorn anheften,</span> <span class="l">darauf zeichnen</span></h1>
         <p class="sub">Eine Aufnahme, die über allen Fenstern bleibt. App wechseln – sie bleibt sichtbar.</p>
     <div class="dl-row">
-      <a class="dl" id="dlBtn" href="https://github.com/wasabia137/sshotpin/releases/latest/download/Sshot-Pin-Setup-0.10.2.exe">
+      <a class="dl" id="dlBtn" href="https://sshot-pin.web.app/download.html?os=win&lang=de">
         ⬇ Für Windows laden
       </a>
       <div class="dl-mac-wrap">
         <button class="dl dl-mac" id="dlMacBtn" type="button">⬇ Für Mac laden</button>
         <div class="dl-menu" id="dlMacMenu">
-          <a id="dlMacArm" href="https://github.com/wasabia137/sshotpin/releases/latest/download/Sshot-Pin-0.10.2-mac-arm64.dmg">Apple Silicon <small>M1–M4</small></a>
-          <a id="dlMacX64" href="https://github.com/wasabia137/sshotpin/releases/latest/download/Sshot-Pin-0.10.2-mac-x64.dmg">Intel</a>
+          <a id="dlMacArm" href="https://sshot-pin.web.app/download.html?os=mac-arm&lang=de">Apple Silicon <small>M1–M4</small></a>
+          <a id="dlMacX64" href="https://sshot-pin.web.app/download.html?os=mac-x64&lang=de">Intel</a>
         </div>
       </div>
     </div>
@@ -712,7 +712,7 @@
 
     <div class="trust">
         <div class="trust-item"><span>🌍</span><span><b>9 Sprachen</b></span></div>
-        <div class="trust-item"><span>🆓</span><span>Komplett <b>kostenlos</b> · werbefrei</span></div>
+        <div class="trust-item"><span>🆓</span><span>Komplett <b>kostenlos</b></span></div>
         <div class="trust-item"><span>🔓</span><span><b>Open Source</b></span></div>
         <div class="trust-item"><span>🔄</span><span><b>Auto-Update</b></span></div>
     </div>
@@ -1296,14 +1296,14 @@
   <section id="support">
     <div class="eyebrow">UNTERSTÜTZUNG</div>
     <h2>☕ Entwickler unterstützen</h2>
-    <p class="lead">Wenn Sshot-Pin Ihnen hilft, können Sie den Entwickler auf GitHub unterstützen — so bleibt die App kostenlos und werbefrei.</p>
+    <p class="lead">Wenn Sshot-Pin Ihnen hilft, können Sie den Entwickler auf GitHub unterstützen — so bleibt die App kostenlos.</p>
     <a class="dl" style="font-size:15px;padding:12px 24px" href="https://github.com/sponsors/wasabia137" rel="noopener" target="_blank">☕ Auf GitHub unterstützen</a>
   </section>
 
   <section id="sponsors" hidden>
     <div class="eyebrow">UNTERSTÜTZER</div>
     <h2>Unterstützer</h2>
-    <p class="lead">Menschen, die Sshot-Pin kostenlos und werbefrei halten. Danke.</p>
+    <p class="lead">Menschen, die Sshot-Pin kostenlos halten. Danke.</p>
     <div class="sp-list" id="spList"></div>
   </section>
 
@@ -1352,10 +1352,8 @@
     .then((v) => {
       if (!v.version) return;
       document.getElementById('ver').textContent = 'v' + v.version;
-      const link = (id, url) => { if (url) document.getElementById(id).href = url; };
-      link('dlBtn', v.win);
-      link('dlMacArm', v.macArm);
-      link('dlMacX64', v.macX64);
+      /* 내려받기는 대기 페이지를 거친다. 실제 파일 주소는 그 페이지가 version.json 을
+         다시 읽어 정한다 — 이름 규칙이 바뀌어도 여기를 고칠 일이 없다. */
     })
     .catch(() => { /* 없으면 문서에 적힌 기본 링크를 그대로 쓴다 */ });
 

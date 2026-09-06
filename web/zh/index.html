@@ -477,14 +477,14 @@
         <h1><span class="l">截取、</span><span class="l grad">钉在最前面、</span><span class="l">直接标注</span></h1>
         <p class="sub">把截图固定在所有窗口最上层。切换窗口也不会消失。</p>
     <div class="dl-row">
-      <a class="dl" id="dlBtn" href="https://github.com/wasabia137/sshotpin/releases/latest/download/Sshot-Pin-Setup-0.10.2.exe">
+      <a class="dl" id="dlBtn" href="https://sshot-pin.web.app/download.html?os=win&lang=zh">
         ⬇ 下载 Windows 版
       </a>
       <div class="dl-mac-wrap">
         <button class="dl dl-mac" id="dlMacBtn" type="button">⬇ 下载 Mac 版</button>
         <div class="dl-menu" id="dlMacMenu">
-          <a id="dlMacArm" href="https://github.com/wasabia137/sshotpin/releases/latest/download/Sshot-Pin-0.10.2-mac-arm64.dmg">Apple Silicon <small>M1–M4</small></a>
-          <a id="dlMacX64" href="https://github.com/wasabia137/sshotpin/releases/latest/download/Sshot-Pin-0.10.2-mac-x64.dmg">Intel</a>
+          <a id="dlMacArm" href="https://sshot-pin.web.app/download.html?os=mac-arm&lang=zh">Apple Silicon <small>M1–M4</small></a>
+          <a id="dlMacX64" href="https://sshot-pin.web.app/download.html?os=mac-x64&lang=zh">Intel</a>
         </div>
       </div>
     </div>
@@ -712,7 +712,7 @@
 
     <div class="trust">
         <div class="trust-item"><span>🌍</span><span>支持<b>9种语言</b></span></div>
-        <div class="trust-item"><span>🆓</span><span>完全<b>免费</b>·无广告</span></div>
+        <div class="trust-item"><span>🆓</span><span>完全<b>免费</b></span></div>
         <div class="trust-item"><span>🔓</span><span><b>开源</b></span></div>
         <div class="trust-item"><span>🔄</span><span><b>自动更新</b></span></div>
     </div>
@@ -1296,7 +1296,7 @@
   <section id="support">
     <div class="eyebrow">支持</div>
     <h2>☕ 支持开发者</h2>
-    <p class="lead">如果 Sshot-Pin 对你有帮助,欢迎请开发者喝杯咖啡。这能帮助它保持免费、无广告。</p>
+    <p class="lead">如果 Sshot-Pin 对你有帮助,欢迎请开发者喝杯咖啡。这能帮助它保持免费。</p>
     <div style="display:flex;align-items:center;gap:26px;flex-wrap:wrap">
       <img src="../alipay-qr.png" alt="支付宝收款二维码" width="180" height="180" loading="lazy"
            style="border-radius:14px;border:1px solid var(--line);background:#fff;padding:8px">
@@ -1310,7 +1310,7 @@
   <section id="sponsors" hidden>
     <div class="eyebrow">赞助者</div>
     <h2>赞助者</h2>
-    <p class="lead">帮助 Sshot-Pin 保持免费、无广告的朋友们。谢谢。</p>
+    <p class="lead">帮助 Sshot-Pin 保持免费的朋友们。谢谢。</p>
     <div class="sp-list" id="spList"></div>
   </section>
 
@@ -1359,10 +1359,8 @@
     .then((v) => {
       if (!v.version) return;
       document.getElementById('ver').textContent = 'v' + v.version;
-      const link = (id, url) => { if (url) document.getElementById(id).href = url; };
-      link('dlBtn', v.win);
-      link('dlMacArm', v.macArm);
-      link('dlMacX64', v.macX64);
+      /* 내려받기는 대기 페이지를 거친다. 실제 파일 주소는 그 페이지가 version.json 을
+         다시 읽어 정한다 — 이름 규칙이 바뀌어도 여기를 고칠 일이 없다. */
     })
     .catch(() => { /* 없으면 문서에 적힌 기본 링크를 그대로 쓴다 */ });
 
