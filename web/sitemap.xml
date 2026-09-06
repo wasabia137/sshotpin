@@ -153,6 +153,8 @@
   </url>
 
 
+
+
   <!-- guide -->
   <url>
     <loc>https://sshot-pin.web.app/guide/</loc>
@@ -180,6 +182,30 @@
   </url>
   <url>
     <loc>https://sshot-pin.web.app/guide/draw-on-screen/</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://sshot-pin.web.app/guide/mosaic-private-info/</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://sshot-pin.web.app/guide/save-location/</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://sshot-pin.web.app/guide/windows-snipping-tool/</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://sshot-pin.web.app/guide/class-timer/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>

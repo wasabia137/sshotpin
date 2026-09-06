@@ -3,17 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>스샷핀 가이드 — 화면 캡처·고정·확대·판서 사용법</title>
-<meta name="description" content="윈도우·맥 화면 캡처 단축키, 스크린샷을 화면에 고정하는 법, 화면 확대와 판서까지. 발표와 수업, 원격 지원에서 쓰는 요령을 모았습니다.">
-<meta name="keywords" content="화면 캡처 사용법, 스크린샷 방법, 캡처 단축키, 화면 확대, 판서 프로그램, 수업 도구">
+<title>윈도우 캡처 도구로 되는 것과 안 되는 것</title>
+<meta name="description" content="윈도우 캡처 도구가 잘하는 일과 못하는 일을 나눠 봤습니다. 찍어서 띄워두기, 화면 확대, 지금 보이는 화면에 그리기가 왜 안 되는지와 둘을 같이 쓰는 방법입니다.">
+<meta name="keywords" content="Win+Shift+S, 윈도우 캡처 도구, 캡처 도구 사용법, 스니핑 툴, 윈도우 기본 캡처, 캡처 도구 대신">
 <meta name="author" content="스샷핀(Sshot-Pin)">
-<link rel="canonical" href="https://sshot-pin.web.app/guide/">
+<link rel="canonical" href="https://sshot-pin.web.app/guide/windows-snipping-tool/">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="스샷핀(Sshot-Pin)">
 <meta property="og:locale" content="ko_KR">
-<meta property="og:url" content="https://sshot-pin.web.app/guide/">
-<meta property="og:title" content="스샷핀 가이드 — 화면 캡처·고정·확대·판서 사용법">
-<meta property="og:description" content="윈도우·맥 화면 캡처 단축키, 스크린샷을 화면에 고정하는 법, 화면 확대와 판서까지. 발표와 수업, 원격 지원에서 쓰는 요령을 모았습니다.">
+<meta property="og:url" content="https://sshot-pin.web.app/guide/windows-snipping-tool/">
+<meta property="og:title" content="윈도우 캡처 도구로 되는 것과 안 되는 것">
+<meta property="og:description" content="윈도우 캡처 도구가 잘하는 일과 못하는 일을 나눠 봤습니다. 찍어서 띄워두기, 화면 확대, 지금 보이는 화면에 그리기가 왜 안 되는지와 둘을 같이 쓰는 방법입니다.">
 <meta property="og:image" content="https://sshot-pin.web.app/og.png">
 <meta name="robots" content="index, follow">
 <link rel="icon" type="image/png" href="https://sshot-pin.web.app/icon.png">
@@ -86,7 +86,8 @@
   footer { border-top: 1px solid var(--line); margin-top: 46px; padding: 22px 0 40px;
            color: var(--muted); font-size: 13px; text-align: center; }
 </style>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"스샷핀","item":"https://sshot-pin.web.app/"},{"@type":"ListItem","position":2,"name":"가이드","item":"https://sshot-pin.web.app/guide/"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"윈도우 캡처 도구로 되는 것과 안 되는 것","description":"윈도우 캡처 도구가 잘하는 일과 못하는 일을 나눠 봤습니다. 찍어서 띄워두기, 화면 확대, 지금 보이는 화면에 그리기가 왜 안 되는지와 둘을 같이 쓰는 방법입니다.","inLanguage":"ko","datePublished":"2026-09-06","dateModified":"2026-09-06","author":{"@type":"Organization","name":"스샷핀(Sshot-Pin)","url":"https://sshot-pin.web.app/"},"publisher":{"@type":"Organization","name":"스샷핀(Sshot-Pin)","url":"https://sshot-pin.web.app/"},"mainEntityOfPage":"https://sshot-pin.web.app/guide/windows-snipping-tool/","image":"https://sshot-pin.web.app/og.png"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"스샷핀","item":"https://sshot-pin.web.app/"},{"@type":"ListItem","position":2,"name":"가이드","item":"https://sshot-pin.web.app/guide/"},{"@type":"ListItem","position":3,"name":"윈도우 캡처 도구로 되는 것과 안 되는 것","item":"https://sshot-pin.web.app/guide/windows-snipping-tool/"}]}</script>
 </head>
 <body>
 <div class="topbar">
@@ -97,11 +98,67 @@
   </div>
 </div>
 <div class="wrap">
-  <div class="crumb"><a href="https://sshot-pin.web.app/">스샷핀</a></div>
-  <h1>가이드</h1>
-  <p class="lead">화면을 놓고 설명할 때 쓰는 요령을 모았어요. 윈도우·맥 기본 기능부터 스샷핀으로 더 할 수 있는 것까지요.</p>
-  <div class="meta"></div>
-  <div class="more" style="margin-top:0">
+  <div class="crumb"><a href="https://sshot-pin.web.app/">스샷핀</a> › <a href="https://sshot-pin.web.app/guide/">가이드</a></div>
+  <h1>윈도우 캡처 도구로 되는 것과 안 되는 것</h1>
+  <p class="lead">찍어서 붙여넣는 게 목적이라면 Win+Shift+S로 충분해요. 막히는 곳은 따로 있어요.</p>
+  <div class="meta">2026-09-06 작성</div>
+  <p>윈도우 캡처 도구는 잘 만든 기능이에요. 아무것도 깔지 않아도 <kbd>Win</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> 한 번이면 영역을 골라 찍고, 화살표까지 그릴 수 있으니까요.<br>
+찍어서 어딘가에 붙여넣는 게 목적이라면 이걸로 충분해요. ✂️</p>
+
+<h2>캡처 도구로 되는 것</h2>
+
+<ul>
+  <li>영역·창·전체 화면·자유형 중에 골라 찍기</li>
+  <li>3초·10초 지연 캡처 — 메뉴를 펼쳐놓은 상태를 찍을 때 써요</li>
+  <li>펜, 형광펜, 지우개, 자로 표시하기</li>
+  <li>찍은 뒤 잘라내기와 저장</li>
+  <li>윈도우 11에서는 화면 녹화까지</li>
+</ul>
+
+<p>기능이 적지 않아요. 캡처와 간단한 표시까지는 여기서 끝나요.</p>
+
+<h2>캡처 도구로 안 되는 것</h2>
+
+<p>막히는 지점은 화면을 <b>놓고 설명해야 할 때</b>부터예요.</p>
+
+<table>
+  <tr><th>찍은 것을 띄워두기</th><td>편집 창을 닫으면 그림도 사라져요. 참고할 표를 옆에 두고 다른 창에서 작업할 수 없어요.</td></tr>
+  <tr><th>여러 장 다루기</th><td>클립보드는 한 장뿐이라, 다음 걸 찍는 순간 앞의 것이 없어져요.</td></tr>
+  <tr><th>화면 확대</th><td>돋보기는 따로 있지만 화면 전체가 움직여서 발표 중에 쓰기 어려워요.</td></tr>
+  <tr><th>지금 보이는 화면에 그리기</th><td>펜은 찍은 그림 안에서만 돼요. 웹페이지나 엑셀을 띄운 채로는 못 그려요.</td></tr>
+  <tr><th>가려뒀다 공개하기</th><td>정답을 덮어두고 나중에 여는 식으로는 못 써요.</td></tr>
+</table>
+
+<h2>둘을 같이 쓰면 돼요</h2>
+
+<p>스샷핀을 깔아도 <kbd>Win</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>는 그대로 살아 있어요. 단축키가 겹치지 않게 <kbd>Ctrl</kbd>+<kbd>F1</kbd>을 쓰거든요.<br>
+그래서 하던 대로 캡처 도구를 쓰시다가, 띄워두거나 확대하거나 그려야 할 때만 스샷핀을 꺼내면 돼요.</p>
+
+<p>쓰임을 나눠 보면 이렇게 돼요.</p>
+
+<table>
+  <tr><th>찍어서 붙여넣기</th><td>캡처 도구로 충분해요</td></tr>
+  <tr><th>찍어서 띄워두고 작업하기</th><td>스샷핀 <kbd>Ctrl</kbd>+<kbd>F1</kbd> → <kbd>Enter</kbd></td></tr>
+  <tr><th>작은 글씨를 크게 보여주기</th><td>스샷핀 <kbd>Ctrl</kbd>+<kbd>1</kbd></td></tr>
+  <tr><th>화면에 표시하며 설명하기</th><td>스샷핀 <kbd>Ctrl</kbd>+<kbd>2</kbd></td></tr>
+  <tr><th>화면 녹화</th><td>캡처 도구나 게임 바(<kbd>Win</kbd>+<kbd>G</kbd>)를 쓰세요. 스샷핀은 녹화를 안 해요</td></tr>
+</table>
+
+<div class="note">맥에서도 마찬가지예요. <kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>4</kbd>는 그대로 두고, 스샷핀은 <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>1</kbd>을 써요.</div>
+
+<h2>깔기 전에 알아두면 좋은 것</h2>
+
+<p>스샷핀은 유료 코드 서명 인증서를 붙이지 않았어요. 그래서 윈도우에서 설치할 때 "PC를 보호했습니다" 안내가 뜰 수 있어요.<br>
+내려받은 파일을 우클릭해 속성에서 "차단 해제"를 체크하고 실행하면 안 떠요. 이미 떴다면 추가 정보 → 실행을 누르시면 돼요.</p>
+
+<p>맥용은 애플 공증까지 마쳤기 때문에 경고 없이 열려요. 🙂</p>
+  <div class="cta">
+  <h3>스샷핀으로 해보기</h3>
+  <p>캡처를 화면 맨 위에 고정해두고, 확대하고, 그 위에 바로 그립니다. 윈도우·맥 무료.</p>
+  <a class="btn" href="https://sshot-pin.web.app/">내려받기</a>
+</div>
+  <div class="more">
+    <h2>이어서 읽기</h2>
     <ul>
       <li><a href="https://sshot-pin.web.app/guide/capture-shortcuts/">윈도우·맥 화면 캡처 단축키, 이것만 알면 돼요</a><br>
           <span class="d">PrtSc, Alt+PrtSc, Win+Shift+S부터 맥의 Cmd+Shift+3·4·5까지 화면 캡처 단축키를 모았습니다. PrtSc가 안 눌릴 때 볼 것과, 기본 키만으로는 안 되는 네 가지도 함께 정리했습니다.</span></li>
@@ -111,21 +168,8 @@
           <span class="d">윈도우 돋보기와 무엇이 다른지, 마우스 자리를 중심으로 40배까지 확대하는 법, 확대한 채로 그리고 화면만 새로 바꾸는 F5까지. ZoomIt을 쓰시던 분을 위한 비교도 담았습니다.</span></li>
       <li><a href="https://sshot-pin.web.app/guide/draw-on-screen/">화면 위에 바로 그리며 설명하기</a><br>
           <span class="d">웹페이지든 엑셀이든 화면 위에 바로 그리는 판서 방법입니다. 직선·사각형·화살표·순서 번호 단축키, 칠판 모드와 레이저 포인터, 모자이크로 가리는 법까지 담았습니다.</span></li>
-      <li><a href="https://sshot-pin.web.app/guide/mosaic-private-info/">화면 공유 전에 개인정보 가리기</a><br>
-          <span class="d">캡처하면서 바로 모자이크로 덮는 법입니다. 흐리게 만드는 방식과 달리 픽셀을 버리는 이유, 잠깐만 가렸다 공개하는 가리개, 공유 전 알림을 끄는 법까지 담았습니다.</span></li>
-      <li><a href="https://sshot-pin.web.app/guide/save-location/">캡처한 이미지는 어디로 가고, 어떻게 바꾸나요</a><br>
-          <span class="d">윈도우 스크린샷 폴더와 맥 바탕화면 기본값, 저장 위치를 바꾸는 법, 묻지 않고 바로 저장하게 하는 설정과 파일 이름 규칙까지 정리했습니다.</span></li>
-      <li><a href="https://sshot-pin.web.app/guide/windows-snipping-tool/">윈도우 캡처 도구로 되는 것과 안 되는 것</a><br>
-          <span class="d">윈도우 캡처 도구가 잘하는 일과 못하는 일을 나눠 봤습니다. 찍어서 띄워두기, 화면 확대, 지금 보이는 화면에 그리기가 왜 안 되는지와 둘을 같이 쓰는 방법입니다.</span></li>
-      <li><a href="https://sshot-pin.web.app/guide/class-timer/">모둠 활동 시간을 화면에 띄워두기</a><br>
-          <span class="d">수업용 타이머를 화면 위에 띄워두는 법입니다. 1·3·5·10·15분 버튼, 시간 직접 입력, 끝났을 때 알리는 방식, 원격 수업에서 학생에게 보이게 하는 법까지 담았습니다.</span></li>
     </ul>
   </div>
-  <div class="cta">
-  <h3>스샷핀으로 해보기</h3>
-  <p>캡처를 화면 맨 위에 고정해두고, 확대하고, 그 위에 바로 그립니다. 윈도우·맥 무료.</p>
-  <a class="btn" href="https://sshot-pin.web.app/">내려받기</a>
-</div>
 </div>
 <footer>
   <div class="wrap">
