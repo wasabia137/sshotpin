@@ -7,7 +7,8 @@
   "scripts": {
     "start": "electron .",
     "dist": "electron-builder --win --x64",
-    "indexnow": "node scripts/indexnow.mjs"
+    "indexnow": "node scripts/indexnow.mjs",
+    "guides": "node scripts/build-guides.mjs"
   },
   "author": "Sshot-Pin (sshot-pin.web.app)",
   "license": "MIT",

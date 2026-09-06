@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>스샷핀 가이드 — 화면 캡처·고정·확대·판서 사용법</title>
+<meta name="description" content="윈도우·맥 화면 캡처 단축키, 스크린샷을 화면에 고정하는 법, 화면 확대와 판서까지. 발표·수업·원격 지원에서 쓰는 요령을 정리했습니다.">
+<meta name="keywords" content="화면 캡처 사용법, 스크린샷 방법, 캡처 단축키, 화면 확대, 판서 프로그램, 수업 도구">
+<meta name="author" content="스샷핀(Sshot-Pin)">
+<link rel="canonical" href="https://sshot-pin.web.app/guide/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="스샷핀(Sshot-Pin)">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:url" content="https://sshot-pin.web.app/guide/">
+<meta property="og:title" content="스샷핀 가이드 — 화면 캡처·고정·확대·판서 사용법">
+<meta property="og:description" content="윈도우·맥 화면 캡처 단축키, 스크린샷을 화면에 고정하는 법, 화면 확대와 판서까지. 발표·수업·원격 지원에서 쓰는 요령을 정리했습니다.">
+<meta property="og:image" content="https://sshot-pin.web.app/og.png">
+<meta name="robots" content="index, follow">
+<link rel="icon" type="image/png" href="https://sshot-pin.web.app/icon.png">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9XBNQ9KQQQ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-9XBNQ9KQQQ');
+</script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --muted: #64748b;
+    --line: #e2e8f0; --blue: #2563eb; --chip: #f1f5f9;
+    --key-top: #ffffff; --key-bot: #eef2f7; --key-line: #cbd5e1;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --muted: #94a3b8;
+      --line: #334155; --blue: #3b82f6; --chip: #334155;
+      --key-top: #3b4a61; --key-bot: #27354a; --key-line: #475569;
+    }
+  }
+  body {
+    font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', -apple-system, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 0 20px; }
+  .topbar { border-bottom: 1px solid var(--line); padding: 14px 0; margin-bottom: 30px; }
+  .topbar .wrap { display: flex; align-items: center; gap: 10px; }
+  .topbar img { width: 26px; height: 26px; }
+  .topbar a { color: var(--text); text-decoration: none; font-weight: 700; }
+  .topbar .sp { margin-left: auto; }
+  .topbar .sp a { color: var(--blue); font-weight: 600; font-size: 14px; }
+  .crumb { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+  .crumb a { color: var(--muted); }
+  h1 { font-size: 30px; line-height: 1.35; letter-spacing: -.02em; margin-bottom: 12px; }
+  .lead { color: var(--muted); font-size: 16px; margin-bottom: 8px; }
+  .meta { color: var(--muted); font-size: 13px; margin-bottom: 34px; }
+  h2 { font-size: 20px; margin: 38px 0 12px; padding-left: 11px; border-left: 4px solid var(--blue); }
+  h3 { font-size: 16px; margin: 24px 0 6px; }
+  p { margin-bottom: 14px; }
+  ul, ol { margin: 0 0 16px 20px; }
+  li { margin-bottom: 6px; }
+  a { color: var(--blue); }
+  table { width: 100%; border-collapse: collapse; font-size: 14.5px; margin-bottom: 18px;
+          background: var(--card); border-radius: 10px; overflow: hidden; }
+  th, td { padding: 9px 13px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { background: var(--chip); color: var(--muted); font-weight: 600; white-space: nowrap; }
+  tr:last-child td { border-bottom: 0; }
+  kbd {
+    display: inline-block; padding: 1px 7px; margin: 0 1px; font-size: 12.5px;
+    background: linear-gradient(180deg, var(--key-top), var(--key-bot));
+    border: 1px solid var(--key-line); border-bottom-width: 2px; border-radius: 5px;
+  }
+  .note { background: var(--chip); border-radius: 10px; padding: 13px 16px; margin-bottom: 18px; font-size: 14.5px; }
+  .cta { background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+         padding: 22px; margin: 40px 0 10px; }
+  .cta h3 { margin-top: 0; font-size: 17px; }
+  .cta p { font-size: 14.5px; color: var(--muted); margin-bottom: 14px; }
+  .cta a.btn { display: inline-block; background: var(--blue); color: #fff; text-decoration: none;
+               font-weight: 700; padding: 10px 20px; border-radius: 999px; font-size: 15px; }
+  .more { margin: 34px 0 0; }
+  .more h2 { margin-top: 0; }
+  .more ul { list-style: none; margin-left: 0; }
+  .more li { margin-bottom: 9px; }
+  .more .d { color: var(--muted); font-size: 13.5px; }
+  footer { border-top: 1px solid var(--line); margin-top: 46px; padding: 22px 0 40px;
+           color: var(--muted); font-size: 13px; text-align: center; }
+</style>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"스샷핀","item":"https://sshot-pin.web.app/"},{"@type":"ListItem","position":2,"name":"가이드","item":"https://sshot-pin.web.app/guide/"}]}</script>
+</head>
+<body>
+<div class="topbar">
+  <div class="wrap">
+    <img src="https://sshot-pin.web.app/icon.png" alt="">
+    <a href="https://sshot-pin.web.app/">스샷핀 Sshot-Pin</a>
+    <span class="sp"><a href="https://sshot-pin.web.app/">내려받기 →</a></span>
+  </div>
+</div>
+<div class="wrap">
+  <div class="crumb"><a href="https://sshot-pin.web.app/">스샷핀</a></div>
+  <h1>가이드</h1>
+  <p class="lead">화면을 두고 설명할 때 쓰는 요령을 모았습니다. 윈도우·맥 기본 기능부터 스샷핀으로 더 할 수 있는 것까지.</p>
+  <div class="meta"></div>
+  <div class="more" style="margin-top:0">
+    <ul>
+      <li><a href="https://sshot-pin.web.app/guide/capture-shortcuts/">윈도우·맥 화면 캡처 단축키 총정리</a><br>
+          <span class="d">PrtSc, Alt+PrtSc, Win+Shift+S, Cmd+Shift+4까지 윈도우와 맥의 화면 캡처 단축키를 정리했습니다. PrtSc가 안 눌릴 때 확인할 것과 기본 기능으로 안 되는 일도 함께.</span></li>
+      <li><a href="https://sshot-pin.web.app/guide/pin-screenshot-on-top/">스크린샷을 화면 맨 위에 고정해두는 법</a><br>
+          <span class="d">참고할 자료를 스크린샷으로 찍어 화면 맨 위에 띄워두는 방법. 윈도우에 기본 기능이 없는 이유와, 붙여둔 뒤 크기·투명도·클릭 통과를 조절하는 법까지.</span></li>
+    </ul>
+  </div>
+  <div class="cta">
+  <h3>스샷핀으로 해보기</h3>
+  <p>캡처를 화면 맨 위에 고정해두고, 확대하고, 그 위에 바로 그립니다. 윈도우·맥 무료.</p>
+  <a class="btn" href="https://sshot-pin.web.app/">내려받기</a>
+</div>
+</div>
+<footer>
+  <div class="wrap">
+    화면 캡처 · 고정 · 확대 · 판서 · 가리개 · 모자이크 · 타이머<br>
+    <a href="https://sshot-pin.web.app/">스샷핀 홈</a> ·
+    <a href="https://sshot-pin.web.app/guide/">가이드</a> ·
+    <a href="https://sshot-pin.web.app/privacy.html">개인정보처리방침</a> ·
+    <a href="https://github.com/wasabia137/sshotpin" rel="noopener">GitHub</a>
+  </div>
+</footer>
+</body>
+</html>

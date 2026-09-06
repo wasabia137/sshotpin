@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>스크린샷을 화면 맨 위에 고정해두는 법</title>
+<meta name="description" content="참고할 자료를 스크린샷으로 찍어 화면 맨 위에 띄워두는 방법. 윈도우에 기본 기능이 없는 이유와, 붙여둔 뒤 크기·투명도·클릭 통과를 조절하는 법까지.">
+<meta name="keywords" content="스크린샷 화면에 고정, 이미지 항상 위에, 항상 위에 띄우기, 캡처 고정, 참고 자료 띄워두기, 스니페이스트 대안">
+<meta name="author" content="스샷핀(Sshot-Pin)">
+<link rel="canonical" href="https://sshot-pin.web.app/guide/pin-screenshot-on-top/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="스샷핀(Sshot-Pin)">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:url" content="https://sshot-pin.web.app/guide/pin-screenshot-on-top/">
+<meta property="og:title" content="스크린샷을 화면 맨 위에 고정해두는 법">
+<meta property="og:description" content="참고할 자료를 스크린샷으로 찍어 화면 맨 위에 띄워두는 방법. 윈도우에 기본 기능이 없는 이유와, 붙여둔 뒤 크기·투명도·클릭 통과를 조절하는 법까지.">
+<meta property="og:image" content="https://sshot-pin.web.app/og.png">
+<meta name="robots" content="index, follow">
+<link rel="icon" type="image/png" href="https://sshot-pin.web.app/icon.png">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9XBNQ9KQQQ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-9XBNQ9KQQQ');
+</script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --muted: #64748b;
+    --line: #e2e8f0; --blue: #2563eb; --chip: #f1f5f9;
+    --key-top: #ffffff; --key-bot: #eef2f7; --key-line: #cbd5e1;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --muted: #94a3b8;
+      --line: #334155; --blue: #3b82f6; --chip: #334155;
+      --key-top: #3b4a61; --key-bot: #27354a; --key-line: #475569;
+    }
+  }
+  body {
+    font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', -apple-system, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 0 20px; }
+  .topbar { border-bottom: 1px solid var(--line); padding: 14px 0; margin-bottom: 30px; }
+  .topbar .wrap { display: flex; align-items: center; gap: 10px; }
+  .topbar img { width: 26px; height: 26px; }
+  .topbar a { color: var(--text); text-decoration: none; font-weight: 700; }
+  .topbar .sp { margin-left: auto; }
+  .topbar .sp a { color: var(--blue); font-weight: 600; font-size: 14px; }
+  .crumb { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+  .crumb a { color: var(--muted); }
+  h1 { font-size: 30px; line-height: 1.35; letter-spacing: -.02em; margin-bottom: 12px; }
+  .lead { color: var(--muted); font-size: 16px; margin-bottom: 8px; }
+  .meta { color: var(--muted); font-size: 13px; margin-bottom: 34px; }
+  h2 { font-size: 20px; margin: 38px 0 12px; padding-left: 11px; border-left: 4px solid var(--blue); }
+  h3 { font-size: 16px; margin: 24px 0 6px; }
+  p { margin-bottom: 14px; }
+  ul, ol { margin: 0 0 16px 20px; }
+  li { margin-bottom: 6px; }
+  a { color: var(--blue); }
+  table { width: 100%; border-collapse: collapse; font-size: 14.5px; margin-bottom: 18px;
+          background: var(--card); border-radius: 10px; overflow: hidden; }
+  th, td { padding: 9px 13px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { background: var(--chip); color: var(--muted); font-weight: 600; white-space: nowrap; }
+  tr:last-child td { border-bottom: 0; }
+  kbd {
+    display: inline-block; padding: 1px 7px; margin: 0 1px; font-size: 12.5px;
+    background: linear-gradient(180deg, var(--key-top), var(--key-bot));
+    border: 1px solid var(--key-line); border-bottom-width: 2px; border-radius: 5px;
+  }
+  .note { background: var(--chip); border-radius: 10px; padding: 13px 16px; margin-bottom: 18px; font-size: 14.5px; }
+  .cta { background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+         padding: 22px; margin: 40px 0 10px; }
+  .cta h3 { margin-top: 0; font-size: 17px; }
+  .cta p { font-size: 14.5px; color: var(--muted); margin-bottom: 14px; }
+  .cta a.btn { display: inline-block; background: var(--blue); color: #fff; text-decoration: none;
+               font-weight: 700; padding: 10px 20px; border-radius: 999px; font-size: 15px; }
+  .more { margin: 34px 0 0; }
+  .more h2 { margin-top: 0; }
+  .more ul { list-style: none; margin-left: 0; }
+  .more li { margin-bottom: 9px; }
+  .more .d { color: var(--muted); font-size: 13.5px; }
+  footer { border-top: 1px solid var(--line); margin-top: 46px; padding: 22px 0 40px;
+           color: var(--muted); font-size: 13px; text-align: center; }
+</style>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"스크린샷을 화면 맨 위에 고정해두는 법","description":"참고할 자료를 스크린샷으로 찍어 화면 맨 위에 띄워두는 방법. 윈도우에 기본 기능이 없는 이유와, 붙여둔 뒤 크기·투명도·클릭 통과를 조절하는 법까지.","inLanguage":"ko","datePublished":"2026-09-06","dateModified":"2026-09-06","author":{"@type":"Organization","name":"스샷핀(Sshot-Pin)","url":"https://sshot-pin.web.app/"},"publisher":{"@type":"Organization","name":"스샷핀(Sshot-Pin)","url":"https://sshot-pin.web.app/"},"mainEntityOfPage":"https://sshot-pin.web.app/guide/pin-screenshot-on-top/","image":"https://sshot-pin.web.app/og.png"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"스샷핀","item":"https://sshot-pin.web.app/"},{"@type":"ListItem","position":2,"name":"가이드","item":"https://sshot-pin.web.app/guide/"},{"@type":"ListItem","position":3,"name":"스크린샷을 화면 맨 위에 고정해두는 법","item":"https://sshot-pin.web.app/guide/pin-screenshot-on-top/"}]}</script>
+</head>
+<body>
+<div class="topbar">
+  <div class="wrap">
+    <img src="https://sshot-pin.web.app/icon.png" alt="">
+    <a href="https://sshot-pin.web.app/">스샷핀 Sshot-Pin</a>
+    <span class="sp"><a href="https://sshot-pin.web.app/">내려받기 →</a></span>
+  </div>
+</div>
+<div class="wrap">
+  <div class="crumb"><a href="https://sshot-pin.web.app/">스샷핀</a> › <a href="https://sshot-pin.web.app/guide/">가이드</a></div>
+  <h1>스크린샷을 화면 맨 위에 고정해두는 법</h1>
+  <p class="lead">찍은 화면을 쪽지처럼 붙여두면, 창을 바꿔도 사라지지 않습니다.</p>
+  <div class="meta">2026-09-06 작성</div>
+  <h2>이럴 때 필요합니다</h2>
+
+<p>표를 보면서 다른 창에 옮겨 적을 때, 화면 두 개를 번갈아 보며 비교할 때, 수업에서 문제를 띄워놓고 풀이를 진행할 때. 공통점은 <b>한쪽을 계속 보면서 다른 쪽을 만져야 한다</b>는 것입니다.</p>
+
+<p>창을 나란히 놓으면 되지 않느냐 싶지만, 필요한 건 보통 창 전체가 아니라 그 안의 작은 표 하나입니다. 창을 반으로 나누면 정작 작업할 쪽이 좁아집니다.</p>
+
+<h2>윈도우에는 기본 기능이 없습니다</h2>
+
+<p>맥에는 "모든 데스크탑"이나 미리보기 창을 띄워두는 방법이 어느 정도 있지만, 윈도우에는 임의의 이미지를 항상 맨 위에 두는 기능이 없습니다. 작업 관리자처럼 스스로 그렇게 만들어진 창만 위에 뜹니다.</p>
+
+<p>그래서 이 일은 별도 도구가 필요합니다.</p>
+
+<h2>붙이는 법</h2>
+
+<p>스샷핀에서는 두 가지 길이 있습니다.</p>
+
+<ul>
+  <li><b>지금 화면에서 잘라 붙이기</b> — <kbd>Ctrl</kbd>+<kbd>F1</kbd>로 영역을 끌어서 고르고 <kbd>Enter</kbd>. 고른 자리에 그대로 붙습니다.</li>
+  <li><b>복사해둔 이미지 붙이기</b> — 어디서든 이미지를 복사한 뒤 <kbd>Ctrl</kbd>+<kbd>F2</kbd>. 마우스 자리에 붙습니다. 웹에서 그림을 우클릭해 복사한 것도 됩니다.</li>
+</ul>
+
+<div class="note">맥은 캡처가 <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>1</kbd>, 클립보드 고정이 <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>2</kbd>입니다.</div>
+
+<h2>붙인 뒤에 하는 것</h2>
+
+<table>
+  <tr><th>드래그</th><td>옮기기</td></tr>
+  <tr><th>모퉁이 드래그</th><td>크기 조절. 비율은 그대로 유지됩니다</td></tr>
+  <tr><th>휠</th><td>확대·축소</td></tr>
+  <tr><th><kbd>Ctrl</kbd>+휠</th><td>투명도. 옅게 해두면 아래 내용이 비쳐 보여 대조하기 좋습니다</td></tr>
+  <tr><th>더블클릭</th><td>접기. 작은 막대로 줄어들어 자리만 차지하지 않습니다</td></tr>
+  <tr><th><kbd>0</kbd></th><td>원래 크기·투명도로</td></tr>
+  <tr><th>우클릭</th><td>테두리 색, 회전·반전, 클릭 통과</td></tr>
+  <tr><th><kbd>Esc</kbd> · ✕ · 휠 클릭</th><td>닫기</td></tr>
+</table>
+
+<h3>클릭 통과</h3>
+
+<p>붙여둔 이미지가 아래 버튼을 가려서 거슬릴 때가 있습니다. 우클릭에서 <b>클릭 통과</b>를 켜면 마우스가 이미지를 지나 아래 프로그램으로 바로 갑니다. 보이기는 하는데 잡히지는 않는 상태가 됩니다. 해제는 트레이 아이콘 우클릭 → "클릭 통과 모두 해제"입니다.</p>
+
+<h2>여러 장 붙여두기</h2>
+
+<p>개수 제한은 없습니다. 참고할 자료가 여럿이면 여러 장을 붙여놓고 쓰다가, 트레이 메뉴에서 "핀 모두 숨기기"로 한 번에 치우고 다시 꺼낼 수 있습니다.</p>
+
+<p>앞에서 찍었던 것을 다시 붙이고 싶으면 트레이 메뉴의 <b>최근 캡처</b>를 여세요. 최근 24개가 남아 있고, 그림을 클릭하면 화면에 다시 붙습니다.</p>
+
+<h2>화면 공유·수업에서</h2>
+
+<p>붙여둔 이미지는 화면 공유와 캡처에 그대로 찍힙니다. 그래서 수업이나 회의에서 자료를 띄워놓고 설명하는 데 쓸 수 있습니다. 반대로 시작할 때 잠깐 뜨는 실행 알림과 퀵 실행바는 공유 화면에 찍히지 않게 해뒀습니다.</p>
+
+<p>가려야 할 것이 있다면 캡처할 때 모자이크 도구로 덮거나, <kbd>Ctrl</kbd>+<kbd>F3</kbd> 가리개로 영역을 덮어뒀다가 클릭해서 공개할 수 있습니다.</p>
+  <div class="cta">
+  <h3>스샷핀으로 해보기</h3>
+  <p>캡처를 화면 맨 위에 고정해두고, 확대하고, 그 위에 바로 그립니다. 윈도우·맥 무료.</p>
+  <a class="btn" href="https://sshot-pin.web.app/">내려받기</a>
+</div>
+  <div class="more">
+    <h2>이어서 읽기</h2>
+    <ul>
+      <li><a href="https://sshot-pin.web.app/guide/capture-shortcuts/">윈도우·맥 화면 캡처 단축키 총정리</a><br>
+          <span class="d">PrtSc, Alt+PrtSc, Win+Shift+S, Cmd+Shift+4까지 윈도우와 맥의 화면 캡처 단축키를 정리했습니다. PrtSc가 안 눌릴 때 확인할 것과 기본 기능으로 안 되는 일도 함께.</span></li>
+    </ul>
+  </div>
+</div>
+<footer>
+  <div class="wrap">
+    화면 캡처 · 고정 · 확대 · 판서 · 가리개 · 모자이크 · 타이머<br>
+    <a href="https://sshot-pin.web.app/">스샷핀 홈</a> ·
+    <a href="https://sshot-pin.web.app/guide/">가이드</a> ·
+    <a href="https://sshot-pin.web.app/privacy.html">개인정보처리방침</a> ·
+    <a href="https://github.com/wasabia137/sshotpin" rel="noopener">GitHub</a>
+  </div>
+</footer>
+</body>
+</html>

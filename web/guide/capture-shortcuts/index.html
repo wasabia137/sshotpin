@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>윈도우·맥 화면 캡처 단축키 총정리</title>
+<meta name="description" content="PrtSc, Alt+PrtSc, Win+Shift+S, Cmd+Shift+4까지 윈도우와 맥의 화면 캡처 단축키를 정리했습니다. PrtSc가 안 눌릴 때 확인할 것과 기본 기능으로 안 되는 일도 함께.">
+<meta name="keywords" content="화면 캡처 단축키, 스크린샷 단축키, 윈도우 캡처 단축키, PrtSc, Win+Shift+S, 맥 스크린샷 단축키, 캡처 도구">
+<meta name="author" content="스샷핀(Sshot-Pin)">
+<link rel="canonical" href="https://sshot-pin.web.app/guide/capture-shortcuts/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="스샷핀(Sshot-Pin)">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:url" content="https://sshot-pin.web.app/guide/capture-shortcuts/">
+<meta property="og:title" content="윈도우·맥 화면 캡처 단축키 총정리">
+<meta property="og:description" content="PrtSc, Alt+PrtSc, Win+Shift+S, Cmd+Shift+4까지 윈도우와 맥의 화면 캡처 단축키를 정리했습니다. PrtSc가 안 눌릴 때 확인할 것과 기본 기능으로 안 되는 일도 함께.">
+<meta property="og:image" content="https://sshot-pin.web.app/og.png">
+<meta name="robots" content="index, follow">
+<link rel="icon" type="image/png" href="https://sshot-pin.web.app/icon.png">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9XBNQ9KQQQ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-9XBNQ9KQQQ');
+</script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --muted: #64748b;
+    --line: #e2e8f0; --blue: #2563eb; --chip: #f1f5f9;
+    --key-top: #ffffff; --key-bot: #eef2f7; --key-line: #cbd5e1;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --muted: #94a3b8;
+      --line: #334155; --blue: #3b82f6; --chip: #334155;
+      --key-top: #3b4a61; --key-bot: #27354a; --key-line: #475569;
+    }
+  }
+  body {
+    font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', -apple-system, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 0 20px; }
+  .topbar { border-bottom: 1px solid var(--line); padding: 14px 0; margin-bottom: 30px; }
+  .topbar .wrap { display: flex; align-items: center; gap: 10px; }
+  .topbar img { width: 26px; height: 26px; }
+  .topbar a { color: var(--text); text-decoration: none; font-weight: 700; }
+  .topbar .sp { margin-left: auto; }
+  .topbar .sp a { color: var(--blue); font-weight: 600; font-size: 14px; }
+  .crumb { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+  .crumb a { color: var(--muted); }
+  h1 { font-size: 30px; line-height: 1.35; letter-spacing: -.02em; margin-bottom: 12px; }
+  .lead { color: var(--muted); font-size: 16px; margin-bottom: 8px; }
+  .meta { color: var(--muted); font-size: 13px; margin-bottom: 34px; }
+  h2 { font-size: 20px; margin: 38px 0 12px; padding-left: 11px; border-left: 4px solid var(--blue); }
+  h3 { font-size: 16px; margin: 24px 0 6px; }
+  p { margin-bottom: 14px; }
+  ul, ol { margin: 0 0 16px 20px; }
+  li { margin-bottom: 6px; }
+  a { color: var(--blue); }
+  table { width: 100%; border-collapse: collapse; font-size: 14.5px; margin-bottom: 18px;
+          background: var(--card); border-radius: 10px; overflow: hidden; }
+  th, td { padding: 9px 13px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { background: var(--chip); color: var(--muted); font-weight: 600; white-space: nowrap; }
+  tr:last-child td { border-bottom: 0; }
+  kbd {
+    display: inline-block; padding: 1px 7px; margin: 0 1px; font-size: 12.5px;
+    background: linear-gradient(180deg, var(--key-top), var(--key-bot));
+    border: 1px solid var(--key-line); border-bottom-width: 2px; border-radius: 5px;
+  }
+  .note { background: var(--chip); border-radius: 10px; padding: 13px 16px; margin-bottom: 18px; font-size: 14.5px; }
+  .cta { background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+         padding: 22px; margin: 40px 0 10px; }
+  .cta h3 { margin-top: 0; font-size: 17px; }
+  .cta p { font-size: 14.5px; color: var(--muted); margin-bottom: 14px; }
+  .cta a.btn { display: inline-block; background: var(--blue); color: #fff; text-decoration: none;
+               font-weight: 700; padding: 10px 20px; border-radius: 999px; font-size: 15px; }
+  .more { margin: 34px 0 0; }
+  .more h2 { margin-top: 0; }
+  .more ul { list-style: none; margin-left: 0; }
+  .more li { margin-bottom: 9px; }
+  .more .d { color: var(--muted); font-size: 13.5px; }
+  footer { border-top: 1px solid var(--line); margin-top: 46px; padding: 22px 0 40px;
+           color: var(--muted); font-size: 13px; text-align: center; }
+</style>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"윈도우·맥 화면 캡처 단축키 총정리","description":"PrtSc, Alt+PrtSc, Win+Shift+S, Cmd+Shift+4까지 윈도우와 맥의 화면 캡처 단축키를 정리했습니다. PrtSc가 안 눌릴 때 확인할 것과 기본 기능으로 안 되는 일도 함께.","inLanguage":"ko","datePublished":"2026-09-06","dateModified":"2026-09-06","author":{"@type":"Organization","name":"스샷핀(Sshot-Pin)","url":"https://sshot-pin.web.app/"},"publisher":{"@type":"Organization","name":"스샷핀(Sshot-Pin)","url":"https://sshot-pin.web.app/"},"mainEntityOfPage":"https://sshot-pin.web.app/guide/capture-shortcuts/","image":"https://sshot-pin.web.app/og.png"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"스샷핀","item":"https://sshot-pin.web.app/"},{"@type":"ListItem","position":2,"name":"가이드","item":"https://sshot-pin.web.app/guide/"},{"@type":"ListItem","position":3,"name":"윈도우·맥 화면 캡처 단축키 총정리","item":"https://sshot-pin.web.app/guide/capture-shortcuts/"}]}</script>
+</head>
+<body>
+<div class="topbar">
+  <div class="wrap">
+    <img src="https://sshot-pin.web.app/icon.png" alt="">
+    <a href="https://sshot-pin.web.app/">스샷핀 Sshot-Pin</a>
+    <span class="sp"><a href="https://sshot-pin.web.app/">내려받기 →</a></span>
+  </div>
+</div>
+<div class="wrap">
+  <div class="crumb"><a href="https://sshot-pin.web.app/">스샷핀</a> › <a href="https://sshot-pin.web.app/guide/">가이드</a></div>
+  <h1>윈도우·맥 화면 캡처 단축키 총정리</h1>
+  <p class="lead">전체 화면, 창 하나, 원하는 영역만. 어떤 키가 어디까지 되는지 한 번에 정리했습니다.</p>
+  <div class="meta">2026-09-06 작성</div>
+  <h2>윈도우</h2>
+
+<table>
+  <tr><th><kbd>PrtSc</kbd></th><td>화면 전체를 클립보드에 담습니다. 파일로 남지는 않아 문서나 메신저에 <kbd>Ctrl</kbd>+<kbd>V</kbd>로 붙여야 합니다.</td></tr>
+  <tr><th><kbd>Alt</kbd>+<kbd>PrtSc</kbd></th><td>지금 보고 있는 창 하나만 담습니다. 바탕화면이나 다른 창이 섞이지 않습니다.</td></tr>
+  <tr><th><kbd>Win</kbd>+<kbd>PrtSc</kbd></th><td>화면 전체를 <b>파일로</b> 저장합니다. 화면이 한 번 어두워지고 <code>사진 › 스크린샷</code> 폴더에 들어갑니다.</td></tr>
+  <tr><th><kbd>Win</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd></th><td>원하는 영역을 끌어서 고릅니다. 창 캡처, 자유형도 위쪽 막대에서 고를 수 있습니다. 클립보드로 들어가고, 오른쪽 아래 알림을 누르면 그리기 화면이 열립니다.</td></tr>
+  <tr><th><kbd>Win</kbd>+<kbd>G</kbd></th><td>게임 바. 화면 녹화가 필요할 때 씁니다.</td></tr>
+</table>
+
+<p>넷 중에서는 <kbd>Win</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>가 가장 쓸모가 많습니다. 필요한 부분만 잘라내니 뒤에 자르는 수고가 없습니다.</p>
+
+<h3>PrtSc가 안 눌릴 때</h3>
+
+<ul>
+  <li>노트북은 <kbd>Fn</kbd>을 같이 눌러야 하는 경우가 많습니다. 키 위에 작은 글씨로 PrtSc가 적혀 있으면 그렇습니다.</li>
+  <li>텐키리스나 얇은 키보드에는 아예 없기도 합니다. 이때는 <kbd>Win</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>를 쓰면 됩니다.</li>
+  <li><kbd>PrtSc</kbd>를 눌렀을 때 바로 영역 선택이 뜨게 하려면 <b>설정 › 접근성 › 키보드</b>에서 "화면 캡처 버튼을 사용하여 화면 캡처 열기"를 켜세요.</li>
+</ul>
+
+<h2>맥</h2>
+
+<table>
+  <tr><th><kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>3</kbd></th><td>화면 전체를 파일로. 기본 저장 위치는 바탕화면입니다.</td></tr>
+  <tr><th><kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>4</kbd></th><td>영역을 끌어서 고릅니다. 이 상태에서 <kbd>Space</kbd>를 누르면 커서가 사진기로 바뀌고, 창을 클릭하면 그 창만 그림자까지 깔끔하게 찍힙니다.</td></tr>
+  <tr><th><kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>5</kbd></th><td>도구막대가 뜹니다. 저장 위치 바꾸기, 타이머, 화면 녹화가 여기 있습니다.</td></tr>
+  <tr><th>+ <kbd>Ctrl</kbd></th><td>위 조합에 <kbd>Ctrl</kbd>을 더하면 파일 대신 <b>클립보드</b>로 갑니다. 예를 들어 <kbd>Ctrl</kbd>+<kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>4</kbd>.</td></tr>
+</table>
+
+<div class="note">맥은 찍고 나면 오른쪽 아래에 작은 미리보기가 잠깐 떠 있습니다. 그걸 누르면 바로 표시하고 자를 수 있고, 그냥 두면 저장됩니다.</div>
+
+<h2>기본 기능으로는 안 되는 것</h2>
+
+<p>단축키만으로도 찍는 데는 충분합니다. 다만 화면을 놓고 <b>설명해야 할 때</b>부터 막힙니다.</p>
+
+<ul>
+  <li><b>찍은 것을 띄워두기</b> — 참고할 자료를 찍어놓고 다른 창에서 작업하려면 계속 창을 오갈 수밖에 없습니다.</li>
+  <li><b>찍은 자리에서 바로 표시하기</b> — 화살표나 동그라미를 얹으려면 그림판 같은 다른 프로그램을 거쳐야 합니다.</li>
+  <li><b>가리기</b> — 화면 공유 전에 이름이나 계좌번호를 지우려면 따로 편집해야 합니다.</li>
+  <li><b>다시 꺼내기</b> — 클립보드는 한 장뿐이라, 아까 찍은 것은 사라집니다.</li>
+</ul>
+
+<h2>스샷핀 단축키</h2>
+
+<p>위에서 막히는 것들을 채우려고 만든 도구입니다. 기본 값은 이렇고, 설정에서 원하는 키로 바꾸거나 비워둘 수 있습니다.</p>
+
+<table>
+  <tr><th>윈도우</th><th>맥</th><th>하는 일</th></tr>
+  <tr><td><kbd>Ctrl</kbd>+<kbd>F1</kbd></td><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>1</kbd></td><td>영역 캡처. 고르는 순간 클립보드로 들어가고, <kbd>Enter</kbd>를 누르면 그 자리에 고정됩니다</td></tr>
+  <tr><td><kbd>Ctrl</kbd>+<kbd>F2</kbd></td><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>2</kbd></td><td>복사해둔 이미지를 화면에 고정</td></tr>
+  <tr><td><kbd>Ctrl</kbd>+<kbd>F3</kbd></td><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>3</kbd></td><td>가리개 — 덮어뒀다가 클릭하면 공개</td></tr>
+  <tr><td><kbd>Ctrl</kbd>+<kbd>1</kbd></td><td><kbd>Ctrl</kbd>+<kbd>1</kbd></td><td>화면 확대</td></tr>
+  <tr><td><kbd>Ctrl</kbd>+<kbd>2</kbd></td><td><kbd>Ctrl</kbd>+<kbd>2</kbd></td><td>화면 위에 그리기</td></tr>
+  <tr><td><kbd>Ctrl</kbd>+<kbd>3</kbd></td><td><kbd>Ctrl</kbd>+<kbd>3</kbd></td><td>타이머</td></tr>
+</table>
+
+<p>영역을 고른 뒤에는 그 자리에서 <kbd>Ctrl</kbd>+<kbd>C</kbd>로 복사, <kbd>Ctrl</kbd>+<kbd>S</kbd>로 저장, <kbd>Ctrl</kbd>+<kbd>Z</kbd>로 방금 그린 것 되돌리기가 됩니다. 찍은 것은 최근 24개까지 남아 있어 나중에 다시 꺼낼 수 있습니다.</p>
+  <div class="cta">
+  <h3>스샷핀으로 해보기</h3>
+  <p>캡처를 화면 맨 위에 고정해두고, 확대하고, 그 위에 바로 그립니다. 윈도우·맥 무료.</p>
+  <a class="btn" href="https://sshot-pin.web.app/">내려받기</a>
+</div>
+  <div class="more">
+    <h2>이어서 읽기</h2>
+    <ul>
+      <li><a href="https://sshot-pin.web.app/guide/pin-screenshot-on-top/">스크린샷을 화면 맨 위에 고정해두는 법</a><br>
+          <span class="d">참고할 자료를 스크린샷으로 찍어 화면 맨 위에 띄워두는 방법. 윈도우에 기본 기능이 없는 이유와, 붙여둔 뒤 크기·투명도·클릭 통과를 조절하는 법까지.</span></li>
+    </ul>
+  </div>
+</div>
+<footer>
+  <div class="wrap">
+    화면 캡처 · 고정 · 확대 · 판서 · 가리개 · 모자이크 · 타이머<br>
+    <a href="https://sshot-pin.web.app/">스샷핀 홈</a> ·
+    <a href="https://sshot-pin.web.app/guide/">가이드</a> ·
+    <a href="https://sshot-pin.web.app/privacy.html">개인정보처리방침</a> ·
+    <a href="https://github.com/wasabia137/sshotpin" rel="noopener">GitHub</a>
+  </div>
+</footer>
+</body>
+</html>
