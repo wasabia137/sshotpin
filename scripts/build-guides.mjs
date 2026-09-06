@@ -111,6 +111,7 @@ function head({ title, description, keywords, url }) {
 <meta property="og:description" content="${esc(description)}">
 <meta property="og:image" content="${BASE}/og.png">
 <meta name="robots" content="index, follow">
+<link rel="alternate" type="application/rss+xml" title="스샷핀 가이드" href="${BASE}/rss.xml">
 <link rel="icon" type="image/png" href="${BASE}/icon.png">
 <script async src="https://www.googletagmanager.com/gtag/js?id=${GA}"></script>
 <script>
@@ -274,7 +275,35 @@ const block = '\n  <!-- guide -->' + written.map((u) => `
 sm = sm.replace('</urlset>', block + '\n</urlset>');
 writeFileSync(smPath, sm);
 
+/* ── RSS ──
+ * 네이버 서치어드바이저는 사이트맵과 별개로 RSS 를 따로 받는다. 새 글이 올라온 것을
+ * 알리는 통로라 사이트맵보다 반영이 빠르다. 글 목록이 곧 항목이므로 여기서 함께 만든다.
+ * (2026-09-06 가이드 여덟 편이 생기면서 붙였다. 그전에는 담을 글이 없어 만들지 않았다)
+ */
+const rssDate = (d) => new Date(d + 'T09:00:00+09:00').toUTCString();
+const rss = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>스샷핀 가이드</title>
+    <link>${BASE}/guide/</link>
+    <atom:link href="${BASE}/rss.xml" rel="self" type="application/rss+xml"/>
+    <description>${esc(index.hub.description)}</description>
+    <language>ko</language>
+    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
+${index.articles.map((a) => `    <item>
+      <title>${esc(a.title)}</title>
+      <link>${BASE}/guide/${a.slug}/</link>
+      <guid isPermaLink="true">${BASE}/guide/${a.slug}/</guid>
+      <description>${esc(a.description)}</description>
+      <pubDate>${rssDate(a.updated || a.date)}</pubDate>
+    </item>`).join('\n')}
+  </channel>
+</rss>
+`;
+writeFileSync(join(root, 'web', 'rss.xml'), rss);
+
 console.log(`가이드 ${index.articles.length}편 + 허브 생성 → web/guide/`);
 for (const u of written) console.log('   ' + u);
 console.log(`\n사이트맵에 ${written.length}개 주소 반영 (총 ${(sm.match(/<loc>/g) || []).length}개)`);
+console.log(`RSS ${index.articles.length}편 → web/rss.xml`);
 console.log('\n배포한 뒤 `npm run indexnow` 로 알리세요.');
