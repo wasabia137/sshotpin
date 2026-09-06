@@ -23,6 +23,24 @@
 
 전체 사용법은 프로그램 트레이 아이콘 → **❓ 사용법·단축키**에서 볼 수 있습니다.
 
+## 사용법 가이드
+
+화면 캡처와 화면 확대, 판서를 어디에 어떻게 쓰는지 정리해 뒀습니다.
+
+- [단축키가 안 먹을 때 확인할 것](https://sshot-pin.web.app/guide/hotkey-not-working/) — 눌러도 아무 일이 없다면 원인은 대개 셋 중 하나예요.
+- [모니터 두 대에서 화면 캡처하기](https://sshot-pin.web.app/guide/dual-monitor/) — 어느 쪽이 찍히는지만 알면 나머지는 어렵지 않아요. 마우스가 있는 쪽이에요.
+- [화상 수업에서 화면 공유하며 설명하기](https://sshot-pin.web.app/guide/online-class/) — 손으로 화면을 가리키는 방식은 카메라 너머로 잘 안 닿아요.
+- [맥에서 캡처가 안 될 때 — 화면 기록 권한](https://sshot-pin.web.app/guide/mac-screen-permission/) — 맥은 화면을 읽는 프로그램을 사용자가 직접 허락하게 해뒀어요.
+- [윈도우·맥 화면 캡처 단축키, 이것만 알면 돼요](https://sshot-pin.web.app/guide/capture-shortcuts/) — 전체 화면, 창 하나, 원하는 부분만. 어떤 키가 어디까지 되는지 한 번에 모았어요.
+- [스크린샷을 화면 맨 위에 붙여두는 법](https://sshot-pin.web.app/guide/pin-screenshot-on-top/) — 찍은 화면을 포스트잇처럼 붙여두면, 창을 바꿔도 사라지지 않아요.
+- [발표와 수업에서 화면 확대하기](https://sshot-pin.web.app/guide/zoom-screen/) — 뒷자리에서 안 보이는 작은 글씨를, 보고 있는 자리를 중심으로 크게 키워요.
+- [화면 위에 바로 그리며 설명하기](https://sshot-pin.web.app/guide/draw-on-screen/) — 지금 보이는 화면이 무엇이든 그 위에 동그라미와 화살표를 얹을 수 있어요.
+- [화면 공유 전에 개인정보 가리기](https://sshot-pin.web.app/guide/mosaic-private-info/) — 스크린샷에는 보여주려던 것 말고도 여러 가지가 함께 담겨요.
+- [캡처한 이미지는 어디로 가고, 어떻게 바꾸나요](https://sshot-pin.web.app/guide/save-location/) — 윈도우와 맥은 찍은 화면을 서로 다른 곳에 넣어요.
+- [윈도우 캡처 도구로 되는 것과 안 되는 것](https://sshot-pin.web.app/guide/windows-snipping-tool/) — 찍어서 붙여넣는 게 목적이라면 Win+Shift+S로 충분해요. 막히는 곳은 따로 있어요.
+- [모둠 활동 시간을 화면에 띄워두기](https://sshot-pin.web.app/guide/class-timer/) — 남은 시간이 화면에 보이면 얼마나 남았냐고 묻는 일이 없어져요.
+
+전체 목록: **https://sshot-pin.web.app/guide/**
 ## 개발
 
 ```bash
