@@ -5,60 +5,98 @@
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body { width: 100%; height: 100%; overflow: hidden; user-select: none; background: transparent; }
+  /* 캡처·판서 도구모음과 같은 모양 — 흰 바탕에 선 아이콘. 이모지는 윈도우에서 뭉개진다.
+     창(투명)이 바에 딱 맞아 그림자를 둘 자리가 없으므로 테두리로만 구분한다. */
   #bar {
     display: flex; align-items: center; gap: 2px;
     height: 44px; margin: 1px;
-    background: rgba(15, 23, 42, .93);
-    border: 1px solid rgba(148, 163, 184, .4);
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, .22);
     border-radius: 22px;
     padding: 0 6px;
+    color: #1b1b1b;
   }
   #handle {
     width: 22px; height: 36px;
     display: flex; align-items: center; justify-content: center;
-    color: #64748b; font-size: 13px; cursor: move;
+    color: #8a8a8a; cursor: move;
   }
+  #handle svg { width: 16px; height: 16px; }
   .btn {
     width: 38px; height: 36px; border-radius: 11px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 17px; cursor: pointer;
+    cursor: pointer; color: #1b1b1b;
     transition: background .12s;
   }
-  .btn:hover { background: rgba(148, 163, 184, .25); }
-  .btn:active { background: rgba(148, 163, 184, .4); }
-  #hideBtn { width: 28px; font-size: 12px; color: #94a3b8; }
+  .btn svg { width: 21px; height: 21px; display: block; }
+  .btn:hover { background: #ededed; }
+  .btn:active { background: #e0e0e0; }
+  #hideBtn { width: 28px; color: #7a7a7a; }
+  #hideBtn svg { width: 14px; height: 14px; }
   /* 업데이트 단추 — 새 버전을 내려받는 중이거나 준비됐을 때만 보인다 */
-  #updBtn { display: none; position: relative; color: #60a5fa; }
+  #updBtn { display: none; position: relative; color: #005fb8; }
   #updBtn.show { display: flex; }
-  #updBtn svg { width: 22px; height: 22px; }
-  #updBtn.ready { color: #4ade80; }
+  #updBtn.ready { color: #1a7f37; }
   #updBtn.ready::after {
     content: ''; position: absolute; top: 6px; right: 6px;
-    width: 8px; height: 8px; border-radius: 50%; background: #4ade80;
-    box-shadow: 0 0 0 2px rgba(15, 23, 42, .93);
+    width: 8px; height: 8px; border-radius: 50%; background: #1a7f37;
+    box-shadow: 0 0 0 2px #fff;
   }
   #updBtn.downloading svg { animation: updPulse 1.2s ease-in-out infinite; }
   @keyframes updPulse { 50% { opacity: .35; } }
 </style>
 </head>
 <body>
-  <div id="bar">
-    <div id="handle" title="드래그해서 이동">⠿</div>
-    <div class="btn" data-act="capture" data-hk="capture" title="영역 캡처">📸</div>
-    <div class="btn" data-act="pin" data-hk="pin" title="클립보드 이미지 핀">📌</div>
-    <div class="btn" data-act="zoom" data-hk="zoom" title="화면 확대">🔍</div>
-    <div class="btn" data-act="draw" data-hk="draw" title="판서">✏️</div>
-    <div class="btn" data-act="timer" data-hk="timer" title="타이머">⏱️</div>
-    <div class="btn" data-act="history" title="최근 캡처 다시 불러오기">🕘</div>
-    <div class="btn" data-act="cover" data-hk="cover" title="가리개">🙈</div>
-    <div class="btn" data-act="help" title="사용법·단축키">❓</div>
-    <div class="btn" data-act="settings" title="설정 (단축키 변경·저장 폴더)">⚙️</div>
-    <div class="btn" id="updBtn" data-act="update" title="">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <g id="i-grip" fill="currentColor"><circle cx="9" cy="6" r="1.4"/><circle cx="15" cy="6" r="1.4"/><circle cx="9" cy="12" r="1.4"/><circle cx="15" cy="12" r="1.4"/><circle cx="9" cy="18" r="1.4"/><circle cx="15" cy="18" r="1.4"/></g>
+      <g id="i-camera" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 8.5A1.5 1.5 0 0 1 5.5 7H8l1.3-2h5.4L16 7h2.5A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z"/><circle cx="12" cy="13" r="3.5"/>
+      </g>
+      <g id="i-pin" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 3h6l-1 6 3 3v2H7v-2l3-3-1-6z"/><path d="M12 14v7"/>
+      </g>
+      <g id="i-zoom" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/><path d="M8.5 11h5M11 8.5v5"/>
+      </g>
+      <g id="i-pen" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 20l1-4.5L15.5 5a2.1 2.1 0 0 1 3 3L8 18.5 4 20z"/><path d="M13.5 7l3 3"/>
+      </g>
+      <g id="i-timer" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="13.5" r="7"/><path d="M12 9.5v4l2.5 1.5"/><path d="M10 3h4M12 3v3.5"/>
+      </g>
+      <g id="i-history" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3.5 12a8.5 8.5 0 1 0 2.5-6"/><path d="M3.5 4v4h4"/><path d="M12 8v4.5l3 1.8"/>
+      </g>
+      <g id="i-cover" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 3l18 18"/><path d="M10.5 5.3c.5-.1 1-.1 1.5-.1 5 0 8.6 4 9.8 6.8-.5 1.1-1.3 2.4-2.5 3.6M6.6 6.6C4.5 8 3 10.2 2.2 12c1.2 2.8 4.8 6.8 9.8 6.8 1.6 0 3.1-.4 4.4-1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/>
+      </g>
+      <g id="i-help" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.6a2.4 2.4 0 1 1 3.4 2.2c-.7.4-1 .9-1 1.7"/><circle cx="12" cy="16.6" r=".9" fill="currentColor" stroke="none"/>
+      </g>
+      <g id="i-gear" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </g>
+      <g id="i-download" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 19h16"/>
-      </svg>
-    </div>
-    <div class="btn" id="hideBtn" data-act="hide" title="퀵바 숨기기 (트레이에서 다시 켤 수 있어요)">✕</div>
+      </g>
+      <g id="i-close" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></g>
+    </defs>
+  </svg>
+  <div id="bar">
+    <div id="handle" title="드래그해서 이동"><svg viewBox="0 0 24 24"><use href="#i-grip"/></svg></div>
+    <div class="btn" data-act="capture" data-hk="capture" title="영역 캡처"><svg viewBox="0 0 24 24"><use href="#i-camera"/></svg></div>
+    <div class="btn" data-act="pin" data-hk="pin" title="클립보드 이미지 핀"><svg viewBox="0 0 24 24"><use href="#i-pin"/></svg></div>
+    <div class="btn" data-act="zoom" data-hk="zoom" title="화면 확대"><svg viewBox="0 0 24 24"><use href="#i-zoom"/></svg></div>
+    <div class="btn" data-act="draw" data-hk="draw" title="판서"><svg viewBox="0 0 24 24"><use href="#i-pen"/></svg></div>
+    <div class="btn" data-act="timer" data-hk="timer" title="타이머"><svg viewBox="0 0 24 24"><use href="#i-timer"/></svg></div>
+    <div class="btn" data-act="history" title="최근 캡처 다시 불러오기"><svg viewBox="0 0 24 24"><use href="#i-history"/></svg></div>
+    <div class="btn" data-act="cover" data-hk="cover" title="가리개"><svg viewBox="0 0 24 24"><use href="#i-cover"/></svg></div>
+    <div class="btn" data-act="help" title="사용법·단축키"><svg viewBox="0 0 24 24"><use href="#i-help"/></svg></div>
+    <div class="btn" data-act="settings" title="설정 (단축키 변경·저장 폴더)"><svg viewBox="0 0 24 24"><use href="#i-gear"/></svg></div>
+    <div class="btn" id="updBtn" data-act="update" title=""><svg viewBox="0 0 24 24"><use href="#i-download"/></svg></div>
+    <div class="btn" id="hideBtn" data-act="hide" title="퀵바 숨기기 (트레이에서 다시 켤 수 있어요)"><svg viewBox="0 0 24 24"><use href="#i-close"/></svg></div>
   </div>
 
 <script src="i18n.js"></script>
