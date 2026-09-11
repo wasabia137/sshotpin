@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; user-select: none; background: transparent; }
+  body {
+    font-family: 'Segoe UI Variable Text', 'Segoe UI', 'Malgun Gothic', 'Apple SD Gothic Neo', -apple-system, sans-serif;
+    color: #1b1b1b;
+    /* 카드 둘레의 투명한 여백 — 창 자체는 그림자를 못 그리므로 이 안에 CSS 그림자를 둔다 */
+    padding: 14px;
+  }
+  /* 창은 넉넉히 잡고 카드만 내용에 맞춘다. 카드 높이를 메인에 알려 창을 줄인다. */
+  #card {
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, .16);
+    border-radius: 10px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .28);
+    padding: 16px 18px 16px;
+  }
+  #head {
+    display: flex; align-items: center; gap: 10px;
+    -webkit-app-region: drag;      /* 제목줄을 끌어 옮긴다 */
+    margin-bottom: 12px;
+  }
+  #head svg { width: 22px; height: 22px; flex: none; color: #005fb8; }
+  #title { font-size: 15px; font-weight: 700; flex: 1; }
+  #x {
+    -webkit-app-region: no-drag;
+    width: 30px; height: 30px; border: 0; border-radius: 6px;
+    background: transparent; color: #5a5a5a; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  #x:hover { background: #ededed; color: #1b1b1b; }
+  #x svg { width: 16px; height: 16px; }
+
+  #body { display: flex; align-items: flex-start; gap: 12px; min-height: 36px; }
+  #mark { width: 36px; height: 36px; flex: none; display: none; align-items: center; justify-content: center; border-radius: 50%; }
+  #mark svg { width: 22px; height: 22px; }
+  #mark.ok { display: flex; background: #e6f4ea; color: #1a7f37; }
+  #mark.bad { display: flex; background: #fdecea; color: #c0392b; }
+  #mark.spin { display: flex; }
+  #mark.spin svg { animation: spin 1s linear infinite; color: #005fb8; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #txt { flex: 1; min-width: 0; padding-top: 6px; }
+  #msg { font-size: 14px; line-height: 1.5; }
+  #sub { font-size: 12.5px; color: #616161; margin-top: 3px; }
+
+  /* 진행 막대 */
+  #bar { display: none; height: 6px; border-radius: 3px; background: #e6e6e6; margin-top: 12px; overflow: hidden; }
+  #bar.show { display: block; }
+  #fill { height: 100%; width: 0; background: #005fb8; border-radius: 3px; transition: width .25s; }
+  #bar.indet #fill { width: 35%; animation: slide 1.2s ease-in-out infinite; }
+  @keyframes slide { 0% { margin-left: -35%; } 100% { margin-left: 100%; } }
+
+  #btns { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+  #btns button {
+    min-width: 88px; height: 34px; padding: 0 14px;
+    border: 1px solid #d6d6d6; border-radius: 6px;
+    background: #fbfbfb; color: #1b1b1b;
+    font: 13.5px 'Segoe UI Variable Text', 'Segoe UI', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+    cursor: pointer;
+  }
+  #btns button:hover { background: #f0f0f0; }
+  #btns button:active { background: #e4e4e4; transform: translateY(1px); }
+  #btns button.primary { background: #005fb8; border-color: #005fb8; color: #fff; font-weight: 600; }
+  #btns button.primary:hover { background: #1a70c4; }
+  #btns button.primary:active { background: #004a91; }
+  #btns button:disabled { opacity: .55; cursor: default; transform: none; }
+  #btns button[hidden] { display: none; }
+</style>
+</head>
+<body>
+  <div id="card">
+    <div id="head">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 19h16"/>
+      </svg>
+      <div id="title">업데이트</div>
+      <button id="x" title="닫기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div id="body">
+      <div id="mark"></div>
+      <div id="txt">
+        <div id="msg"></div>
+        <div id="sub"></div>
+      </div>
+    </div>
+    <div id="bar"><div id="fill"></div></div>
+    <div id="btns">
+      <button id="bNotes" hidden>바뀐 점 보기</button>
+      <button id="bRetry" hidden>다시 시도</button>
+      <button id="bRestart" class="primary" hidden>지금 다시 시작</button>
+      <button id="bLater" hidden>나중에</button>
+      <button id="bClose" hidden>닫기</button>
+    </div>
+  </div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const ICON_OK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+  const ICON_BAD = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 7v6"/><circle cx="12" cy="16.5" r="1" fill="currentColor" stroke="none"/></svg>';
+  const ICON_SPIN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 3a9 9 0 1 1-6.4 2.6"/></svg>';
+
+  function show(btn, on) { $(btn).hidden = !on; }
+
+  // 메인이 보내는 상태 하나로 화면 전체를 다시 그린다
+  window.api.onUpdateState((u) => {
+    if (!u || !u.labels) return;
+    const L = u.labels;
+    $('title').textContent = L.title;
+    $('x').title = L.close;
+    $('bNotes').textContent = L.notes;
+    $('bRetry').textContent = L.retry;
+    $('bRestart').textContent = L.restart;
+    $('bRestart').dataset.restarting = L.restarting;
+    $('bLater').textContent = L.later;
+    $('bRestart').disabled = false;
+    $('bClose').textContent = u.status === 'latest' || u.status === 'updated' ? L.ok : L.close;
+
+    const mark = $('mark');
+    mark.className = '';
+    const bar = $('bar');
+    bar.className = '';
+    $('sub').textContent = '';
+    for (const b of ['bNotes', 'bRetry', 'bRestart', 'bLater', 'bClose']) show(b, false);
+
+    if (u.status === 'checking') {
+      mark.className = 'spin'; mark.innerHTML = ICON_SPIN;
+      $('msg').textContent = u.text;
+      show('bClose', true);
+    } else if (u.status === 'downloading') {
+      $('msg').textContent = u.text;
+      $('sub').textContent = u.version ? `Sshot-Pin v${u.version}` : '';
+      bar.className = u.percent == null ? 'show indet' : 'show';
+      $('fill').style.width = (u.percent == null ? 0 : Math.max(2, u.percent)) + '%';
+      show('bClose', true);
+    } else if (u.status === 'ready') {
+      mark.className = 'ok'; mark.innerHTML = ICON_OK;
+      $('msg').textContent = u.text;
+      $('sub').textContent = u.version ? `Sshot-Pin v${u.version}` : '';
+      show('bRestart', true); show('bLater', true);
+    } else if (u.status === 'latest') {
+      mark.className = 'ok'; mark.innerHTML = ICON_OK;
+      $('msg').textContent = u.text;
+      $('sub').textContent = u.version ? `Sshot-Pin v${u.version}` : '';
+      show('bClose', true);
+    } else if (u.status === 'updated') {
+      mark.className = 'ok'; mark.innerHTML = ICON_OK;
+      $('msg').textContent = u.text;
+      $('sub').textContent = `Sshot-Pin v${u.version}` + (u.prevVersion ? ` · ${L.prev}` : '');
+      show('bNotes', true); show('bClose', true);
+    } else if (u.status === 'error') {
+      mark.className = 'bad'; mark.innerHTML = ICON_BAD;
+      $('msg').textContent = u.text;
+      show('bRetry', true); show('bClose', true);
+    } else {
+      // idle — 개발 모드 안내처럼 글만 있는 경우
+      $('msg').textContent = u.text || '';
+      show('bClose', true);
+    }
+    measure();
+  });
+
+  // 카드가 실제로 차지하는 높이를 알려 창 크기를 맞춘다
+  function measure() {
+    requestAnimationFrame(() => {
+      const h = Math.ceil($('card').getBoundingClientRect().height) + 28;  // 위아래 여백 14px씩
+      if (h > 28) window.api.updateMeasured(h);
+    });
+  }
+
+  $('x').addEventListener('click', () => window.api.updateClose());
+  $('bClose').addEventListener('click', () => window.api.updateClose());
+  $('bLater').addEventListener('click', () => window.api.updateClose());
+  // 누르는 즉시 「다시 시작하는 중…」으로 바꾼다 — 프로그램이 내려가기까지 1~2초가 걸려
+  // 아무 반응이 없는 것처럼 보인다. 실패하면 메인이 상태를 다시 보내 원래대로 돌아온다.
+  $('bRestart').addEventListener('click', () => {
+    const b = $('bRestart');
+    if (b.disabled) return;
+    b.disabled = true;
+    b.textContent = b.dataset.restarting || b.textContent;
+    $('mark').className = 'spin'; $('mark').innerHTML = ICON_SPIN;
+    window.api.restartForUpdate();
+  });
+  $('bRetry').addEventListener('click', () => window.api.checkUpdate());
+  $('bNotes').addEventListener('click', () => window.api.updateNotes());
+  window.addEventListener('keydown', (e) => { if (e.key === 'Escape') window.api.updateClose(); });
+</script>
+</body>
+</html>

@@ -188,6 +188,7 @@ const defaultSettings = {
   saveDir: '',        // 빈 값이면 사진 폴더
   quickSave: false,   // true면 대화상자 없이 바로 저장
   autostartTagged: false,  // 자동 실행 등록에 --autostart 표시를 넣었는지
+  lastRunVersion: '',      // 지난번에 켰던 버전 — 달라지면 업데이트 직후다
 };
 let settings = { ...defaultSettings };
 let hotkeysMigrated = false;   // 예전 F1/F2/F3 기본값에서 자동 변경됐는지
@@ -606,7 +607,7 @@ function createQuickbar() {
   // 내용물에 정확히 맞춘 크기. 창이 더 넓으면 바가 늘어나며 버튼은 왼쪽
   // 정렬이라 오른쪽에만 빈 공간이 생긴다 (좌우 패딩이 달라 보이는 원인).
   // = 여백2 + 테두리2 + 패딩12 + 손잡이22 + 버튼 9×38 + ✕28 + 간격 10×2
-  const W = 428, H = 46;
+  const W = quickbarWidth(), H = 46;
   let { x, y } = {
     x: display.workArea.x + Math.round((display.workArea.width - W) / 2),
     y: display.workArea.y + 8,
@@ -640,7 +641,7 @@ function createQuickbar() {
   }
   quickbarWin.loadFile(path.join(__dirname, 'src', 'quickbar.html'));
   quickbarWin.webContents.on('did-finish-load', () => {
-    if (quickbarWin) quickbarWin.webContents.send('quickbar-state', { hotkeys: settings.hotkeys });
+    if (quickbarWin) quickbarWin.webContents.send('quickbar-state', quickbarState());
   });
   quickbarWin.once('ready-to-show', () => quickbarWin.showInactive());
   quickbarWin.on('moved', () => {
@@ -650,6 +651,18 @@ function createQuickbar() {
     saveSettings();
   });
   quickbarWin.on('closed', () => { quickbarWin = null; });
+}
+
+// 새 버전이 내려받는 중이거나 준비됐을 때만 업데이트 단추(38px + 간격 2px)가 붙는다
+const QUICKBAR_BASE_W = 428;
+function quickbarWidth() {
+  return QUICKBAR_BASE_W + (quickbarUpdateHint() ? 40 : 0);
+}
+function quickbarState() {
+  return {
+    hotkeys: settings.hotkeys,
+    update: { status: updateState.status, hint: quickbarUpdateHint() },
+  };
 }
 
 function setQuickbarVisible(visible) {
@@ -687,6 +700,7 @@ ipcMain.on('quickbar-action', (e, action) => {
   else if (action === 'history') openHistory();
   else if (action === 'help') openHelp();
   else if (action === 'settings') openSettings();
+  else if (action === 'update') openUpdateWin();
   else if (action === 'hide') {
     setQuickbarVisible(false);
     notify(tr('퀵 실행바를 숨겼어요. 트레이 메뉴에서 다시 켤 수 있어요.'));
@@ -1150,7 +1164,16 @@ function sendSettingsState() {
 // 단축키가 바뀌면 퀵바 툴팁·트레이 메뉴도 함께 갱신
 function broadcastHotkeys() {
   if (quickbarWin && !quickbarWin.isDestroyed()) {
-    quickbarWin.webContents.send('quickbar-state', { hotkeys: settings.hotkeys });
+    quickbarWin.webContents.send('quickbar-state', quickbarState());
+    // 업데이트 단추가 생기거나 사라지면 창 너비를 그에 맞춘다. 오른쪽 끝에 붙어
+    // 있던 퀵바가 화면 밖으로 밀리지 않게 x를 되돌린다.
+    const b = quickbarWin.getBounds();
+    const w = quickbarWidth();
+    if (b.width !== w) {
+      const wa = screen.getDisplayMatching(b).workArea;
+      const x = Math.min(b.x, wa.x + wa.width - w);
+      setBoundsForce(quickbarWin, { x, y: b.y, width: w, height: b.height });
+    }
   }
   rebuildTrayMenu();
 }
@@ -1642,7 +1665,7 @@ function rebuildTrayMenu() {
     ...(updateState.status === 'ready'
       ? [{ label: tr('🔄 새 버전 준비됨 — 다시 시작'), click: restartForUpdate }]
       : []),
-    { label: tr('업데이트 확인'), click: () => checkUpdates(false) },
+    { label: tr('업데이트 확인'), click: checkUpdatesWithWin },
     { label: `Sshot-Pin v${app.getVersion()}`, enabled: false },
     { label: tr('종료'), click: () => app.quit() },
   ]);
@@ -1651,7 +1674,10 @@ function rebuildTrayMenu() {
 
 function updateTrayTooltip() {
   if (!tray || tray.isDestroyed()) return;
-  tray.setToolTip(`Sshot-Pin — ${tr('아이콘을 우클릭하면 모든 기능과 설정을 볼 수 있어요')}`);
+  const tip = updateState.status === 'ready'
+    ? tr('새 버전 v{v} 준비됨 — 다시 시작하면 적용돼요', { v: updateState.version })
+    : tr('아이콘을 우클릭하면 모든 기능과 설정을 볼 수 있어요');
+  tray.setToolTip(`Sshot-Pin — ${tip}`);
 }
 
 function createTray() {
@@ -1741,13 +1767,44 @@ ipcMain.on('toast-close', () => {
 
 // ---------- 업데이트 ----------
 
-// 업데이트 진행 상황을 설정 창에도 보여준다
-let updateState = { status: 'idle', text: '' };
-function setUpdateState(status, text) {
-  updateState = { status, text };
+// 업데이트 진행 상황은 한 상태값으로 관리하고, 설정 창·업데이트 창·퀵바·트레이가
+// 같은 값을 본다. status: idle | checking | downloading | latest | ready | error | updated
+let updateState = { status: 'idle', text: '', version: '', percent: null, prevVersion: '' };
+function setUpdateState(status, text, extra = {}) {
+  const was = updateState.status;
+  updateState = { ...updateState, status, text, ...extra };
   if (settingsWin && !settingsWin.isDestroyed()) {
     settingsWin.webContents.send('update-state', updateState);
   }
+  sendUpdateWinState();
+  // 퀵바의 업데이트 단추와 트레이 표시는 내려받기 시작·준비 완료에서만 바뀐다
+  const visibleStates = ['downloading', 'ready'];
+  if (visibleStates.includes(was) !== visibleStates.includes(status) || status === 'ready') {
+    broadcastHotkeys();   // 퀵바 단추·트레이 메뉴
+    updateTrayTooltip();
+  }
+}
+
+// 업데이트 창에 보내는 문구 — 창 쪽에는 글자를 두지 않고 전부 여기서 번역해 보낸다
+function updateLabels(u) {
+  return {
+    title: tr('업데이트'),
+    close: tr('닫기'),
+    ok: tr('확인'),
+    restart: tr('지금 다시 시작'),
+    restarting: tr('다시 시작하는 중…'),
+    later: tr('나중에'),
+    retry: tr('다시 시도'),
+    notes: tr('바뀐 점 보기'),
+    prev: tr('이전 v{p}', { p: u.prevVersion }),
+  };
+}
+
+// 퀵바 업데이트 단추의 툴팁 (없으면 단추를 숨긴다)
+function quickbarUpdateHint() {
+  if (updateState.status === 'ready') return tr('새 버전 v{v} 준비됨 — 다시 시작하면 적용돼요', { v: updateState.version });
+  if (updateState.status === 'downloading') return tr('새 버전을 내려받는 중');
+  return '';
 }
 
 // electron-updater는 한 번만 불러와 리스너를 붙인다. 확인할 때마다 다시
@@ -1768,29 +1825,38 @@ function getUpdater() {
   autoUpdater.autoInstallOnAppQuit = true;
 
   autoUpdater.on('update-available', (info) =>
-    setUpdateState('downloading', tr('새 버전 v{v}을 내려받는 중… 0%', { v: info.version })));
+    setUpdateState('downloading', tr('새 버전 v{v}을 내려받는 중… 0%', { v: info.version }),
+      { version: info.version, percent: 0 }));
   autoUpdater.on('download-progress', (p) =>
-    setUpdateState('downloading', tr('내려받는 중… {p}%', { p: Math.round(p.percent) })));
-  autoUpdater.on('update-not-available', () =>
-    setUpdateState('latest', tr('지금이 최신 버전이에요.')));
+    setUpdateState('downloading', tr('내려받는 중… {p}%', { p: Math.round(p.percent) }),
+      { percent: Math.round(p.percent) }));
+  autoUpdater.on('update-not-available', (info) =>
+    setUpdateState('latest', tr('지금이 최신 버전이에요.'), { version: app.getVersion(), percent: null }));
   autoUpdater.on('update-downloaded', (info) => {
-    setUpdateState('ready', tr('v{v} 준비 완료 — 다시 시작하면 적용돼요.', { v: info.version }));
-    notify(tr('새 버전 v{v}을 받았어요. 다시 시작하면 적용돼요.', { v: info.version }));
-    // 알림을 놓쳐도 트레이 메뉴에 "다시 시작해서 업데이트"가 남는다
-    rebuildTrayMenu();
+    setUpdateState('ready', tr('v{v} 준비 완료 — 다시 시작하면 적용돼요.', { v: info.version }),
+      { version: info.version, percent: 100 });
+    // 자동 확인으로 받았으면 트레이 근처에 조용히 띄운다 — 수업 중 화면 한가운데를 가리지 않게.
+    // 직접 확인한 경우에는 창이 이미 열려 있어 그 안에서 준비 완료로 바뀐다.
+    if (updaterSilent) openUpdateWin({ quiet: true });
+    else notifyIfNoUpdateWin(tr('새 버전 v{v}을 받았어요. 다시 시작하면 적용돼요.', { v: info.version }));
   });
   autoUpdater.on('error', (err) => {
     const msg = String((err && err.message) || err);
     log('업데이트 실패', msg);
-    if (updaterSilent) { setUpdateState('idle', ''); return; }
+    if (updaterSilent) { setUpdateState('idle', '', { percent: null }); return; }
     const net = /net::|ENOTFOUND|ETIMEDOUT|EAI_AGAIN/.test(msg);
     setUpdateState('error', net
       ? tr('인터넷에 연결되어 있는지 확인해주세요.')
-      : tr('업데이트를 확인하지 못했어요. 잠시 뒤에 다시 시도해주세요.'));
+      : tr('업데이트를 확인하지 못했어요. 잠시 뒤에 다시 시도해주세요.'), { percent: null });
   });
 
   updater = autoUpdater;
   return updater;
+}
+
+function notifyIfNoUpdateWin(body) {
+  if (updateWin && !updateWin.isDestroyed()) return;
+  notify(body);
 }
 
 function checkUpdates(silent) {
@@ -1798,15 +1864,18 @@ function checkUpdates(silent) {
     if (!silent) setUpdateState('idle', tr('개발 모드에서는 업데이트를 확인할 수 없어요.'));
     return;
   }
-  // 이미 받아둔 게 있으면 다시 받을 필요가 없다
-  if (updateState.status === 'ready' || updateState.status === 'downloading') return;
+  // 이미 받아둔 게 있으면 다시 받을 필요가 없다 — 창만 지금 상태로 다시 보낸다
+  if (updateState.status === 'ready' || updateState.status === 'downloading') {
+    if (!silent) sendUpdateWinState();
+    return;
+  }
   const autoUpdater = getUpdater();
   if (!autoUpdater) {
     if (!silent) setUpdateState('error', tr('업데이트 기능을 불러오지 못했어요.'));
     return;
   }
   updaterSilent = !!silent;
-  setUpdateState('checking', silent ? '' : tr('새 버전을 확인하는 중…'));
+  setUpdateState('checking', silent ? '' : tr('새 버전을 확인하는 중…'), { percent: null });
   autoUpdater.checkForUpdates().catch(() => { /* error 리스너가 처리 */ });
 }
 
@@ -1819,17 +1888,154 @@ function startUpdateWatch() {
   setInterval(() => checkUpdates(true), UPDATE_INTERVAL);
 }
 
+let quitting = false;   // quitAndInstall이 실제로 내려가기 시작했는지
+app.on('before-quit', () => { quitting = true; });
+
 function restartForUpdate() {
+  if (!app.isPackaged) {
+    // 개발 모드에는 설치할 것이 없다 — 단추를 눌렀는데 아무 일도 없는 것처럼 보이지 않게
+    setUpdateState('idle', tr('개발 모드에서는 업데이트를 확인할 수 없어요.'));
+    return;
+  }
+  const failed = () => {
+    notify(tr('다시 시작하지 못했어요. 프로그램을 직접 종료한 뒤 다시 실행해주세요.'));
+    sendUpdateWinState();   // 창의 「다시 시작하는 중…」을 원래 단추로 되돌린다
+  };
   try {
     getUpdater().quitAndInstall();
+    // 10초가 지나도 안 내려갔으면 실패한 것이다
+    setTimeout(() => { if (!quitting) failed(); }, 10000);
   } catch (e) {
-    notify(tr('다시 시작하지 못했어요. 프로그램을 직접 종료한 뒤 다시 실행해주세요.'));
+    failed();
   }
 }
 
-// 설정 창의 "지금 다시 시작" 버튼
+// ----- 업데이트 창 -----
+// 확인 중 → 내려받는 중(진행 막대) → 준비 완료(다시 시작 단추)까지 한 창에서 보여준다.
+// 새 버전으로 처음 켜졌을 때는 같은 창이 「업데이트를 마쳤어요」로 뜬다.
+let updateWin = null;
+const UPDATE_W = 428, UPDATE_H = 220;   // 너비는 카드 400 + 좌우 여백 14×2. 높이는 카드가 알려오면 다시 맞춘다
+
+function openUpdateWin(opts = {}) {
+  const quiet = !!opts.quiet;   // 포커스를 뺏지 않고 트레이 근처에 — 자동 확인·시작 직후
+  if (updateWin && !updateWin.isDestroyed()) {
+    sendUpdateWinState();
+    if (!quiet) updateWin.focus();
+    return;
+  }
+  const wa = screen.getPrimaryDisplay().workArea;
+  const pos = quiet
+    ? { x: wa.x + wa.width - UPDATE_W - 16, y: isMac ? wa.y + 16 : wa.y + wa.height - UPDATE_H - 16 }
+    : { x: wa.x + Math.round((wa.width - UPDATE_W) / 2), y: wa.y + Math.round((wa.height - UPDATE_H) / 2) };
+  updateWin = new BrowserWindow({
+    ...pos, width: UPDATE_W, height: UPDATE_H,
+    useContentSize: true,
+    frame: false,
+    transparent: true,
+    resizable: false,
+    minimizable: false,
+    maximizable: false,
+    skipTaskbar: true,
+    hasShadow: false,
+    focusable: !quiet,
+    show: false,
+    title: tr('업데이트'),
+    webPreferences: { preload: path.join(__dirname, 'preload.js') },
+  });
+  updateWin.setAlwaysOnTop(true, 'screen-saver');
+  // 캡처에 찍히지 않게. (개발용 흉내 모드에서는 화면을 찍어 확인해야 하므로 끈다)
+  if (!process.env.SSHOTPIN_UPDATE_DEMO) {
+    try { updateWin.setContentProtection(true); } catch (e) { /* 통하지 않는 환경은 그대로 */ }
+  }
+  updateWin.loadFile(path.join(__dirname, 'src', 'update.html'));
+  updateWin.webContents.on('did-finish-load', sendUpdateWinState);
+  updateWin.once('ready-to-show', () => {
+    if (!updateWin || updateWin.isDestroyed()) return;
+    if (quiet) updateWin.showInactive(); else updateWin.show();
+  });
+  updateWin.on('closed', () => { updateWin = null; updatedNotice = null; });
+}
+
+// 「업데이트를 마쳤어요」 창은 자동 확인 결과(확인 중·최신)에 덮이지 않는다.
+// 그 사이 다음 버전이 또 내려오면 그건 보여준다.
+let updatedNotice = null;   // { version, prevVersion } — 새 버전으로 처음 켜졌을 때
+function updateWinPayload() {
+  if (updatedNotice && !['downloading', 'ready', 'error'].includes(updateState.status)) {
+    return { ...updateState, status: 'updated', text: tr('업데이트를 마쳤어요'), ...updatedNotice };
+  }
+  return updateState;
+}
+
+function sendUpdateWinState() {
+  if (!updateWin || updateWin.isDestroyed()) return;
+  const u = updateWinPayload();
+  updateWin.webContents.send('update-state', { ...u, labels: updateLabels(u) });
+}
+
+// 카드 높이에 창을 맞춘다. 트레이 근처(아래쪽 기준)에 붙은 창은 아래 변을 고정한다.
+ipcMain.on('update-measured', (e, height) => {
+  if (!updateWin || updateWin.isDestroyed()) return;
+  const b = updateWin.getBounds();
+  const h = clamp(Math.round(height), 120, 600);
+  if (h === b.height) return;
+  const wa = screen.getDisplayMatching(b).workArea;
+  const anchoredBottom = !isMac && b.y + b.height >= wa.y + wa.height - 40;
+  const y = anchoredBottom ? b.y + b.height - h : b.y;
+  setBoundsForce(updateWin, { x: b.x, y, width: b.width, height: h });
+});
+
+ipcMain.on('update-close', () => {
+  if (updateWin && !updateWin.isDestroyed()) updateWin.close();
+});
+
+// 「바뀐 점 보기」 — 그 버전의 깃허브 릴리스 글
+ipcMain.on('update-notes', () => {
+  const v = updateWinPayload().version || app.getVersion();
+  shell.openExternal(`https://github.com/wasabia137/sshotpin/releases/tag/v${v}`);
+});
+
+// 새 버전으로 처음 켜졌을 때 — 「업데이트를 마쳤어요」
+function showUpdatedNotice(prevVersion) {
+  updatedNotice = { version: app.getVersion(), prevVersion };
+  openUpdateWin({ quiet: true });
+}
+
+// 설정 창·트레이의 "업데이트 확인"은 창을 띄우고 확인한다
+function checkUpdatesWithWin() {
+  openUpdateWin();
+  checkUpdates(false);
+}
+
 ipcMain.on('update-restart', restartForUpdate);
-ipcMain.on('update-check', () => checkUpdates(false));
+ipcMain.on('update-check', checkUpdatesWithWin);
+
+// 개발 중 확인용 — 설치 버전이 아니면 진짜 업데이트가 오지 않으므로 상태를 흉내 낸다.
+//   SSHOTPIN_UPDATE_DEMO=downloading|ready|updated|error npm start
+function demoUpdateState(kind) {
+  const v = '9.9.9';
+  if (kind === 'downloading') {
+    let p = 0;
+    setUpdateState('downloading', tr('새 버전 v{v}을 내려받는 중… 0%', { v }), { version: v, percent: 0 });
+    openUpdateWin();
+    const t = setInterval(() => {
+      p = Math.min(100, p + 7);
+      setUpdateState('downloading', tr('내려받는 중… {p}%', { p }), { percent: p });
+      if (p >= 100) {
+        clearInterval(t);
+        setUpdateState('ready', tr('v{v} 준비 완료 — 다시 시작하면 적용돼요.', { v }), { percent: 100 });
+      }
+    }, 400);
+  } else if (kind === 'ready') {
+    updaterSilent = true;
+    setUpdateState('ready', tr('v{v} 준비 완료 — 다시 시작하면 적용돼요.', { v }), { version: v, percent: 100 });
+    openUpdateWin({ quiet: true });
+  } else if (kind === 'updated') {
+    showUpdatedNotice('0.10.2');
+  } else if (kind === 'error') {
+    setUpdateState('error', tr('인터넷에 연결되어 있는지 확인해주세요.'));
+    openUpdateWin();
+  }
+}
 
 // ---------- 첫 실행 ----------
 
@@ -1895,14 +2101,25 @@ if (!gotLock) {
     // 첫 실행에는 도움말 창이 뜨므로 실행됐는지 굳이 알릴 필요가 없다.
     // 부팅과 함께 켜진 경우에는 데스크톱이 자리를 잡을 때까지 기다렸다 띄운다.
     // 지금 띄우면 사용자가 화면을 보기도 전에 사라져 "안내가 없다"가 된다.
+    // 지난번에 켰던 버전을 적어 둔다. 다르면 방금 업데이트된 것이다.
+    // (예전 버전에는 이 값이 없다 — 첫 실행을 마친 상태에서 값이 없으면 역시 업데이트다)
+    const prevVersion = settings.lastRunVersion || '';
+    const justUpdated = app.isPackaged && settings.firstRunDone && prevVersion !== app.getVersion();
+    if (settings.lastRunVersion !== app.getVersion()) {
+      settings.lastRunVersion = app.getVersion();
+      saveSettings();
+    }
+
     if (settings.firstRunDone) {
       const atLogin = launchedAtLogin();
       let up = 0;
       try { up = os.uptime(); } catch (e) { /* 모르면 기본 대기 */ }
       // 부팅 20초쯤 지난 시점을 목표로 하되, 너무 이르지도 너무 늦지도 않게
       const delay = atLogin ? clamp(Math.round((20 - up) * 1000), 4000, 15000) : 0;
-      if (delay) setTimeout(() => showStartupToast({ atLogin: true }), delay);
-      else showStartupToast({ atLogin });
+      // 업데이트 직후에는 실행 알림 대신 「업데이트를 마쳤어요」 창이 그 자리에 뜬다
+      const showFn = justUpdated ? () => showUpdatedNotice(prevVersion) : () => showStartupToast({ atLogin });
+      if (delay) setTimeout(showFn, delay);
+      else showFn();
     }
 
     ensureInApplicationsFolder().then(() => firstRunFlow());
@@ -1917,6 +2134,9 @@ if (!gotLock) {
 
     // 자동 업데이트 (설치 버전에서만) — GitHub Releases 확인
     startUpdateWatch();
+    if (!app.isPackaged && process.env.SSHOTPIN_UPDATE_DEMO) {
+      setTimeout(() => demoUpdateState(process.env.SSHOTPIN_UPDATE_DEMO), 1500);
+    }
 
     log(`스샷핀 v${app.getVersion()} 시작 — 단축키 ${JSON.stringify(settings.hotkeys)}`);
   });

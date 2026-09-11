@@ -47,6 +47,12 @@ contextBridge.exposeInMainWorld('api', {
   checkUpdate: () => ipcRenderer.send('update-check'),
   restartForUpdate: () => ipcRenderer.send('update-restart'),
 
+  // 업데이트 창 (진행 상황·준비 완료·업데이트 완료)
+  updateClose: () => ipcRenderer.send('update-close'),
+  updateNotes: () => ipcRenderer.send('update-notes'),
+  // 카드 높이를 알려 창을 그 크기로 맞춘다 (언어마다 글 길이가 다르다)
+  updateMeasured: (h) => ipcRenderer.send('update-measured', h),
+
   // 최근 캡처
   onHistoryState: (cb) => ipcRenderer.on('history-state', (e, d) => cb(d)),
   historyPin: (id) => ipcRenderer.send('history-pin', id),

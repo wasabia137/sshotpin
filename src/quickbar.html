@@ -27,6 +27,18 @@
   .btn:hover { background: rgba(148, 163, 184, .25); }
   .btn:active { background: rgba(148, 163, 184, .4); }
   #hideBtn { width: 28px; font-size: 12px; color: #94a3b8; }
+  /* 업데이트 단추 — 새 버전을 내려받는 중이거나 준비됐을 때만 보인다 */
+  #updBtn { display: none; position: relative; color: #60a5fa; }
+  #updBtn.show { display: flex; }
+  #updBtn svg { width: 22px; height: 22px; }
+  #updBtn.ready { color: #4ade80; }
+  #updBtn.ready::after {
+    content: ''; position: absolute; top: 6px; right: 6px;
+    width: 8px; height: 8px; border-radius: 50%; background: #4ade80;
+    box-shadow: 0 0 0 2px rgba(15, 23, 42, .93);
+  }
+  #updBtn.downloading svg { animation: updPulse 1.2s ease-in-out infinite; }
+  @keyframes updPulse { 50% { opacity: .35; } }
 </style>
 </head>
 <body>
@@ -41,6 +53,11 @@
     <div class="btn" data-act="cover" data-hk="cover" title="가리개">🙈</div>
     <div class="btn" data-act="help" title="사용법·단축키">❓</div>
     <div class="btn" data-act="settings" title="설정 (단축키 변경·저장 폴더)">⚙️</div>
+    <div class="btn" id="updBtn" data-act="update" title="">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 19h16"/>
+      </svg>
+    </div>
     <div class="btn" id="hideBtn" data-act="hide" title="퀵바 숨기기 (트레이에서 다시 켤 수 있어요)">✕</div>
   </div>
 
@@ -57,8 +74,12 @@
     el.addEventListener('click', () => window.api.quickbarAction(el.dataset.act));
   }
 
-  // 실제 지정된 단축키를 툴팁에 표시
-  window.api.onQuickbarState(({ hotkeys }) => {
+  // 실제 지정된 단축키를 툴팁에 표시. 업데이트 단추는 상태가 있을 때만 붙는다
+  const updBtn = document.getElementById('updBtn');
+  window.api.onQuickbarState(({ hotkeys, update }) => {
+    const u = update || {};
+    updBtn.className = 'btn' + (u.hint ? ' show ' + u.status : '');
+    updBtn.title = u.hint || '';
     for (const el of document.querySelectorAll('[data-hk]')) {
       const accel = hotkeys[el.dataset.hk];
       const base = el.title.split(' (')[0];

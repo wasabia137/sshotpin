@@ -26,61 +26,60 @@
   #sizeLabel {
     position: absolute; display: none;
     background: rgba(15, 23, 42, .9); color: #e2e8f0;
-    font: 12px/1.6 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+    font: 12px/1.6 'Segoe UI', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
     padding: 2px 8px; border-radius: 6px;
     pointer-events: none; white-space: nowrap;
   }
 
+  /* 도구모음 — 윈도우 캡처 도구처럼 흰 바탕에 선 아이콘.
+     어두운 바탕 위의 이모지는 윈도우에서 뭉개져 보여서 선 아이콘(SVG)으로 그린다. */
   #toolbar {
     position: absolute; display: none;
-    background: rgba(15, 23, 42, .96);
-    border: 1px solid rgba(148, 163, 184, .4);
-    border-radius: 12px; padding: 7px 9px;
-    box-shadow: 0 6px 24px rgba(0,0,0,.45);
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, .14);
+    border-radius: 8px; padding: 6px;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, .28), 0 1px 3px rgba(0, 0, 0, .12);
     cursor: default;
     flex-direction: column; gap: 6px;
+    font-family: 'Segoe UI Variable Text', 'Segoe UI', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
   }
   #toolbar.show { display: flex; }
-  .trow { display: flex; align-items: center; gap: 4px; }
+  .trow { display: flex; align-items: center; gap: 2px; }
   #toolbar button {
-    border: 0; border-radius: 8px;
-    background: transparent; color: #e2e8f0;
-    font: 14px 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
-    min-width: 34px; height: 32px; padding: 0 8px; cursor: pointer;
-    display: flex; align-items: center; justify-content: center; gap: 5px;
+    border: 1px solid transparent; border-radius: 6px;
+    background: transparent; color: #1b1b1b;
+    font: 14px 'Segoe UI Variable Text', 'Segoe UI', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+    min-width: 36px; height: 36px; padding: 0 6px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
   }
-  #toolbar button:hover { background: rgba(148, 163, 184, .22); }
-  /* 선택된 도구 — 눌린 상태로 보이도록 회색 계열 (파란 실행 버튼과 헷갈리지 않게) */
+  #toolbar button svg { width: 20px; height: 20px; flex: none; display: block; }
+  #toolbar button:hover { background: #ededed; }
+  #toolbar button:active { background: #e0e0e0; }
+  /* 선택된 도구 — 윈도우 캡처 도구처럼 테두리로 감싼다 */
   #toolbar button.on {
-    background: rgba(255, 255, 255, .2);
-    box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .55);
+    background: #eaf3fc;
+    border-color: #005fb8;
+    color: #005fb8;
   }
-  /* 실행 버튼 — 도구 선택 상태(.on)와 헷갈리지 않도록 모양 자체를 다르게 한다.
-     도구 버튼은 "채워진 사각형 = 선택됨"이므로, 같은 채움 방식이면 이미 눌린
-     것으로 읽힌다. 알약형 + 그라데이션 + 바깥 그림자로 '눌러야 할 버튼'을 만든다. */
+  /* 실행 버튼 — 파랑 채움. 도구 버튼(테두리)과 모양이 달라 눌린 상태로 읽히지 않는다 */
   #toolbar button.primary {
-    border-radius: 999px; padding: 0 14px;
-    background: linear-gradient(180deg, #60a5fa, #3b82f6);
-    border: 1px solid rgba(255, 255, 255, .35);
-    font-size: 13px; font-weight: 700;
-    box-shadow: 0 3px 10px rgba(59, 130, 246, .5);
-    transition: filter .12s, transform .12s, box-shadow .12s;
+    padding: 0 14px 0 11px;
+    background: #005fb8; color: #fff;
+    font-size: 14px; font-weight: 600;
+    transition: background .1s;
   }
-  #toolbar button.primary:hover {
-    filter: brightness(1.12); transform: translateY(-1px);
-    box-shadow: 0 5px 14px rgba(59, 130, 246, .65);
-  }
-  #toolbar button.primary:active {
-    transform: translateY(0); filter: brightness(.95);
-    box-shadow: 0 1px 4px rgba(59, 130, 246, .5);
-  }
-  .vsep { width: 1px; height: 22px; background: rgba(148,163,184,.35); margin: 0 3px; }
+  #toolbar button.primary:hover { background: #1a70c4; }
+  #toolbar button.primary:active { background: #00509b; }
+  #btnDone { padding: 0 12px; border-color: #d6d6d6; background: #fbfbfb; }
+  #btnDone:hover { background: #f0f0f0; }
+  .vsep { width: 1px; height: 24px; background: #e0e0e0; margin: 0 4px; }
   .sw {
-    width: 19px; height: 19px; border-radius: 50%;
-    border: 2px solid rgba(255,255,255,.25); cursor: pointer;
+    width: 20px; height: 20px; border-radius: 50%;
+    border: 2px solid #fff; cursor: pointer; margin: 0 2px;
+    box-shadow: 0 0 0 1px #c8c8c8;
   }
-  .sw.on { border-color: #fff; box-shadow: 0 0 0 2px rgba(255,255,255,.4); }
-  #penVal { color: #f1f5f9; font-size: 12px; min-width: 32px; text-align: center; }
+  .sw.on { box-shadow: 0 0 0 2px #005fb8; }
+  #penVal { color: #1b1b1b; font-size: 13px; min-width: 34px; text-align: center; }
   #styleRow { display: none; }
   body.tooling #styleRow { display: flex; }
 
@@ -89,7 +88,7 @@
     position: absolute; top: 24px; left: 50%;
     transform: translateX(-50%) translateY(-8px);
     background: #16a34a; color: #fff; font-weight: 600;
-    font: 600 13px 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+    font: 600 13px 'Segoe UI', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
     padding: 9px 18px; border-radius: 20px;
     box-shadow: 0 6px 20px rgba(0,0,0,.35);
     pointer-events: none; opacity: 0; transition: opacity .15s, transform .15s;
@@ -99,7 +98,7 @@
   #hint {
     position: absolute; top: 24px; left: 50%; transform: translateX(-50%);
     background: rgba(15, 23, 42, .85); color: #cbd5e1;
-    font: 13px 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+    font: 13px 'Segoe UI', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
     padding: 8px 16px; border-radius: 20px;
     pointer-events: none;
   }
@@ -120,23 +119,72 @@
   <div id="hint">드래그해서 영역을 선택하세요 · Enter=핀 · Esc=취소</div>
   <div id="copied">✓ 클립보드에 복사했어요</div>
 
+  <!-- 아이콘 원본. 버튼은 <use>로 가져다 쓴다 -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <g id="i-pen" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 20l1-4.5L15.5 5a2.1 2.1 0 0 1 3 3L8 18.5 4 20z"/><path d="M13.5 7l3 3"/>
+      </g>
+      <g id="i-arrow" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 19L19 5"/><path d="M10 5h9v9"/>
+      </g>
+      <g id="i-rect" fill="none" stroke="currentColor" stroke-width="1.7">
+        <rect x="4" y="6" width="16" height="12" rx="1.5"/>
+      </g>
+      <g id="i-ellipse" fill="none" stroke="currentColor" stroke-width="1.7">
+        <ellipse cx="12" cy="12" rx="8" ry="6"/>
+      </g>
+      <g id="i-highlight" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6 16l9-9a1.6 1.6 0 0 1 2.3 0l.7.7a1.6 1.6 0 0 1 0 2.3l-9 9H6v-3z"/><path d="M3 21h10"/>
+      </g>
+      <g id="i-mosaic" stroke="currentColor" stroke-width="1.6" fill="none">
+        <rect x="4" y="4" width="16" height="16" rx="1.5"/>
+        <path d="M4 9.33h16M4 14.67h16M9.33 4v16M14.67 4v16"/>
+        <path fill="currentColor" stroke="none" opacity=".35" d="M4 4h5.33v5.33H4zM9.33 9.33h5.34v5.34H9.33zM14.67 4H20v5.33h-5.33zM4 14.67h5.33V20H4zM14.67 14.67H20V20h-5.33z"/>
+      </g>
+      <g id="i-step" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="8.5"/><path d="M12.5 16V8.5l-2 1.5"/>
+      </g>
+      <g id="i-undo" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 10h10a4.5 4.5 0 0 1 0 9H9"/><path d="M8.5 6.5L5 10l3.5 3.5"/>
+      </g>
+      <g id="i-pin" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 3h6l-1 6 3 3v2H7v-2l3-3-1-6z"/><path d="M12 14v7"/>
+      </g>
+      <g id="i-copy" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="9" y="9" width="11" height="11" rx="2"/><path d="M15 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h3"/>
+      </g>
+      <g id="i-save" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H16l4 4v10.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18.5z"/><path d="M8 4v5h7V4"/><path d="M8 20v-6h8v6"/>
+      </g>
+      <g id="i-cover" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 3l18 18"/><path d="M10.5 5.3c.5-.1 1-.1 1.5-.1 5 0 8.6 4 9.8 6.8-.5 1.1-1.3 2.4-2.5 3.6M6.6 6.6C4.5 8 3 10.2 2.2 12c1.2 2.8 4.8 6.8 9.8 6.8 1.6 0 3.1-.4 4.4-1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/>
+      </g>
+      <g id="i-close" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <path d="M6 6l12 12M18 6L6 18"/>
+      </g>
+      <g id="i-minus" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 12h14"/></g>
+      <g id="i-plus" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></g>
+    </defs>
+  </svg>
+
   <div id="toolbar">
     <div class="trow" id="toolRow">
-      <button data-tool="pen" title="펜">✏️</button>
-      <button data-tool="arrow" title="화살표">↗</button>
-      <button data-tool="rect" title="사각형">▭</button>
-      <button data-tool="ellipse" title="원">◯</button>
-      <button data-tool="highlight" title="형광펜">🖍</button>
-      <button data-tool="mosaic" title="모자이크 (개인정보 가리기)">🔲</button>
-      <button data-tool="step" title="번호 ①②③ (클릭해서 찍기)">①</button>
+      <button data-tool="pen" title="펜"><svg viewBox="0 0 24 24"><use href="#i-pen"/></svg></button>
+      <button data-tool="arrow" title="화살표"><svg viewBox="0 0 24 24"><use href="#i-arrow"/></svg></button>
+      <button data-tool="rect" title="사각형"><svg viewBox="0 0 24 24"><use href="#i-rect"/></svg></button>
+      <button data-tool="ellipse" title="원"><svg viewBox="0 0 24 24"><use href="#i-ellipse"/></svg></button>
+      <button data-tool="highlight" title="형광펜"><svg viewBox="0 0 24 24"><use href="#i-highlight"/></svg></button>
+      <button data-tool="mosaic" title="모자이크 (개인정보 가리기)"><svg viewBox="0 0 24 24"><use href="#i-mosaic"/></svg></button>
+      <button data-tool="step" title="번호 ①②③ (클릭해서 찍기)"><svg viewBox="0 0 24 24"><use href="#i-step"/></svg></button>
       <div class="vsep"></div>
-      <button id="btnUndo" title="되돌리기 (Ctrl+Z)">↩</button>
+      <button id="btnUndo" title="되돌리기 (Ctrl+Z)"><svg viewBox="0 0 24 24"><use href="#i-undo"/></svg></button>
       <div class="vsep"></div>
-      <button id="btnPin" class="primary" title="화면에 고정 (Enter)">📌 핀</button>
-      <button id="btnCopy" title="클립보드 복사 (Ctrl+C)">📋</button>
-      <button id="btnSave" title="파일로 저장 (Ctrl+S)">💾</button>
-      <button id="btnCover" title="이 영역을 가리개로 덮기">🙈</button>
-      <button id="btnCancel" title="취소 (Esc)">✕</button>
+      <button id="btnPin" class="primary" title="화면에 고정 (Enter)"><svg viewBox="0 0 24 24"><use href="#i-pin"/></svg><span class="lbl">핀</span></button>
+      <button id="btnCopy" title="클립보드 복사 (Ctrl+C)"><svg viewBox="0 0 24 24"><use href="#i-copy"/></svg></button>
+      <button id="btnSave" title="파일로 저장 (Ctrl+S)"><svg viewBox="0 0 24 24"><use href="#i-save"/></svg></button>
+      <button id="btnCover" title="이 영역을 가리개로 덮기"><svg viewBox="0 0 24 24"><use href="#i-cover"/></svg></button>
+      <button id="btnCancel" title="취소 (Esc)"><svg viewBox="0 0 24 24"><use href="#i-close"/></svg></button>
     </div>
     <div class="trow" id="styleRow">
       <span class="sw" data-c="#ef4444" style="background:#ef4444" title="빨강"></span>
@@ -146,9 +194,9 @@
       <span class="sw" data-c="#3b82f6" style="background:#3b82f6" title="파랑"></span>
       <span class="sw" data-c="#1e293b" style="background:#1e293b" title="검정"></span>
       <div class="vsep"></div>
-      <button id="penMinus" title="얇게">−</button>
+      <button id="penMinus" title="얇게"><svg viewBox="0 0 24 24"><use href="#i-minus"/></svg></button>
       <span id="penVal">4px</span>
-      <button id="penPlus" title="굵게">＋</button>
+      <button id="penPlus" title="굵게"><svg viewBox="0 0 24 24"><use href="#i-plus"/></svg></button>
       <div class="vsep"></div>
       <button id="btnDone" title="그리기 끝내고 영역 조절로 돌아가기">완료</button>
     </div>
