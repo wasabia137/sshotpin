@@ -74,8 +74,9 @@
 <body>
   <div id="card">
     <div id="head">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 19h16"/>
+      <svg id="headIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path id="headDl" d="M12 3v12M7 10l5 5 5-5M4 19h16"/>
+        <path id="headPin" hidden d="M9 3h6l-1 6 3 3v2H7v-2l3-3-1-6zM12 14v7"/>
       </svg>
       <div id="title">업데이트</div>
       <button id="x" title="닫기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
@@ -90,6 +91,7 @@
     <div id="bar"><div id="fill"></div></div>
     <div id="btns">
       <button id="bNotes" hidden>바뀐 점 보기</button>
+      <button id="bHelp" hidden>사용법 보기</button>
       <button id="bRetry" hidden>다시 시도</button>
       <button id="bRestart" class="primary" hidden>지금 다시 시작</button>
       <button id="bLater" hidden>나중에</button>
@@ -109,22 +111,26 @@
   window.api.onUpdateState((u) => {
     if (!u || !u.labels) return;
     const L = u.labels;
-    $('title').textContent = L.title;
+    // 실행 중 카드는 업데이트가 아니다 — 제목·아이콘을 프로그램 이름·핀으로
+    const running = u.status === 'running';
+    $('title').textContent = running ? 'Sshot-Pin' : L.title;
+    $('headDl').hidden = running; $('headPin').hidden = !running;
     $('x').title = L.close;
     $('bNotes').textContent = L.notes;
+    $('bHelp').textContent = L.help;
     $('bRetry').textContent = L.retry;
     $('bRestart').textContent = L.restart;
     $('bRestart').dataset.restarting = L.restarting;
     $('bLater').textContent = L.later;
     $('bRestart').disabled = false;
-    $('bClose').textContent = u.status === 'latest' || u.status === 'updated' ? L.ok : L.close;
+    $('bClose').textContent = ['latest', 'updated', 'running'].includes(u.status) ? L.ok : L.close;
 
     const mark = $('mark');
     mark.className = '';
     const bar = $('bar');
     bar.className = '';
     $('sub').textContent = '';
-    for (const b of ['bNotes', 'bRetry', 'bRestart', 'bLater', 'bClose']) show(b, false);
+    for (const b of ['bNotes', 'bHelp', 'bRetry', 'bRestart', 'bLater', 'bClose']) show(b, false);
 
     if (u.status === 'checking') {
       mark.className = 'spin'; mark.innerHTML = ICON_SPIN;
@@ -151,6 +157,12 @@
       $('msg').textContent = u.text;
       $('sub').textContent = `Sshot-Pin v${u.version}` + (u.prevVersion ? ` · ${L.prev}` : '');
       show('bNotes', true); show('bClose', true);
+    } else if (u.status === 'running') {
+      // 첫 실행 — 켜졌다는 확인. 제목이 곧 내용이라 본문에는 단축키만
+      mark.className = 'ok'; mark.innerHTML = ICON_OK;
+      $('msg').textContent = u.text;
+      $('sub').textContent = u.sub || '';
+      show('bHelp', true); show('bClose', true);
     } else if (u.status === 'error') {
       mark.className = 'bad'; mark.innerHTML = ICON_BAD;
       $('msg').textContent = u.text;
@@ -186,6 +198,7 @@
   });
   $('bRetry').addEventListener('click', () => window.api.checkUpdate());
   $('bNotes').addEventListener('click', () => window.api.updateNotes());
+  $('bHelp').addEventListener('click', () => window.api.updateHelp());
   window.addEventListener('keydown', (e) => { if (e.key === 'Escape') window.api.updateClose(); });
 </script>
 </body>

@@ -27,6 +27,9 @@
     font: 12px 'Segoe UI', sans-serif;
     margin: 0 1px;
   }
+  .ic { width: 15px; height: 15px; vertical-align: -3px; margin-right: 3px; }
+  h1 .ic { width: 22px; height: 22px; vertical-align: -4px; }
+  h2 .ic { width: 16px; height: 16px; vertical-align: -3px; color: #2563eb; }
   .tip {
     background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px;
     padding: 10px 14px; font-size: 13px; margin-top: 8px;
@@ -34,8 +37,9 @@
 </style>
 </head>
 <body>
-  <h1>📌 Sshot-Pin-Anleitung</h1>
-  <div class="sub">Jederzeit über das Tray-Symbol → ❓ Anleitung & Kürzel erreichbar.</div>
+<script src="icons.js"></script>
+  <h1><svg class="ic"><use href="#i-pin"/></svg> Sshot-Pin-Anleitung</h1>
+  <div class="sub">Jederzeit über das Tray-Symbol → <svg class="ic"><use href="#i-help"/></svg> Anleitung & Kürzel erreichbar.</div>
 
   <h2>Globale Kürzel</h2>
   <table>
@@ -47,25 +51,25 @@
     <tr><th><span data-hk="cover">—</span></th><td>Abdeckung</td></tr>
   </table>
   <div class="tip">
-    Passt ein Kürzel nicht, ändern oder leeren Sie es unter Tray → <b>⚙️ Einstellungen</b>.
+    Passt ein Kürzel nicht, ändern oder leeren Sie es unter Tray → <b><svg class="ic"><use href="#i-gear"/></svg> Einstellungen</b>.
     Geleerte Aktionen bleiben über die Schnellleiste nutzbar.
   </div>
 
-  <h2>📸 Bereichsaufnahme</h2>
+  <h2><svg class="ic"><use href="#i-camera"/></svg> Bereichsaufnahme</h2>
   <table>
     <tr><th>Ziehen</th><td>Aufzunehmenden Bereich wählen</td></tr>
     <tr><th>Blauen Punkt ziehen</th><td>Auswahl skalieren</td></tr>
     <tr><th>Innen ziehen</th><td>Auswahl verschieben</td></tr>
-    <tr><th>Werkzeugtasten</th><td>✏️Stift ↗Pfeil ▭Rechteck ◯Ellipse 🖍Marker 🔲Mosaik ①Nummern</td></tr>
-    <tr><th>↩ / <kbd>Strg</kbd>+<kbd>Z</kbd> / Rechtsklick</th><td>Zeichnung rückgängig</td></tr>
-    <tr><th><kbd>Enter</kbd> oder 📌</th><td>Am Bildschirm anheften</td></tr>
+    <tr><th>Werkzeugtasten</th><td><svg class="ic"><use href="#i-pen"/></svg>Stift <svg class="ic"><use href="#i-arrow"/></svg>Pfeil <svg class="ic"><use href="#i-rect"/></svg>Rechteck <svg class="ic"><use href="#i-ellipse"/></svg>Ellipse <svg class="ic"><use href="#i-highlight"/></svg>Marker <svg class="ic"><use href="#i-mosaic"/></svg>Mosaik ①Nummern</td></tr>
+    <tr><th><svg class="ic"><use href="#i-undo"/></svg> / <kbd>Strg</kbd>+<kbd>Z</kbd> / Rechtsklick</th><td>Zeichnung rückgängig</td></tr>
+    <tr><th><kbd>Enter</kbd> oder <svg class="ic"><use href="#i-pin"/></svg></th><td>Am Bildschirm anheften</td></tr>
     <tr><th><kbd>Ctrl</kbd>+<kbd>C</kbd> / <kbd>Ctrl</kbd>+<kbd>S</kbd></th><td>Kopieren / als PNG speichern</td></tr>
-    <tr><th>🙈-Taste</th><td>Gewählten Bereich abdecken</td></tr>
+    <tr><th><svg class="ic"><use href="#i-cover"/></svg>-Taste</th><td>Gewählten Bereich abdecken</td></tr>
     <tr><th><kbd>Esc</kbd></th><td>Werkzeug abwählen; nochmal zum Abbrechen</td></tr>
   </table>
   <div class="tip">Ideal, um Material aufzunehmen und vor dem Zeigen einen Pfeil zu ergänzen. Werkzeug wählen, im Bereich zeichnen, dann <kbd>Enter</kbd>.</div>
 
-  <h2>📌 Pins — angeheftete Bilder</h2>
+  <h2><svg class="ic"><use href="#i-pin"/></svg> Pins — angeheftete Bilder</h2>
   <table>
     <tr><th>Ziehen</th><td>Verschieben</td></tr>
     <tr><th>Ecke ziehen</th><td>Skalieren (Seitenverhältnis bleibt)</td></tr>
@@ -80,7 +84,7 @@
   </table>
   <div class="tip">Mit aktiviertem <b>Klick-Durchlass</b> bedienen Sie die Programme darunter, während der Pin oben bleibt. Deaktivierbar über Tray → „Alle Klick-Durchlässe deaktivieren".</div>
 
-  <h2>🔍 Zoom · ✏️ Zeichnen</h2>
+  <h2><svg class="ic"><use href="#i-zoom"/></svg> Zoom · <svg class="ic"><use href="#i-pen"/></svg> Zeichnen</h2>
   <table>
     <tr><th>Untere Leiste</th><td>Farbe, Stiftgröße, Löschen, Tafeln, Anheften, Kopieren, Speichern — alles per Maus</td></tr>
     <tr><th>Rad · <kbd>↑</kbd><kbd>↓</kbd> · <kbd>+</kbd><kbd>−</kbd></th><td>Vergrößern / verkleinern (die Ansicht folgt der Maus)</td></tr>
@@ -91,8 +95,8 @@
     <tr><th><kbd>Strg</kbd>+<kbd>Umschalt</kbd>+Ziehen</th><td>Pfeil</td></tr>
     <tr><th><kbd>Tab</kbd>+Ziehen</th><td>Ellipse</td></tr>
     <tr><th><kbd>Alt</kbd>+Klick</th><td>Schrittnummern ①②③</td></tr>
-    <tr><th>🔲 oder <kbd>M</kbd></th><td>Mosaik — aktivieren und zum Verbergen ziehen</td></tr>
-    <tr><th>🔴 oder <kbd>L</kbd></th><td>Laserpointer — Striche verblassen</td></tr>
+    <tr><th><svg class="ic"><use href="#i-mosaic"/></svg> oder <kbd>M</kbd></th><td>Mosaik — aktivieren und zum Verbergen ziehen</td></tr>
+    <tr><th><svg class="ic"><use href="#i-laser"/></svg> oder <kbd>L</kbd></th><td>Laserpointer — Striche verblassen</td></tr>
     <tr><th><kbd>F5</kbd></th><td>Bildschirm neu aufnehmen, Zoom & Zeichnungen bleiben</td></tr>
     <tr><th><kbd>R</kbd> <kbd>G</kbd> <kbd>B</kbd> <kbd>O</kbd> <kbd>Y</kbd> <kbd>P</kbd></th><td>Rot · Grün · Blau · Orange · Gelb · Rosa</td></tr>
     <tr><th><kbd>Strg</kbd>+Rad</th><td>Stiftgröße (Zeichenmodus)</td></tr>
@@ -104,7 +108,7 @@
     <tr><th><kbd>Esc</kbd></th><td>Modus sofort beenden</td></tr>
   </table>
 
-  <h2>🙈 Abdeckung</h2>
+  <h2><svg class="ic"><use href="#i-cover"/></svg> Abdeckung</h2>
   <table>
     <tr><th>Ziehen</th><td>Abzudeckenden Bereich wählen; entsteht beim Loslassen</td></tr>
     <tr><th>Klick</th><td>Aufdecken ↔ wieder verdecken</td></tr>
@@ -113,7 +117,7 @@
     <tr><th>✕-Taste · Radklick · <kbd>Esc</kbd></th><td>Schließen (✕ erscheint oben rechts beim Überfahren)</td></tr>
   </table>
 
-  <h2>⏱️ Timer</h2>
+  <h2><svg class="ic"><use href="#i-timer"/></svg> Timer</h2>
   <table>
     <tr><th>1·3·5·10·15-Min-Tasten</th><td>Startet sofort mit dieser Zeit</td></tr>
     <tr><th>Auf die Zeit klicken</th><td>Eingeben — <b>5:30</b> oder <b>10</b></td></tr>
@@ -124,15 +128,15 @@
 
   <h2>Und mehr</h2>
   <table>
-    <tr><th>🕘 Letzte Aufnahmen</th><td>Bewahrt die letzten 24. Klick heftet sie wieder an</td></tr>
-    <tr><th>Schnellleiste</th><td>Mit ⠿ verschieben, mit ✕ ausblenden (im Tray reaktivierbar)</td></tr>
+    <tr><th><svg class="ic"><use href="#i-history"/></svg> Letzte Aufnahmen</th><td>Bewahrt die letzten 24. Klick heftet sie wieder an</td></tr>
+    <tr><th>Schnellleiste</th><td>Mit <svg class="ic"><use href="#i-grip"/></svg> verschieben, mit ✕ ausblenden (im Tray reaktivierbar)</td></tr>
     <tr><th>Tray-Symbol doppelklicken</th><td>Bereichsaufnahme</td></tr>
     <tr><th>Tray-Symbol rechtsklicken</th><td>Volles Menü — Pins ausblenden/schließen, Updates, Beenden</td></tr>
-    <tr><th>⚙️ Einstellungen</th><td>Kürzel, Ordner, Schnellspeichern, Leiste, Autostart, Sprache</td></tr>
+    <tr><th><svg class="ic"><use href="#i-gear"/></svg> Einstellungen</th><td>Kürzel, Ordner, Schnellspeichern, Leiste, Autostart, Sprache</td></tr>
   </table>
 
 
-  <div class="tip" style="margin-top:22px; text-align:center">Hilft Ihnen Sshot-Pin? <a href="#" id="supportLink"><b>☕ Mit einem Kaffee unterstützen</b></a></div>
+  <div class="tip" style="margin-top:22px; text-align:center">Hilft Ihnen Sshot-Pin? <a href="#" id="supportLink"><b><svg class="ic"><use href="#i-coffee"/></svg> Mit einem Kaffee unterstützen</b></a></div>
 
 <script>
   // 실제로 지정된 단축키를 그대로 보여준다 (플랫폼·사용자 설정에 따라 다름)

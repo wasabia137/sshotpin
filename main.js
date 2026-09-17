@@ -1093,6 +1093,12 @@ function isValidAccelerator(accel) {
   return typeof accel === 'string' && accel.length > 0 && /^[\x20-\x7E]+$/.test(accel);
 }
 
+// 맥은 Ctrl+F1~F8을 시스템 단축키(키보드 접근·메뉴 막대·Dock…)로 먼저 가져간다.
+// globalShortcut.register는 성공을 돌려주지만 눌러도 앱까지 오지 않는다.
+function reservedByMac(accel) {
+  return isMac && /^(Control|Ctrl)\+F[1-8]$/i.test(String(accel || ''));
+}
+
 function registerHotkeys() {
   globalShortcut.unregisterAll();
   escGrabbed = false;               // unregisterAll이 Esc까지 풀어버린다
@@ -1112,7 +1118,7 @@ function registerHotkeys() {
     }
     let ok = false;
     try {
-      ok = globalShortcut.register(accel, HOTKEY_ACTIONS[key]);
+      ok = !reservedByMac(accel) && globalShortcut.register(accel, HOTKEY_ACTIONS[key]);
     } catch (e) {
       ok = false; // 잘못된 형식
     }
@@ -1183,6 +1189,11 @@ ipcMain.on('settings-set-hotkey', (e, { key, accel }) => {
   // 빈 값('사용 안 함')은 허용, 그 외에는 ASCII 액셀러레이터만 저장
   if (accel && !isValidAccelerator(accel)) {
     notify(tr('이 키는 단축키로 쓸 수 없어요. 한글 입력을 끄고 다시 시도해주세요.'));
+    sendSettingsState();
+    return;
+  }
+  if (reservedByMac(accel)) {
+    notify(tr('맥에서는 Ctrl+F1~F8을 시스템이 먼저 가져가요. 다른 키를 골라주세요.'));
     sendSettingsState();
     return;
   }
@@ -1796,6 +1807,7 @@ function updateLabels(u) {
     later: tr('나중에'),
     retry: tr('다시 시도'),
     notes: tr('바뀐 점 보기'),
+    help: tr('사용법 보기'),
     prev: tr('이전 v{p}', { p: u.prevVersion }),
   };
 }
@@ -1939,7 +1951,7 @@ function openUpdateWin(opts = {}) {
     hasShadow: false,
     focusable: !quiet,
     show: false,
-    title: tr('업데이트'),
+    title: runningNotice ? 'Sshot-Pin' : tr('업데이트'),
     webPreferences: { preload: path.join(__dirname, 'preload.js') },
   });
   updateWin.setAlwaysOnTop(true, 'screen-saver');
@@ -1953,17 +1965,34 @@ function openUpdateWin(opts = {}) {
     if (!updateWin || updateWin.isDestroyed()) return;
     if (quiet) updateWin.showInactive(); else updateWin.show();
   });
-  updateWin.on('closed', () => { updateWin = null; updatedNotice = null; });
+  updateWin.on('closed', () => { updateWin = null; updatedNotice = null; runningNotice = false; });
 }
 
 // 「업데이트를 마쳤어요」 창은 자동 확인 결과(확인 중·최신)에 덮이지 않는다.
 // 그 사이 다음 버전이 또 내려오면 그건 보여준다.
 let updatedNotice = null;   // { version, prevVersion } — 새 버전으로 처음 켜졌을 때
+let runningNotice = false;  // 첫 실행 — 「스샷핀 실행 중」 카드
 function updateWinPayload() {
+  if (runningNotice) {
+    return {
+      ...updateState, status: 'running',
+      text: tr('스샷핀 실행 중'),
+      sub: tr('{c} 캡처 · {p} 핀 · 나머지는 트레이 아이콘에', {
+        c: accelLabel(settings.hotkeys.capture), p: accelLabel(settings.hotkeys.pin),
+      }),
+    };
+  }
   if (updatedNotice && !['downloading', 'ready', 'error'].includes(updateState.status)) {
     return { ...updateState, status: 'updated', text: tr('업데이트를 마쳤어요'), ...updatedNotice };
   }
   return updateState;
+}
+
+// 처음 실행했을 때 — 트레이 상주 프로그램이라 창이 없어 켜졌는지 모른다.
+// 잠깐 사라지는 알림 대신 확인을 눌러야 닫히는 카드로 알린다.
+function showRunningNotice() {
+  runningNotice = true;
+  openUpdateWin();
 }
 
 function sendUpdateWinState() {
@@ -1982,6 +2011,12 @@ ipcMain.on('update-measured', (e, height) => {
   const anchoredBottom = !isMac && b.y + b.height >= wa.y + wa.height - 40;
   const y = anchoredBottom ? b.y + b.height - h : b.y;
   setBoundsForce(updateWin, { x: b.x, y, width: b.width, height: h });
+});
+
+// 「사용법 보기」 — 실행 중 카드에서
+ipcMain.on('update-help', () => {
+  openHelp();
+  if (updateWin && !updateWin.isDestroyed()) updateWin.close();
 });
 
 ipcMain.on('update-close', () => {
@@ -2055,10 +2090,12 @@ async function firstRunFlow() {
     defaultId: 0,
     cancelId: 1,
   });
+  log('첫 실행 자동 실행 안내 응답', response);
   if (response === 0) {
     setOpenAtLogin(true);
     rebuildTrayMenu();
   }
+  showRunningNotice();
 }
 
 // ---------- 앱 라이프사이클 ----------

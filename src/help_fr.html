@@ -27,6 +27,9 @@
     font: 12px 'Segoe UI', sans-serif;
     margin: 0 1px;
   }
+  .ic { width: 15px; height: 15px; vertical-align: -3px; margin-right: 3px; }
+  h1 .ic { width: 22px; height: 22px; vertical-align: -4px; }
+  h2 .ic { width: 16px; height: 16px; vertical-align: -3px; color: #2563eb; }
   .tip {
     background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px;
     padding: 10px 14px; font-size: 13px; margin-top: 8px;
@@ -34,8 +37,9 @@
 </style>
 </head>
 <body>
-  <h1>📌 Guide Sshot-Pin</h1>
-  <div class="sub">Rouvrez-le à tout moment via la barre système → ❓ Guide et raccourcis.</div>
+<script src="icons.js"></script>
+  <h1><svg class="ic"><use href="#i-pin"/></svg> Guide Sshot-Pin</h1>
+  <div class="sub">Rouvrez-le à tout moment via la barre système → <svg class="ic"><use href="#i-help"/></svg> Guide et raccourcis.</div>
 
   <h2>Raccourcis globaux</h2>
   <table>
@@ -47,25 +51,25 @@
     <tr><th><span data-hk="cover">—</span></th><td>Cache</td></tr>
   </table>
   <div class="tip">
-    Si un raccourci ne convient pas, modifiez-le ou effacez-le via barre système → <b>⚙️ Réglages</b>.
+    Si un raccourci ne convient pas, modifiez-le ou effacez-le via barre système → <b><svg class="ic"><use href="#i-gear"/></svg> Réglages</b>.
     Les actions effacées restent accessibles via la barre rapide.
   </div>
 
-  <h2>📸 Capture de zone</h2>
+  <h2><svg class="ic"><use href="#i-camera"/></svg> Capture de zone</h2>
   <table>
     <tr><th>Glisser</th><td>Sélectionnez la zone à capturer</td></tr>
     <tr><th>Tirez un point bleu</th><td>Redimensionner la sélection</td></tr>
     <tr><th>Glissez à l'intérieur</th><td>Déplacer la sélection</td></tr>
-    <tr><th>Boutons d'outils</th><td>✏️Stylo ↗Flèche ▭Rect ◯Ellipse 🖍Surligneur 🔲Mosaïque ①Numéros</td></tr>
-    <tr><th>↩ / <kbd>Ctrl</kbd>+<kbd>Z</kbd> / clic droit</th><td>Annuler le dessin</td></tr>
-    <tr><th><kbd>Entrée</kbd> ou 📌</th><td>Épingler à l'écran</td></tr>
+    <tr><th>Boutons d'outils</th><td><svg class="ic"><use href="#i-pen"/></svg>Stylo <svg class="ic"><use href="#i-arrow"/></svg>Flèche <svg class="ic"><use href="#i-rect"/></svg>Rect <svg class="ic"><use href="#i-ellipse"/></svg>Ellipse <svg class="ic"><use href="#i-highlight"/></svg>Surligneur <svg class="ic"><use href="#i-mosaic"/></svg>Mosaïque ①Numéros</td></tr>
+    <tr><th><svg class="ic"><use href="#i-undo"/></svg> / <kbd>Ctrl</kbd>+<kbd>Z</kbd> / clic droit</th><td>Annuler le dessin</td></tr>
+    <tr><th><kbd>Entrée</kbd> ou <svg class="ic"><use href="#i-pin"/></svg></th><td>Épingler à l'écran</td></tr>
     <tr><th><kbd>Ctrl</kbd>+<kbd>C</kbd> / <kbd>Ctrl</kbd>+<kbd>S</kbd></th><td>Copier / enregistrer en PNG</td></tr>
-    <tr><th>Bouton 🙈</th><td>Recouvrir la zone sélectionnée</td></tr>
+    <tr><th>Bouton <svg class="ic"><use href="#i-cover"/></svg></th><td>Recouvrir la zone sélectionnée</td></tr>
     <tr><th><kbd>Esc</kbd></th><td>Désélectionner l'outil ; encore une fois pour annuler</td></tr>
   </table>
   <div class="tip">Idéal pour capturer un document et ajouter une flèche avant de le montrer. Choisissez un outil, dessinez dans la zone puis <kbd>Entrée</kbd>.</div>
 
-  <h2>📌 Épingles — images collées à l'écran</h2>
+  <h2><svg class="ic"><use href="#i-pin"/></svg> Épingles — images collées à l'écran</h2>
   <table>
     <tr><th>Glisser</th><td>Déplacer</td></tr>
     <tr><th>Tirez un coin</th><td>Redimensionner (ratio conservé)</td></tr>
@@ -80,7 +84,7 @@
   </table>
   <div class="tip">Avec le <b>clic traversant</b>, vous utilisez les programmes en dessous pendant que l'épingle reste au-dessus. Désactivez-le via barre système → « Désactiver tous les clics traversants ».</div>
 
-  <h2>🔍 Zoom · ✏️ Dessin</h2>
+  <h2><svg class="ic"><use href="#i-zoom"/></svg> Zoom · <svg class="ic"><use href="#i-pen"/></svg> Dessin</h2>
   <table>
     <tr><th>Barre du bas</th><td>Couleur, épaisseur, effacer, tableaux, épingler, copier, enregistrer — tout à la souris</td></tr>
     <tr><th>Molette · <kbd>↑</kbd><kbd>↓</kbd> · <kbd>+</kbd><kbd>−</kbd></th><td>Zoomer / dézoomer (la vue suit la souris)</td></tr>
@@ -91,8 +95,8 @@
     <tr><th><kbd>Ctrl</kbd>+<kbd>Maj</kbd>+glisser</th><td>Flèche</td></tr>
     <tr><th><kbd>Tab</kbd>+glisser</th><td>Ellipse</td></tr>
     <tr><th><kbd>Alt</kbd>+clic</th><td>Numéros d'étape ①②③</td></tr>
-    <tr><th>🔲 ou <kbd>M</kbd></th><td>Mosaïque — activez et glissez pour masquer</td></tr>
-    <tr><th>🔴 ou <kbd>L</kbd></th><td>Pointeur laser — les traits s'effacent</td></tr>
+    <tr><th><svg class="ic"><use href="#i-mosaic"/></svg> ou <kbd>M</kbd></th><td>Mosaïque — activez et glissez pour masquer</td></tr>
+    <tr><th><svg class="ic"><use href="#i-laser"/></svg> ou <kbd>L</kbd></th><td>Pointeur laser — les traits s'effacent</td></tr>
     <tr><th><kbd>F5</kbd></th><td>Recapturer l'écran en gardant zoom et dessins</td></tr>
     <tr><th><kbd>R</kbd> <kbd>G</kbd> <kbd>B</kbd> <kbd>O</kbd> <kbd>Y</kbd> <kbd>P</kbd></th><td>Rouge · vert · bleu · orange · jaune · rose</td></tr>
     <tr><th><kbd>Ctrl</kbd>+molette</th><td>Épaisseur du stylo (mode dessin)</td></tr>
@@ -104,7 +108,7 @@
     <tr><th><kbd>Esc</kbd></th><td>Quitter le mode immédiatement</td></tr>
   </table>
 
-  <h2>🙈 Cache</h2>
+  <h2><svg class="ic"><use href="#i-cover"/></svg> Cache</h2>
   <table>
     <tr><th>Glisser</th><td>Sélectionnez la zone à couvrir ; créée au relâchement</td></tr>
     <tr><th>Clic</th><td>Révéler ↔ recouvrir</td></tr>
@@ -113,7 +117,7 @@
     <tr><th>Bouton ✕ · clic molette · <kbd>Échap</kbd></th><td>Fermer (✕ apparaît en haut à droite au survol)</td></tr>
   </table>
 
-  <h2>⏱️ Minuteur</h2>
+  <h2><svg class="ic"><use href="#i-timer"/></svg> Minuteur</h2>
   <table>
     <tr><th>Boutons 1·3·5·10·15 min</th><td>Démarre aussitôt avec cette durée</td></tr>
     <tr><th>Clic sur l'heure</th><td>Saisissez-la — <b>5:30</b> ou <b>10</b></td></tr>
@@ -124,15 +128,15 @@
 
   <h2>Et plus</h2>
   <table>
-    <tr><th>🕘 Captures récentes</th><td>Conserve les 24 dernières. Cliquez pour réépingler</td></tr>
-    <tr><th>Barre rapide</th><td>Déplacez avec la poignée ⠿, masquez avec ✕ (réactivable via le tray)</td></tr>
+    <tr><th><svg class="ic"><use href="#i-history"/></svg> Captures récentes</th><td>Conserve les 24 dernières. Cliquez pour réépingler</td></tr>
+    <tr><th>Barre rapide</th><td>Déplacez avec la poignée <svg class="ic"><use href="#i-grip"/></svg>, masquez avec ✕ (réactivable via le tray)</td></tr>
     <tr><th>Double-clic sur l'icône du tray</th><td>Capture de zone</td></tr>
     <tr><th>Clic droit sur l'icône du tray</th><td>Menu complet — masquer/fermer les épingles, mises à jour, quitter</td></tr>
-    <tr><th>⚙️ Réglages</th><td>Raccourcis, dossier, enregistrement rapide, barre, démarrage auto, langue</td></tr>
+    <tr><th><svg class="ic"><use href="#i-gear"/></svg> Réglages</th><td>Raccourcis, dossier, enregistrement rapide, barre, démarrage auto, langue</td></tr>
   </table>
 
 
-  <div class="tip" style="margin-top:22px; text-align:center">Sshot-Pin vous est utile ? <a href="#" id="supportLink"><b>☕ Soutenez-le avec un café</b></a></div>
+  <div class="tip" style="margin-top:22px; text-align:center">Sshot-Pin vous est utile ? <a href="#" id="supportLink"><b><svg class="ic"><use href="#i-coffee"/></svg> Soutenez-le avec un café</b></a></div>
 
 <script>
   // 실제로 지정된 단축키를 그대로 보여준다 (플랫폼·사용자 설정에 따라 다름)

@@ -57,10 +57,14 @@
   .desc { color: #64748b; font-size: 12.5px; }
   footer { margin-top: 26px; display: flex; align-items: center; gap: 10px; }
   .ver { color: #94a3b8; font-size: 12px; margin-left: auto; }
+  .ic { width: 15px; height: 15px; vertical-align: -3px; margin-right: 4px; }
+  h1 .ic { width: 20px; height: 20px; vertical-align: -3px; margin-right: 6px; }
+  button.mini { display: inline-flex; align-items: center; }
 </style>
 </head>
 <body>
-  <h1>⚙️ 스샷핀 설정</h1>
+<script src="icons.js"></script>
+  <h1><svg class="ic"><use href="#i-gear"/></svg><span class="lbl">스샷핀 설정</span></h1>
   <div class="sub">바꾸면 바로 적용돼요.</div>
 
   <h2 id="secLang">언어</h2>
@@ -136,12 +140,12 @@
   </div>
 
   <footer>
-    <button class="mini" id="openHelp">❓ 사용법·단축키 보기</button>
-    <button class="mini" id="openLogs" title="문의할 때 이 파일을 첨부하면 돼요">🧾 오류 기록 열기</button>
-    <button class="mini" id="btnSupport">☕ 개발자 후원하기</button>
+    <button class="mini" id="openHelp"><svg class="ic"><use href="#i-help"/></svg><span class="lbl">사용법·단축키 보기</span></button>
+    <button class="mini" id="openLogs" title="문의할 때 이 파일을 첨부하면 돼요"><svg class="ic"><use href="#i-doc"/></svg><span class="lbl">오류 기록 열기</span></button>
+    <button class="mini" id="btnSupport"><svg class="ic"><use href="#i-coffee"/></svg><span class="lbl">개발자 후원하기</span></button>
     <div style="margin-top:14px; display:flex; align-items:center; gap:10px; flex-wrap:wrap">
-      <button class="mini" id="btnUpdate">⬆️ 업데이트 확인</button>
-      <button class="mini" id="btnRestart" style="display:none">🔄 지금 다시 시작</button>
+      <button class="mini" id="btnUpdate"><svg class="ic"><use href="#i-download"/></svg><span class="lbl">업데이트 확인</span></button>
+      <button class="mini" id="btnRestart" style="display:none"><svg class="ic"><use href="#i-restart"/></svg><span class="lbl">지금 다시 시작</span></button>
       <span id="updateMsg" style="font-size:13px; color:#64748b"></span>
     </div>
     <span class="ver" id="ver"></span>
@@ -304,7 +308,7 @@
   document.getElementById('openHelp').addEventListener('click', () => window.api.openHelpFromSettings());
   document.getElementById('openLogs').addEventListener('click', () => window.api.openLogs());
   document.getElementById('btnSupport').addEventListener('click', () => window.api.openSupport());
-  document.getElementById('btnSupport').textContent = T('☕ 개발자 후원하기');
+  document.querySelector('#btnSupport .lbl').textContent = T('☕ 개발자 후원하기').replace(/^☕\s*/, '');
 
   // ----- 업데이트 -----
   const btnUpdate = document.getElementById('btnUpdate');

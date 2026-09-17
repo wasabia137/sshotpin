@@ -50,6 +50,7 @@ contextBridge.exposeInMainWorld('api', {
   // 업데이트 창 (진행 상황·준비 완료·업데이트 완료)
   updateClose: () => ipcRenderer.send('update-close'),
   updateNotes: () => ipcRenderer.send('update-notes'),
+  updateHelp: () => ipcRenderer.send('update-help'),
   // 카드 높이를 알려 창을 그 크기로 맞춘다 (언어마다 글 길이가 다르다)
   updateMeasured: (h) => ipcRenderer.send('update-measured', h),
 

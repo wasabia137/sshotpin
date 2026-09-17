@@ -27,6 +27,9 @@
     font: 12px 'Meiryo', sans-serif;
     margin: 0 1px;
   }
+  .ic { width: 15px; height: 15px; vertical-align: -3px; margin-right: 3px; }
+  h1 .ic { width: 22px; height: 22px; vertical-align: -4px; }
+  h2 .ic { width: 16px; height: 16px; vertical-align: -3px; color: #2563eb; }
   .tip {
     background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px;
     padding: 10px 14px; font-size: 13px; margin-top: 8px;
@@ -34,8 +37,9 @@
 </style>
 </head>
 <body>
-  <h1>📌 Sshot-Pin の使い方</h1>
-  <div class="sub">トレイアイコン → ❓ 使い方・ショートカット でいつでも開けます。</div>
+<script src="icons.js"></script>
+  <h1><svg class="ic"><use href="#i-pin"/></svg> Sshot-Pin の使い方</h1>
+  <div class="sub">トレイアイコン → <svg class="ic"><use href="#i-help"/></svg> 使い方・ショートカット でいつでも開けます。</div>
 
   <h2>グローバルショートカット</h2>
   <table>
@@ -47,25 +51,25 @@
     <tr><th><span data-hk="cover">—</span></th><td>カバー</td></tr>
   </table>
   <div class="tip">
-    合わないショートカットはトレイ → <b>⚙️ 設定</b> で変更するかクリアしてください。
+    合わないショートカットはトレイ → <b><svg class="ic"><use href="#i-gear"/></svg> 設定</b> で変更するかクリアしてください。
     クリアしてもクイックバーから実行できます。
   </div>
 
-  <h2>📸 範囲キャプチャ</h2>
+  <h2><svg class="ic"><use href="#i-camera"/></svg> 範囲キャプチャ</h2>
   <table>
     <tr><th>ドラッグ</th><td>キャプチャする範囲を選択</td></tr>
     <tr><th>青い点をドラッグ</th><td>選択範囲のサイズ変更</td></tr>
     <tr><th>範囲内をドラッグ</th><td>選択範囲の移動</td></tr>
-    <tr><th>ツールボタン</th><td>✏️ペン ↗矢印 ▭四角 ◯円 🖍蛍光ペン 🔲モザイク ①番号</td></tr>
-    <tr><th>↩ / <kbd>Ctrl</kbd>+<kbd>Z</kbd> / 右クリック</th><td>描画を元に戻す</td></tr>
-    <tr><th><kbd>Enter</kbd> または 📌</th><td>画面にピン</td></tr>
+    <tr><th>ツールボタン</th><td><svg class="ic"><use href="#i-pen"/></svg>ペン <svg class="ic"><use href="#i-arrow"/></svg>矢印 <svg class="ic"><use href="#i-rect"/></svg>四角 <svg class="ic"><use href="#i-ellipse"/></svg>円 <svg class="ic"><use href="#i-highlight"/></svg>蛍光ペン <svg class="ic"><use href="#i-mosaic"/></svg>モザイク ①番号</td></tr>
+    <tr><th><svg class="ic"><use href="#i-undo"/></svg> / <kbd>Ctrl</kbd>+<kbd>Z</kbd> / 右クリック</th><td>描画を元に戻す</td></tr>
+    <tr><th><kbd>Enter</kbd> または <svg class="ic"><use href="#i-pin"/></svg></th><td>画面にピン</td></tr>
     <tr><th><kbd>Ctrl</kbd>+<kbd>C</kbd> / <kbd>Ctrl</kbd>+<kbd>S</kbd></th><td>コピー / PNG保存</td></tr>
-    <tr><th>🙈 ボタン</th><td>選択範囲をカバーで隠す</td></tr>
+    <tr><th><svg class="ic"><use href="#i-cover"/></svg> ボタン</th><td>選択範囲をカバーで隠す</td></tr>
     <tr><th><kbd>Esc</kbd></th><td>ツール解除、もう一度押すとキャンセル</td></tr>
   </table>
   <div class="tip">資料を撮って矢印を載せて見せるときに便利です。ツールを選び、範囲内に描いて <kbd>Enter</kbd>。</div>
 
-  <h2>📌 ピン — 画面に貼り付いた画像</h2>
+  <h2><svg class="ic"><use href="#i-pin"/></svg> ピン — 画面に貼り付いた画像</h2>
   <table>
     <tr><th>ドラッグ</th><td>移動</td></tr>
     <tr><th>角をドラッグ</th><td>サイズ変更(比率維持)</td></tr>
@@ -80,7 +84,7 @@
   </table>
   <div class="tip"><b>クリック透過</b>をオンにすると、ピンを表示したまま下のプログラムを操作できます。解除はトレイ → 「クリック透過をすべて解除」。</div>
 
-  <h2>🔍 画面拡大 · ✏️ 書き込み</h2>
+  <h2><svg class="ic"><use href="#i-zoom"/></svg> 画面拡大 · <svg class="ic"><use href="#i-pen"/></svg> 書き込み</h2>
   <table>
     <tr><th>下部ツールバー</th><td>色・太さ・消去・ボード・ピン・コピー・保存をマウスで操作</td></tr>
     <tr><th>ホイール · <kbd>↑</kbd><kbd>↓</kbd> · <kbd>+</kbd><kbd>−</kbd></th><td>拡大 / 縮小(マウスに画面が追従)</td></tr>
@@ -91,8 +95,8 @@
     <tr><th><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+ドラッグ</th><td>矢印</td></tr>
     <tr><th><kbd>Tab</kbd>+ドラッグ</th><td>円</td></tr>
     <tr><th><kbd>Alt</kbd>+クリック</th><td>手順番号 ①②③</td></tr>
-    <tr><th>🔲 または <kbd>M</kbd></th><td>モザイク — オンにしてドラッグで隠す</td></tr>
-    <tr><th>🔴 または <kbd>L</kbd></th><td>レーザーポインター — 描くと少し後に消える</td></tr>
+    <tr><th><svg class="ic"><use href="#i-mosaic"/></svg> または <kbd>M</kbd></th><td>モザイク — オンにしてドラッグで隠す</td></tr>
+    <tr><th><svg class="ic"><use href="#i-laser"/></svg> または <kbd>L</kbd></th><td>レーザーポインター — 描くと少し後に消える</td></tr>
     <tr><th><kbd>F5</kbd></th><td>画面を撮り直す(倍率・書き込みは維持)</td></tr>
     <tr><th><kbd>R</kbd> <kbd>G</kbd> <kbd>B</kbd> <kbd>O</kbd> <kbd>Y</kbd> <kbd>P</kbd></th><td>赤・緑・青・オレンジ・黄・ピンク</td></tr>
     <tr><th><kbd>Ctrl</kbd>+ホイール</th><td>ペンの太さ(描画モード)</td></tr>
@@ -104,7 +108,7 @@
     <tr><th><kbd>Esc</kbd></th><td>モードを即終了</td></tr>
   </table>
 
-  <h2>🙈 カバー</h2>
+  <h2><svg class="ic"><use href="#i-cover"/></svg> カバー</h2>
   <table>
     <tr><th>ドラッグ</th><td>隠す範囲を選択、離すとすぐ作成</td></tr>
     <tr><th>クリック</th><td>公開 ↔ 再び隠す</td></tr>
@@ -113,7 +117,7 @@
     <tr><th>✕ ボタン · ホイールクリック · <kbd>Esc</kbd></th><td>閉じる(ホバーで右上に✕が表示)</td></tr>
   </table>
 
-  <h2>⏱️ タイマー</h2>
+  <h2><svg class="ic"><use href="#i-timer"/></svg> タイマー</h2>
   <table>
     <tr><th>1·3·5·10·15分ボタン</th><td>押すとその時間ですぐ開始</td></tr>
     <tr><th>時間をクリック</th><td>直接入力 — <b>5:30</b> または <b>10</b></td></tr>
@@ -124,15 +128,15 @@
 
   <h2>そのほか</h2>
   <table>
-    <tr><th>🕘 最近のキャプチャ</th><td>最新24件を保管。クリックで画面に再度貼り付け</td></tr>
-    <tr><th>クイックバー</th><td>⠿ ハンドルで移動、✕で非表示(トレイで再表示)</td></tr>
+    <tr><th><svg class="ic"><use href="#i-history"/></svg> 最近のキャプチャ</th><td>最新24件を保管。クリックで画面に再度貼り付け</td></tr>
+    <tr><th>クイックバー</th><td><svg class="ic"><use href="#i-grip"/></svg> ハンドルで移動、✕で非表示(トレイで再表示)</td></tr>
     <tr><th>トレイをダブルクリック</th><td>範囲キャプチャ</td></tr>
     <tr><th>トレイを右クリック</th><td>全メニュー — ピンの非表示・閉じる、更新確認、終了</td></tr>
-    <tr><th>⚙️ 設定</th><td>ショートカット、保存フォルダ、すぐ保存、クイックバー、自動実行、言語</td></tr>
+    <tr><th><svg class="ic"><use href="#i-gear"/></svg> 設定</th><td>ショートカット、保存フォルダ、すぐ保存、クイックバー、自動実行、言語</td></tr>
   </table>
 
 
-  <div class="tip" style="margin-top:22px; text-align:center">Sshot-Pinは役に立っていますか? <a href="#" id="supportLink"><b>☕ コーヒー1杯で応援する</b></a></div>
+  <div class="tip" style="margin-top:22px; text-align:center">Sshot-Pinは役に立っていますか? <a href="#" id="supportLink"><b><svg class="ic"><use href="#i-coffee"/></svg> コーヒー1杯で応援する</b></a></div>
 
 <script>
   // 실제로 지정된 단축키를 그대로 보여준다 (플랫폼·사용자 설정에 따라 다름)

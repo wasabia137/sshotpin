@@ -27,6 +27,9 @@
     font: 12px 'Segoe UI', sans-serif;
     margin: 0 1px;
   }
+  .ic { width: 15px; height: 15px; vertical-align: -3px; margin-right: 3px; }
+  h1 .ic { width: 22px; height: 22px; vertical-align: -4px; }
+  h2 .ic { width: 16px; height: 16px; vertical-align: -3px; color: #2563eb; }
   .tip {
     background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px;
     padding: 10px 14px; font-size: 13px; margin-top: 8px;
@@ -34,8 +37,9 @@
 </style>
 </head>
 <body>
-  <h1>📌 Cómo usar Sshot-Pin</h1>
-  <div class="sub">Ábrelo cuando quieras desde la bandeja → ❓ Guía y atajos.</div>
+<script src="icons.js"></script>
+  <h1><svg class="ic"><use href="#i-pin"/></svg> Cómo usar Sshot-Pin</h1>
+  <div class="sub">Ábrelo cuando quieras desde la bandeja → <svg class="ic"><use href="#i-help"/></svg> Guía y atajos.</div>
 
   <h2>Atajos globales</h2>
   <table>
@@ -47,25 +51,25 @@
     <tr><th><span data-hk="cover">—</span></th><td>Cubierta</td></tr>
   </table>
   <div class="tip">
-    Si un atajo no te va bien, cámbialo o bórralo en bandeja → <b>⚙️ Ajustes</b>.
+    Si un atajo no te va bien, cámbialo o bórralo en bandeja → <b><svg class="ic"><use href="#i-gear"/></svg> Ajustes</b>.
     Lo borrado sigue disponible desde la barra rápida.
   </div>
 
-  <h2>📸 Captura de región</h2>
+  <h2><svg class="ic"><use href="#i-camera"/></svg> Captura de región</h2>
   <table>
     <tr><th>Arrastrar</th><td>Selecciona el área a capturar</td></tr>
     <tr><th>Arrastra un punto azul</th><td>Cambia el tamaño de la selección</td></tr>
     <tr><th>Arrastra dentro</th><td>Mueve la selección</td></tr>
-    <tr><th>Botones de herramientas</th><td>✏️Lápiz ↗Flecha ▭Rect ◯Elipse 🖍Marcador 🔲Mosaico ①Números</td></tr>
-    <tr><th>↩ / <kbd>Ctrl</kbd>+<kbd>Z</kbd> / clic derecho</th><td>Deshacer el dibujo</td></tr>
-    <tr><th><kbd>Enter</kbd> o 📌</th><td>Fijar en pantalla</td></tr>
+    <tr><th>Botones de herramientas</th><td><svg class="ic"><use href="#i-pen"/></svg>Lápiz <svg class="ic"><use href="#i-arrow"/></svg>Flecha <svg class="ic"><use href="#i-rect"/></svg>Rect <svg class="ic"><use href="#i-ellipse"/></svg>Elipse <svg class="ic"><use href="#i-highlight"/></svg>Marcador <svg class="ic"><use href="#i-mosaic"/></svg>Mosaico ①Números</td></tr>
+    <tr><th><svg class="ic"><use href="#i-undo"/></svg> / <kbd>Ctrl</kbd>+<kbd>Z</kbd> / clic derecho</th><td>Deshacer el dibujo</td></tr>
+    <tr><th><kbd>Enter</kbd> o <svg class="ic"><use href="#i-pin"/></svg></th><td>Fijar en pantalla</td></tr>
     <tr><th><kbd>Ctrl</kbd>+<kbd>C</kbd> / <kbd>Ctrl</kbd>+<kbd>S</kbd></th><td>Copiar / guardar como PNG</td></tr>
-    <tr><th>Botón 🙈</th><td>Cubrir el área seleccionada</td></tr>
+    <tr><th>Botón <svg class="ic"><use href="#i-cover"/></svg></th><td>Cubrir el área seleccionada</td></tr>
     <tr><th><kbd>Esc</kbd></th><td>Soltar la herramienta; otra vez para cancelar</td></tr>
   </table>
   <div class="tip">Ideal para capturar material y añadir una flecha antes de mostrarlo. Elige una herramienta, dibuja dentro y pulsa <kbd>Enter</kbd>.</div>
 
-  <h2>📌 Pines — imágenes pegadas a la pantalla</h2>
+  <h2><svg class="ic"><use href="#i-pin"/></svg> Pines — imágenes pegadas a la pantalla</h2>
   <table>
     <tr><th>Arrastrar</th><td>Mover</td></tr>
     <tr><th>Arrastra una esquina</th><td>Redimensionar (mantiene proporción)</td></tr>
@@ -80,7 +84,7 @@
   </table>
   <div class="tip">Con <b>clic a través</b> activado, usas los programas de debajo mientras el pin sigue encima. Desactívalo en bandeja → «Desactivar todos los clics a través».</div>
 
-  <h2>🔍 Zoom · ✏️ Dibujo</h2>
+  <h2><svg class="ic"><use href="#i-zoom"/></svg> Zoom · <svg class="ic"><use href="#i-pen"/></svg> Dibujo</h2>
   <table>
     <tr><th>Barra inferior</th><td>Color, grosor, borrar, pizarras, fijar, copiar, guardar — todo con el ratón</td></tr>
     <tr><th>Rueda · <kbd>↑</kbd><kbd>↓</kbd> · <kbd>+</kbd><kbd>−</kbd></th><td>Acercar / alejar (la vista sigue al ratón)</td></tr>
@@ -91,8 +95,8 @@
     <tr><th><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+arrastrar</th><td>Flecha</td></tr>
     <tr><th><kbd>Tab</kbd>+arrastrar</th><td>Elipse</td></tr>
     <tr><th><kbd>Alt</kbd>+clic</th><td>Números de paso ①②③</td></tr>
-    <tr><th>🔲 o <kbd>M</kbd></th><td>Mosaico — actívalo y arrastra para ocultar</td></tr>
-    <tr><th>🔴 o <kbd>L</kbd></th><td>Puntero láser — los trazos se desvanecen</td></tr>
+    <tr><th><svg class="ic"><use href="#i-mosaic"/></svg> o <kbd>M</kbd></th><td>Mosaico — actívalo y arrastra para ocultar</td></tr>
+    <tr><th><svg class="ic"><use href="#i-laser"/></svg> o <kbd>L</kbd></th><td>Puntero láser — los trazos se desvanecen</td></tr>
     <tr><th><kbd>F5</kbd></th><td>Recapturar la pantalla manteniendo zoom y dibujos</td></tr>
     <tr><th><kbd>R</kbd> <kbd>G</kbd> <kbd>B</kbd> <kbd>O</kbd> <kbd>Y</kbd> <kbd>P</kbd></th><td>Rojo · verde · azul · naranja · amarillo · rosa</td></tr>
     <tr><th><kbd>Ctrl</kbd>+rueda</th><td>Grosor del lápiz (modo dibujo)</td></tr>
@@ -104,7 +108,7 @@
     <tr><th><kbd>Esc</kbd></th><td>Salir del modo al instante</td></tr>
   </table>
 
-  <h2>🙈 Cubierta</h2>
+  <h2><svg class="ic"><use href="#i-cover"/></svg> Cubierta</h2>
   <table>
     <tr><th>Arrastrar</th><td>Selecciona el área a cubrir; se crea al soltar</td></tr>
     <tr><th>Clic</th><td>Revelar ↔ cubrir de nuevo</td></tr>
@@ -113,7 +117,7 @@
     <tr><th>Botón ✕ · clic de rueda · <kbd>Esc</kbd></th><td>Cerrar (✕ aparece arriba a la derecha al pasar el ratón)</td></tr>
   </table>
 
-  <h2>⏱️ Temporizador</h2>
+  <h2><svg class="ic"><use href="#i-timer"/></svg> Temporizador</h2>
   <table>
     <tr><th>Botones 1·3·5·10·15 min</th><td>Empieza al instante con ese tiempo</td></tr>
     <tr><th>Clic en la hora</th><td>Escríbela — <b>5:30</b> o <b>10</b></td></tr>
@@ -124,15 +128,15 @@
 
   <h2>Y más</h2>
   <table>
-    <tr><th>🕘 Capturas recientes</th><td>Guarda las últimas 24. Clic para fijarla de nuevo</td></tr>
-    <tr><th>Barra rápida</th><td>Mueve con el asa ⠿, oculta con ✕ (reactivar en la bandeja)</td></tr>
+    <tr><th><svg class="ic"><use href="#i-history"/></svg> Capturas recientes</th><td>Guarda las últimas 24. Clic para fijarla de nuevo</td></tr>
+    <tr><th>Barra rápida</th><td>Mueve con el asa <svg class="ic"><use href="#i-grip"/></svg>, oculta con ✕ (reactivar en la bandeja)</td></tr>
     <tr><th>Doble clic en la bandeja</th><td>Captura de región</td></tr>
     <tr><th>Clic derecho en la bandeja</th><td>Menú completo — ocultar/cerrar pines, actualizar, salir</td></tr>
-    <tr><th>⚙️ Ajustes</th><td>Atajos, carpeta, guardado rápido, barra, inicio automático, idioma</td></tr>
+    <tr><th><svg class="ic"><use href="#i-gear"/></svg> Ajustes</th><td>Atajos, carpeta, guardado rápido, barra, inicio automático, idioma</td></tr>
   </table>
 
 
-  <div class="tip" style="margin-top:22px; text-align:center">¿Te ayuda Sshot-Pin? <a href="#" id="supportLink"><b>☕ Apóyalo con un café</b></a></div>
+  <div class="tip" style="margin-top:22px; text-align:center">¿Te ayuda Sshot-Pin? <a href="#" id="supportLink"><b><svg class="ic"><use href="#i-coffee"/></svg> Apóyalo con un café</b></a></div>
 
 <script>
   // 실제로 지정된 단축키를 그대로 보여준다 (플랫폼·사용자 설정에 따라 다름)

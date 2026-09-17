@@ -27,6 +27,9 @@
     font: 12px 'Segoe UI', sans-serif;
     margin: 0 1px;
   }
+  .ic { width: 15px; height: 15px; vertical-align: -3px; margin-right: 3px; }
+  h1 .ic { width: 22px; height: 22px; vertical-align: -4px; }
+  h2 .ic { width: 16px; height: 16px; vertical-align: -3px; color: #2563eb; }
   .tip {
     background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px;
     padding: 10px 14px; font-size: 13px; margin-top: 8px;
@@ -34,8 +37,9 @@
 </style>
 </head>
 <body>
-  <h1>📌 How to use Sshot-Pin</h1>
-  <div class="sub">Reopen anytime from the tray icon → ❓ How to use & shortcuts.</div>
+<script src="icons.js"></script>
+  <h1><svg class="ic"><use href="#i-pin"/></svg> How to use Sshot-Pin</h1>
+  <div class="sub">Reopen anytime from the tray icon → <svg class="ic"><use href="#i-help"/></svg> How to use & shortcuts.</div>
 
   <h2>Global shortcuts</h2>
   <table>
@@ -47,25 +51,25 @@
     <tr><th><span data-hk="cover">—</span></th><td>Cover</td></tr>
   </table>
   <div class="tip">
-    If a shortcut doesn't suit you, change it or clear it in tray → <b>⚙️ Settings</b>.
+    If a shortcut doesn't suit you, change it or clear it in tray → <b><svg class="ic"><use href="#i-gear"/></svg> Settings</b>.
     Cleared actions can still be run from the quick bar.
   </div>
 
-  <h2>📸 Region capture</h2>
+  <h2><svg class="ic"><use href="#i-camera"/></svg> Region capture</h2>
   <table>
     <tr><th>Drag</th><td>Select the area to capture</td></tr>
     <tr><th>Drag a blue dot</th><td>Resize the selection</td></tr>
     <tr><th>Drag inside</th><td>Move the selection</td></tr>
-    <tr><th>Tool buttons</th><td>✏️Pen ↗Arrow ▭Rect ◯Ellipse 🖍Highlighter 🔲Mosaic ①Numbers</td></tr>
-    <tr><th>↩ / <kbd>Ctrl</kbd>+<kbd>Z</kbd> / right-click</th><td>Undo drawing</td></tr>
-    <tr><th><kbd>Enter</kbd> or 📌</th><td>Pin on screen</td></tr>
+    <tr><th>Tool buttons</th><td><svg class="ic"><use href="#i-pen"/></svg>Pen <svg class="ic"><use href="#i-arrow"/></svg>Arrow <svg class="ic"><use href="#i-rect"/></svg>Rect <svg class="ic"><use href="#i-ellipse"/></svg>Ellipse <svg class="ic"><use href="#i-highlight"/></svg>Highlighter <svg class="ic"><use href="#i-mosaic"/></svg>Mosaic ①Numbers</td></tr>
+    <tr><th><svg class="ic"><use href="#i-undo"/></svg> / <kbd>Ctrl</kbd>+<kbd>Z</kbd> / right-click</th><td>Undo drawing</td></tr>
+    <tr><th><kbd>Enter</kbd> or <svg class="ic"><use href="#i-pin"/></svg></th><td>Pin on screen</td></tr>
     <tr><th><kbd>Ctrl</kbd>+<kbd>C</kbd> / <kbd>Ctrl</kbd>+<kbd>S</kbd></th><td>Copy / save as PNG</td></tr>
-    <tr><th>🙈 button</th><td>Cover the selected area</td></tr>
+    <tr><th><svg class="ic"><use href="#i-cover"/></svg> button</th><td>Cover the selected area</td></tr>
     <tr><th><kbd>Esc</kbd></th><td>Deselect tool; press again to cancel</td></tr>
   </table>
   <div class="tip">Great for shooting material and adding an arrow before showing it. Pick a tool, draw inside the area, then press <kbd>Enter</kbd>.</div>
 
-  <h2>📌 Pins — images stuck on screen</h2>
+  <h2><svg class="ic"><use href="#i-pin"/></svg> Pins — images stuck on screen</h2>
   <table>
     <tr><th>Drag</th><td>Move</td></tr>
     <tr><th>Drag a corner</th><td>Resize (keeps ratio)</td></tr>
@@ -80,7 +84,7 @@
   </table>
   <div class="tip">With <b>click-through</b> on, you can use the programs underneath while the pin stays on top. Turn it off via tray → "Turn off all click-through".</div>
 
-  <h2>🔍 Zoom · ✏️ Draw</h2>
+  <h2><svg class="ic"><use href="#i-zoom"/></svg> Zoom · <svg class="ic"><use href="#i-pen"/></svg> Draw</h2>
   <table>
     <tr><th>Bottom toolbar</th><td>Color, pen size, clear, boards, pin, copy, save — all by mouse</td></tr>
     <tr><th>Wheel · <kbd>↑</kbd><kbd>↓</kbd> · <kbd>+</kbd><kbd>−</kbd></th><td>Zoom in / out (the view follows your mouse)</td></tr>
@@ -91,8 +95,8 @@
     <tr><th><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+drag</th><td>Arrow</td></tr>
     <tr><th><kbd>Tab</kbd>+drag</th><td>Ellipse</td></tr>
     <tr><th><kbd>Alt</kbd>+click</th><td>Step numbers ①②③</td></tr>
-    <tr><th>🔲 or <kbd>M</kbd></th><td>Mosaic — turn on and drag to hide</td></tr>
-    <tr><th>🔴 or <kbd>L</kbd></th><td>Laser pointer — strokes fade away</td></tr>
+    <tr><th><svg class="ic"><use href="#i-mosaic"/></svg> or <kbd>M</kbd></th><td>Mosaic — turn on and drag to hide</td></tr>
+    <tr><th><svg class="ic"><use href="#i-laser"/></svg> or <kbd>L</kbd></th><td>Laser pointer — strokes fade away</td></tr>
     <tr><th><kbd>F5</kbd></th><td>Re-capture the screen, keeping zoom & drawings</td></tr>
     <tr><th><kbd>R</kbd> <kbd>G</kbd> <kbd>B</kbd> <kbd>O</kbd> <kbd>Y</kbd> <kbd>P</kbd></th><td>Red · green · blue · orange · yellow · pink</td></tr>
     <tr><th><kbd>Ctrl</kbd>+wheel</th><td>Pen size (draw mode)</td></tr>
@@ -104,7 +108,7 @@
     <tr><th><kbd>Esc</kbd></th><td>Exit the mode immediately</td></tr>
   </table>
 
-  <h2>🙈 Cover</h2>
+  <h2><svg class="ic"><use href="#i-cover"/></svg> Cover</h2>
   <table>
     <tr><th>Drag</th><td>Select the area to cover; it's created on release</td></tr>
     <tr><th>Click</th><td>Reveal ↔ cover again</td></tr>
@@ -113,7 +117,7 @@
     <tr><th>✕ button · wheel click · <kbd>Esc</kbd></th><td>Close (✕ appears top-right on hover)</td></tr>
   </table>
 
-  <h2>⏱️ Timer</h2>
+  <h2><svg class="ic"><use href="#i-timer"/></svg> Timer</h2>
   <table>
     <tr><th>1·3·5·10·15 min buttons</th><td>Start right away with that time</td></tr>
     <tr><th>Click the time</th><td>Type it in — <b>5:30</b> or <b>10</b></td></tr>
@@ -124,15 +128,15 @@
 
   <h2>And more</h2>
   <table>
-    <tr><th>🕘 Recent captures</th><td>Keeps the last 24. Click one to pin it back on screen</td></tr>
-    <tr><th>Quick bar</th><td>Move with the ⠿ handle, hide with ✕ (re-enable from tray)</td></tr>
+    <tr><th><svg class="ic"><use href="#i-history"/></svg> Recent captures</th><td>Keeps the last 24. Click one to pin it back on screen</td></tr>
+    <tr><th>Quick bar</th><td>Move with the <svg class="ic"><use href="#i-grip"/></svg> handle, hide with ✕ (re-enable from tray)</td></tr>
     <tr><th>Double-click tray icon</th><td>Region capture</td></tr>
     <tr><th>Right-click tray icon</th><td>Full menu — hide/close pins, check updates, quit</td></tr>
-    <tr><th>⚙️ Settings</th><td>Shortcuts, save folder, quick save, quick bar, start at login, language</td></tr>
+    <tr><th><svg class="ic"><use href="#i-gear"/></svg> Settings</th><td>Shortcuts, save folder, quick save, quick bar, start at login, language</td></tr>
   </table>
 
 
-  <div class="tip" style="margin-top:22px; text-align:center">Is Sshot-Pin helping you? <a href="#" id="supportLink"><b>☕ Support it with a coffee</b></a></div>
+  <div class="tip" style="margin-top:22px; text-align:center">Is Sshot-Pin helping you? <a href="#" id="supportLink"><b><svg class="ic"><use href="#i-coffee"/></svg> Support it with a coffee</b></a></div>
 
 <script>
   // 실제로 지정된 단축키를 그대로 보여준다 (플랫폼·사용자 설정에 따라 다름)

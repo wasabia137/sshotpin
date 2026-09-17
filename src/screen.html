@@ -65,46 +65,9 @@
 </style>
 </head>
 <body>
+<script src="icons.js"></script>
   <canvas id="bg"></canvas>
   <canvas id="ink"></canvas>
-  <!-- 아이콘 원본. 버튼은 <use>로 가져다 쓴다 -->
-  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-    <defs>
-      <g id="i-minus" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 12h14"/></g>
-      <g id="i-plus" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></g>
-      <g id="i-mosaic" stroke="currentColor" stroke-width="1.6" fill="none">
-        <rect x="4" y="4" width="16" height="16" rx="1.5"/>
-        <path d="M4 9.33h16M4 14.67h16M9.33 4v16M14.67 4v16"/>
-        <path fill="currentColor" stroke="none" opacity=".35" d="M4 4h5.33v5.33H4zM9.33 9.33h5.34v5.34H9.33zM14.67 4H20v5.33h-5.33zM4 14.67h5.33V20H4zM14.67 14.67H20V20h-5.33z"/>
-      </g>
-      <g id="i-laser" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
-        <circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/>
-        <circle cx="12" cy="12" r="7.5"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/>
-      </g>
-      <g id="i-undo" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M5 10h10a4.5 4.5 0 0 1 0 9H9"/><path d="M8.5 6.5L5 10l3.5 3.5"/>
-      </g>
-      <g id="i-trash" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M4 7h16"/><path d="M9 7V4.5h6V7"/><path d="M6 7l.8 12.5h10.4L18 7"/><path d="M10 11v5M14 11v5"/>
-      </g>
-      <g id="i-board-white" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="3.5" y="4.5" width="17" height="12" rx="1.5"/><path d="M9 20.5h6M12 16.5v4"/>
-      </g>
-      <g id="i-board-black" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="3.5" y="4.5" width="17" height="12" rx="1.5" fill="currentColor"/><path d="M9 20.5h6M12 16.5v4"/>
-      </g>
-      <g id="i-pin" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M9 3h6l-1 6 3 3v2H7v-2l3-3-1-6z"/><path d="M12 14v7"/>
-      </g>
-      <g id="i-copy" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="9" y="9" width="11" height="11" rx="2"/><path d="M15 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h3"/>
-      </g>
-      <g id="i-save" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H16l4 4v10.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18.5z"/><path d="M8 4v5h7V4"/><path d="M8 20v-6h8v6"/>
-      </g>
-      <g id="i-close" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></g>
-    </defs>
-  </svg>
   <div id="tb">
     <div class="row">
       <span class="sw" data-c="#ef4444" style="background:#ef4444" title="빨강 (R)"></span>
