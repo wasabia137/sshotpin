@@ -91,6 +91,43 @@ def emoji(img, ch, x, y, size):
     img.paste(g, (int(x), int(y)), g)
 
 
+_ICON_DIR = os.path.join(os.path.dirname(__file__), 'icons')
+_ICON_CACHE = {}
+
+
+def icon(img, name, x, y, size, color=(27, 27, 27)):
+    """앱과 같은 선 아이콘. tools/icons/i-*.png(검정 128px)를 색만 바꿔 줄여 붙인다."""
+    key = (name, size, color)
+    if key not in _ICON_CACHE:
+        src = Image.open(os.path.join(_ICON_DIR, f'i-{name}.png')).convert('RGBA')
+        tinted = Image.new('RGBA', src.size, color + (0,))
+        tinted.putalpha(src.getchannel('A'))
+        _ICON_CACHE[key] = tinted.resize((size, size), Image.LANCZOS)
+    g = _ICON_CACHE[key]
+    img.paste(g, (int(x), int(y)), g)
+
+
+# 도구모음 색 — 앱 capture.html·screen.html·quickbar.html과 같다
+TB_BG = (255, 255, 255)
+TB_LINE = (214, 214, 214)
+TB_INK = (27, 27, 27)
+TB_BLUE = (0, 95, 184)
+TB_BLUE_BG = (234, 243, 252)
+TB_SEP = (224, 224, 224)
+
+
+def panel(img, box, radius=8):
+    """흰 도구모음 바탕 — 그림자 + 테두리."""
+    x0, y0, x1, y1 = box
+    sh = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+    ImageDraw.Draw(sh).rounded_rectangle([x0, y0 + 4, x1, y1 + 4], radius=radius, fill=(0, 0, 0, 70))
+    sh = sh.filter(ImageFilter.GaussianBlur(7))
+    img.paste(Image.alpha_composite(img.convert('RGBA'), sh).convert('RGB'), (0, 0))
+    d = ImageDraw.Draw(img)
+    d.rounded_rectangle(box, radius=radius, fill=TB_BG, outline=TB_LINE)
+    return d
+
+
 def caption(d, text):
     """화면 아래 가운데 자막."""
     bb = d.textbbox((0, 0), text, font=font(15))
@@ -150,30 +187,33 @@ def doc_window(d, scroll=0):
     return boxes
 
 
-def toolbar(d, x, y, active_btn='pin'):
-    """캡처 도구모음 — (버튼이름, 중심좌표) 목록을 돌려준다."""
-    btns = [('arrow', '↗'), ('rect', '▭'), ('ellipse', '◯'),
-            ('sep', None), ('pin', '핀'), ('copy', '복사'), ('save', '저장')]
-    widths = {'arrow': 36, 'rect': 36, 'ellipse': 36, 'sep': 10, 'pin': 58, 'copy': 52, 'save': 52}
-    total = sum(widths[k] for k, _ in btns) + 16
-    d.rounded_rectangle([x, y, x + total, y + 44], radius=10, fill=(15, 23, 42))
-    cx = x + 8
+def toolbar(img, x, y, active_btn=None):
+    """캡처 도구모음 — (버튼이름, 중심좌표) 목록을 돌려준다. 앱과 같은 흰 바탕·선 아이콘."""
+    btns = [('pen', 'pen'), ('arrow', 'arrow'), ('rect', 'rect'), ('ellipse', 'ellipse'),
+            ('sep', None), ('pin', 'pin'), ('copy', 'copy'), ('save', 'save'), ('close', 'close')]
+    widths = {'pen': 36, 'arrow': 36, 'rect': 36, 'ellipse': 36, 'sep': 10,
+              'pin': 62, 'copy': 36, 'save': 36, 'close': 36}
+    total = sum(widths[k] for k, _ in btns) + 12
+    d = panel(img, [x, y, x + total, y + 46])
+    cx = x + 6
     centers = {}
-    for key, label in btns:
+    for key, ic in btns:
         w = widths[key]
         if key == 'sep':
-            d.line([(cx + 5, y + 10), (cx + 5, y + 34)], fill=(71, 85, 105), width=1)
+            d.line([(cx + 5, y + 12), (cx + 5, y + 34)], fill=TB_SEP, width=1)
+        elif key == 'pin':
+            d.rounded_rectangle([cx + 2, y + 5, cx + w - 2, y + 41], radius=6, fill=TB_BLUE)
+            icon(img, 'pin', cx + 8, y + 13, 20, (255, 255, 255))
+            d = ImageDraw.Draw(img)
+            d.text((cx + 31, y + 13), '핀', font=font(14), fill=(255, 255, 255))
         else:
             if key == active_btn:
-                d.rounded_rectangle([cx, y + 6, cx + w, y + 38], radius=8, fill=(37, 99, 235))
-            elif key == 'pin':
-                d.rounded_rectangle([cx, y + 6, cx + w, y + 38], radius=8, fill=(37, 99, 235))
-            fill = (241, 245, 249)
-            fnt = font(17 if len(label) == 1 else 14)
-            bb = d.textbbox((0, 0), label, font=fnt)
-            d.text((cx + (w - bb[2]) / 2, y + 22 - (bb[3] - bb[1]) / 2 - bb[1]),
-                   label, font=fnt, fill=fill)
-        centers[key] = (cx + w / 2, y + 22)
+                d.rounded_rectangle([cx + 2, y + 5, cx + w - 2, y + 41], radius=6,
+                                    fill=TB_BLUE_BG, outline=TB_BLUE)
+            icon(img, ic, cx + (w - 20) / 2, y + 13, 20,
+                 TB_BLUE if key == active_btn else TB_INK)
+            d = ImageDraw.Draw(img)
+        centers[key] = (cx + w / 2, y + 23)
         cx += w
     return centers
 
@@ -246,7 +286,8 @@ def clip_pin(frames_dir):
 
         centers = {}
         if 58 <= f and not pin_done:
-            centers = toolbar(d, SEL[0] + 40, SEL[3] + 14)
+            centers = toolbar(img, SEL[0] + 40, SEL[3] + 14)
+            d = ImageDraw.Draw(img)
 
         if pin_done:
             # 다른 창이 앞으로 나옴 — 핀은 그 위에 남는다
@@ -394,27 +435,31 @@ def clip_zoom(frames_dir):
 # ---------------------------------------------------------------- clip D 판서
 
 def pen_toolbar(img, d, x, y, active_color=0, board=None):
+    """판서 도구모음 — 앱 screen.html과 같은 흰 바탕·선 아이콘."""
     cols = [(239, 68, 68), (247, 115, 22), (234, 179, 8),
-            (34, 197, 94), (59, 130, 246), (30, 41, 59)]
-    wide = 22 * len(cols) + 150
-    d.rounded_rectangle([x, y, x + wide, y + 40], radius=10, fill=(15, 23, 42))
-    cxx = x + 12
+            (34, 197, 94), (59, 130, 246), (236, 72, 153)]
+    wide = 24 * len(cols) + 10 + 36 * 4 + 24
+    d = panel(img, [x, y, x + wide, y + 44])
+    cxx = x + 10
     for i, c in enumerate(cols):
         r = 9
-        d.ellipse([cxx, y + 11, cxx + 2 * r, y + 11 + 2 * r], fill=c,
-                  outline=(255, 255, 255) if i == active_color else (71, 85, 105),
+        d.ellipse([cxx, y + 13, cxx + 2 * r, y + 13 + 2 * r],
+                  outline=TB_BLUE if i == active_color else (200, 200, 200),
                   width=2 if i == active_color else 1)
-        cxx += 22
-    cxx += 8
-    marks = [('⬜', board == 'white'), ('⬛', board == 'black'), ('🗑', False)]
-    for label, on in marks:
+        d.ellipse([cxx + 2, y + 15, cxx + 2 * r - 2, y + 13 + 2 * r - 2], fill=c)
+        cxx += 24
+    cxx += 4
+    d.line([(cxx, y + 11), (cxx, y + 33)], fill=TB_SEP, width=1)
+    cxx += 10
+    marks = [('undo', False), ('trash', False),
+             ('board-white', board == 'white'), ('board-black', board == 'black')]
+    for name, on in marks:
         if on:
-            d.rounded_rectangle([cxx - 4, y + 6, cxx + 26, y + 34], radius=7, fill=(37, 99, 235))
-        cxx += 34
-    cxx = x + 22 * 6 + 20
-    for label, _ in marks:
-        emoji(img, label, cxx, y + 11, 18)
-        cxx += 34
+            d.rounded_rectangle([cxx, y + 5, cxx + 34, y + 39], radius=6,
+                                fill=TB_BLUE_BG, outline=TB_BLUE)
+        icon(img, name, cxx + 7, y + 12, 20, TB_BLUE if on else TB_INK)
+        d = ImageDraw.Draw(img)
+        cxx += 36
 
 
 def clip_draw(frames_dir):
@@ -637,7 +682,7 @@ def clip_timer(frames_dir):
 
 # ---------------------------------------------------------------- clip H 퀵 실행바
 
-QB_ICONS = ['📸', '📌', '🔍', '✏️', '⏱️', '🕘', '❓', '⚙️']
+QB_ICONS = ['camera', 'pin', 'zoom', 'pen', 'timer', 'history', 'help', 'gear']
 QB_NAMES = ['영역 캡처', '클립보드 핀', '화면 확대', '판서', '타이머', '최근 캡처', '사용법', '설정']
 
 
@@ -655,9 +700,9 @@ def clip_quickbar(frames_dir):
         bx = lerp(200, 200, move_t)
         by = lerp(40, 330, move_t)
         bw = 34 * len(QB_ICONS) + 46
-        d.rounded_rectangle([bx, by, bx + bw, by + 44], radius=22, fill=(15, 23, 42),
-                            outline=(100, 116, 139))
-        d.text((bx + 12, by + 13), '⠿', font=font(15), fill=(100, 116, 139))
+        d = panel(img, [bx, by, bx + bw, by + 44], radius=22)
+        icon(img, 'grip', bx + 10, by + 14, 16, (138, 138, 138))
+        d = ImageDraw.Draw(img)
         hover = None
         if 18 <= f < 114:
             hover = min(len(QB_ICONS) - 1, (f - 18) // 12)
@@ -665,17 +710,17 @@ def clip_quickbar(frames_dir):
             ix = bx + 32 + i * 34
             if i == hover:
                 d.rounded_rectangle([ix - 4, by + 5, ix + 30, by + 39], radius=9,
-                                    fill=(51, 65, 85))
+                                    fill=(237, 237, 237))
         for i, ic in enumerate(QB_ICONS):
-            emoji(img, ic, bx + 32 + i * 34, by + 13, 19)
+            icon(img, ic, bx + 32 + i * 34, by + 12, 21)
         d = ImageDraw.Draw(img)
         if hover is not None:
             tip = QB_NAMES[hover]
             tw = d.textbbox((0, 0), tip, font=font(13))[2] + 20
             tx = bx + 32 + hover * 34 + 13 - tw / 2
             ty = by + 52
-            d.rounded_rectangle([tx, ty, tx + tw, ty + 28], radius=7, fill=(30, 41, 59))
-            d.text((tx + 10, ty + 5), tip, font=font(13), fill=(226, 232, 240))
+            d.rounded_rectangle([tx, ty, tx + tw, ty + 28], radius=7, fill=TB_BG, outline=TB_LINE)
+            d.text((tx + 10, ty + 5), tip, font=font(13), fill=TB_INK)
             draw_cursor(d, bx + 32 + hover * 34 + 12, by + 34)
         else:
             handle_x = bx + 16
