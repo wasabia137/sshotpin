@@ -9,7 +9,8 @@
    (서명 → 공증 → 티켓 부착 → `latest-mac.yml` 해시 재계산까지 한 번에)
 4. 깃허브 릴리스에 자산 업로드
 5. **자산이 올라간 것을 확인한 뒤** `node scripts/sync-web-version.mjs`
-6. `firebase deploy --only hosting`
+6. `bash scripts/deploy-web.sh` — 키체인에 `login:ci` 토큰이 있으면 그걸로, 없으면 로그인 계정으로
+   (계정 토큰은 며칠마다 만료된다. 스크립트 머리말의 두 줄로 토큰을 한 번 넣어 두면 그 뒤로는 안 묻는다)
 
 5번을 4번보다 먼저 하면 그 사이 웹 다운로드 버튼이 404가 된다.
 
